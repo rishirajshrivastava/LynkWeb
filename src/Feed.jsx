@@ -1,11 +1,11 @@
-const Profile = () => {
+const Feed = () => {
   return (
     <div style={{
       marginTop: '100px'
     }}>
-       Profile
+       Feed
     </div>
   )
 }
 
-export default Profile
+export default Feed
