@@ -1,9 +1,27 @@
+import axios from "axios";
 import { useSelector } from "react-redux"
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const Navbar = () => {
-  
+  const navigate = useNavigate();
   const user = useSelector((store) => store.user);
+
+  const handleLogout = async() =>{
+  console.log("Logging out user...");
+    try {
+      const res = await axios.post(
+      "http://localhost:3000/logout",
+      {},
+      { withCredentials: true }
+      );
+      console.log("res" , res.status);
+      if(res.data.message === "User logged out successfully" && res.status === 200){
+        navigate("/login");
+      }
+    } catch (err) {
+      console.log("An error occured while logging out: ", err);
+    }
+  }
 
   return (
     <>
@@ -43,7 +61,7 @@ const Navbar = () => {
                   </Link>
                 </li>
                 <li><a>Settings</a></li>
-                <li><a>Logout</a></li>
+                <li><a onClick={handleLogout}>Logout</a></li>
               </ul>
             </div>
           )}
