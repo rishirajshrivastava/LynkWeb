@@ -2,8 +2,9 @@ import { useState } from "react";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import { removeUser } from "./utils/userSlice";
-import {BASE_URL} from './utils/constants'
+import { removeUser } from "../utils/userSlice";
+import { removeFeed } from "../utils/feedSlice";
+import {BASE_URL} from '../utils/constants'
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -20,6 +21,7 @@ const Navbar = () => {
         { withCredentials: true }
       );
       dispatch(removeUser());
+      dispatch(removeFeed());
       if (
         res.data.message === "User logged out successfully" &&
         res.status === 200
