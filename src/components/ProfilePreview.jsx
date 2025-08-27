@@ -1,18 +1,20 @@
 import { useState } from "react"
 
-const ProfilePreview = ({ firstName, lastName, photoUrl, about, skills = [], onBack, onUpdate, onDiscard }) => {
+const ProfilePreview = ({ firstName, lastName, photoUrl, about, skills = [], onBack, onUpdate, onDiscard, hideHeader = false }) => {
   const [showConfirm, setShowConfirm] = useState(false)
 
   return (
     <div className="bg-base-100 rounded-2xl overflow-hidden">
-      <div className="p-6 border-b border-base-200 flex items-center justify-between">
-        <h2 className="text-2xl font-semibold">Profile Preview</h2>
-        <div className="flex gap-2">
-          <button onClick={onBack} className="btn btn-outline">Back to edit</button>
-          <button onClick={onUpdate} className="btn btn-primary">Update profile</button>
-          <button onClick={() => setShowConfirm(true)} className="btn btn-secondary">Discard changes</button>
+      {!hideHeader && (
+        <div className="p-6 border-b border-base-200 flex items-center justify-between">
+          <h2 className="text-2xl font-semibold">Profile Preview</h2>
+          <div className="flex gap-2">
+            <button onClick={onBack} className="btn btn-outline">Back to edit</button>
+            <button onClick={onUpdate} className="btn btn-primary">Update profile</button>
+            <button onClick={() => setShowConfirm(true)} className="btn btn-secondary">Discard changes</button>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Card body (mirrors Profile.jsx) */}
       <div className="w-full bg-base-100 border-t border-base-200">
@@ -60,7 +62,7 @@ const ProfilePreview = ({ firstName, lastName, photoUrl, about, skills = [], onB
       </div>
 
       {/* Discard confirmation modal */}
-      {showConfirm && (
+      {!hideHeader && showConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
           <div className="bg-base-200 text-base-content rounded-xl shadow-xl w-full max-w-md p-6">
             <h3 className="text-lg font-semibold mb-2">Discard changes?</h3>

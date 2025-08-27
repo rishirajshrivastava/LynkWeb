@@ -6,7 +6,6 @@ import EditProfile from "./EditProfile"
 const Profile = () => {
   const user = useSelector((store) => store.user)
   const [mode, setMode] = useState("view")
-  const [isPreview, setIsPreview] = useState(false)
 
   useEffect(() => {
     // Scroll to top smoothly when switching modes
@@ -18,8 +17,7 @@ const Profile = () => {
   return (
     <div className="px-4 pt-24 pb-28 flex justify-center">
       <div className="w-full max-w-5xl">
-        {/* Animated Segmented Toggle - hidden during preview */}
-        {!isPreview && (
+        {/* Animated Segmented Toggle - always visible */}
         <div className="mb-6 flex items-center justify-center sticky top-16 z-20">
           <div className="relative bg-base-200/90 backdrop-blur border border-base-300 rounded-xl p-1 w-full max-w-xs shadow-sm">
             {/* Active indicator */}
@@ -46,7 +44,6 @@ const Profile = () => {
             </div>
           </div>
         </div>
-        )}
 
         {/* Content */}
         <AnimatePresence mode="wait">
@@ -63,9 +60,9 @@ const Profile = () => {
             <div className="w-full bg-base-200 flex items-center justify-center">
               <div className="w-full md:w-3/4 aspect-[4/3] flex items-center justify-center bg-base-300">
                 {user.photoUrl ? (
-                  <img
-                    src={user.photoUrl}
-                    alt={`${user.firstName} ${user.lastName}`}
+        <img
+          src={user.photoUrl}
+          alt={`${user.firstName} ${user.lastName}`}
                     className="max-h-full max-w-full object-contain"
                     onError={(e) => { e.currentTarget.style.display = 'none' }}
                   />
@@ -75,45 +72,45 @@ const Profile = () => {
                   </div>
                 )}
               </div>
-            </div>
+      </div>
 
-            {/* Details */}
+      {/* Details */}
             <div className="p-6 md:p-8">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-3">
                 <h2 className="text-2xl md:text-3xl font-semibold text-base-content">
-                  {user.firstName} {user.lastName}
-                  {user.age && (
+          {user.firstName} {user.lastName}
+          {user.age && (
                     <span className="ml-2 text-lg font-medium text-base-content/70 align-middle">
-                      {user.age}
-                    </span>
-                  )}
-                </h2>
-                {user.gender && (
+              {user.age}
+            </span>
+          )}
+        </h2>
+        {user.gender && (
                   <span className="text-sm md:text-base text-base-content/70">{user.gender}</span>
-                )}
+        )}
               </div>
 
-              {user.about && (
+        {user.about && (
                 <p className="mt-2 text-base-content/80 text-sm md:text-base leading-relaxed">
-                  {user.about}
-                </p>
-              )}
+            {user.about}
+          </p>
+        )}
 
-              {user.skills && user.skills.length > 0 && (
+        {user.skills && user.skills.length > 0 && (
                 <div className="mt-5">
                   <h3 className="text-sm font-semibold text-base-content mb-2">Skills</h3>
                   <div className="flex flex-wrap gap-2">
-                    {user.skills.map((skill, idx) => (
-                      <span
-                        key={idx}
+              {user.skills.map((skill, idx) => (
+                <span
+                  key={idx}
                         className="px-3 py-1 bg-primary/10 text-primary text-xs md:text-sm rounded-full"
-                      >
-                        {skill}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
+                >
+                  {skill}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
             </div>
           </motion.div>
         ) : (
@@ -124,7 +121,7 @@ const Profile = () => {
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.18 }}
           >
-            <EditProfile setMode={setMode} setIsPreview={setIsPreview} />
+            <EditProfile setMode={setMode} defaultPreview />
           </motion.div>
         )}
         </AnimatePresence>

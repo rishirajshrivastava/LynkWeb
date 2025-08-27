@@ -5,7 +5,7 @@ import axios from "axios"
 import { BASE_URL } from "../utils/constants"
 import { addUser } from "../utils/userSlice"
 
-const EditProfile = ({ setMode, setIsPreview }) => {
+const EditProfile = ({ setMode, setIsPreview, defaultPreview = false }) => {
   const user = useSelector((store) => store.user)
   const dispatch = useDispatch()
 
@@ -22,7 +22,7 @@ const EditProfile = ({ setMode, setIsPreview }) => {
       .filter(Boolean)
   , [skillsInput])
 
-  const [preview, setPreview] = useState(false)
+  const [preview, setPreview] = useState(defaultPreview)
   useEffect(() => {
     // Scroll to top smoothly when switching preview
     window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -31,6 +31,7 @@ const EditProfile = ({ setMode, setIsPreview }) => {
 
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState("")
+  const [discardOpen, setDiscardOpen] = useState(false)
 
   const handleEditProfile = async () => {
     try {
@@ -65,79 +66,83 @@ const EditProfile = ({ setMode, setIsPreview }) => {
 
   return (
     <div className="bg-base-200 rounded-2xl shadow-xl overflow-hidden border border-base-200">
-      {/* Preview Mode */}
-      {preview && (
-        <ProfilePreview
-          firstName={firstName}
-          lastName={lastName}
-          photoUrl={photoUrl}
-          about={about}
-          skills={skills}
-          onBack={() => setPreview(false)}
-          onUpdate={handleEditProfile}
-          onDiscard={() => { setPreview(false); if (setMode) setMode("view"); }}
-        />
-      )}
-      {/* Header */}
-      <div className="p-6 border-b border-base-200">
-        <h2 className="text-2xl font-semibold">Edit Profile</h2>
-        <p className="text-sm opacity-70 mt-1">Update your information below and click Update Profile to save.</p>
-      </div>
-
-      {/* Content: two-row layout */}
-      <div className="p-6 md:p-8 space-y-8">
-        {/* Row 1: Left (first+last), Right (about) with equal height */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
-          <div className="flex flex-col gap-5">
-            <div className="form-control w-full">
-              <label className="label"><span className="label-text">First Name</span></label>
-              <input type="text" className="input input-bordered w-full" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+      {/* Edit + Preview side-by-side */}
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 p-6">
+          {/* Editor (left) */}
+          <div className="bg-base-100 rounded-xl border border-base-300">
+            <div className="p-4 border-b border-base-200 flex items-center justify-between">
+              <h3 className="text-lg font-semibold">Edit Profile</h3>
+              <div className="flex gap-2">
+                <button onClick={handleEditProfile} className={`btn btn-primary btn-sm ${submitting ? 'btn-disabled' : ''}`} disabled={submitting}>
+                  {submitting ? 'Updating...' : 'Update profile'}
+                </button>
+                <button onClick={() => setDiscardOpen(true)} className="btn btn-error btn-sm">Discard</button>
+              </div>
             </div>
-            <div className="form-control w-full">
-              <label className="label"><span className="label-text">Last Name</span></label>
-              <input type="text" className="input input-bordered w-full" value={lastName} onChange={(e) => setLastName(e.target.value)} />
+            <div className="p-4 space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="form-control w-full">
+                  <label className="label"><span className="label-text">First Name</span></label>
+                  <input type="text" className="input input-bordered w-full" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+                </div>
+                <div className="form-control w-full">
+                  <label className="label"><span className="label-text">Last Name</span></label>
+                  <input type="text" className="input input-bordered w-full" value={lastName} onChange={(e) => setLastName(e.target.value)} />
+                </div>
+              </div>
+              <div className="form-control w-full">
+                <label className="label"><span className="label-text">About</span></label>
+                <textarea className="textarea textarea-bordered w-full h-40 resize-none" value={about} onChange={(e) => setAbout(e.target.value)} />
+              </div>
+              <div className="form-control w-full">
+                <label className="label"><span className="label-text">Photo URL</span></label>
+                <input type="url" className="input input-bordered w-full" value={photoUrl} onChange={(e) => setPhotoUrl(e.target.value)} />
+              </div>
+              <div className="form-control w-full">
+                <label className="label"><span className="label-text">Skills (comma separated)</span></label>
+                <input type="text" className="input input-bordered w-full" value={skillsInput} onChange={(e) => setSkillsInput(e.target.value)} />
+                {skills.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {skills.map((s, i) => (
+                      <span key={i} className="px-3 py-1 rounded-full text-xs bg-primary/10 text-primary">{s}</span>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
-          <div className="form-control w-full h-full flex">
-            <div className="w-full flex flex-col">
-              <label className="label"><span className="label-text">About</span></label>
-              <textarea className="textarea textarea-bordered w-full grow min-h-[10rem] resize-none overflow-auto" value={about} onChange={(e) => setAbout(e.target.value)} placeholder="Tell others about yourself..." />
-            </div>
+          {/* Live Preview (right) */}
+          <div className="bg-base-100 rounded-xl border border-base-300">
+            <ProfilePreview
+              firstName={firstName}
+              lastName={lastName}
+              photoUrl={photoUrl}
+              about={about}
+              skills={skills}
+              onUpdate={handleEditProfile}
+              onDiscard={() => { if (setMode) setMode('view'); }}
+              hideHeader
+            />
           </div>
         </div>
 
-        {/* Row 2: full-width Photo URL */}
-        <div className="form-control w-full">
-          <label className="label"><span className="label-text">Photo URL</span></label>
-          <input type="url" className="input input-bordered w-full" value={photoUrl} onChange={(e) => setPhotoUrl(e.target.value)} placeholder="https://..." />
-        </div>
-
-        {/* Row 3: full-width Skills */}
-        <div className="form-control w-full">
-          <label className="label"><span className="label-text">Skills (comma separated)</span></label>
-          <input type="text" className="input input-bordered w-full" value={skillsInput} onChange={(e) => setSkillsInput(e.target.value)} placeholder="e.g. Cooking, Hiking, Photography" />
-          {skills.length > 0 && (
-            <div className="flex flex-wrap gap-2 mt-2">
-              {skills.map((s, i) => (
-                <span key={i} className="px-3 py-1 rounded-full text-xs bg-primary/10 text-primary">
-                  {s}
-                </span>
-              ))}
+      {/* Discard modal (preview layout) */}
+      {preview && discardOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+          <div className="bg-base-200 text-base-content rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+            <div className="p-6 border-b border-base-300 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-error/20 text-error flex items-center justify-center">!
+              </div>
+              <h3 className="text-lg font-semibold">Discard changes?</h3>
             </div>
-          )}
-        </div>
-      </div>
-
-      {/* Actions */}
-      {!preview && (
-        <div className="p-6 border-t border-base-200 flex justify-between items-center gap-2">
-          <div className="text-error text-sm">{error}</div>
-          <div className="flex gap-2">
-            <button onClick={() => setPreview(true)} className="btn btn-outline">Preview Profile</button>
-            <button onClick={handleEditProfile} className={`btn btn-primary ${submitting ? 'btn-disabled' : ''}`} disabled={submitting}>
-              {submitting ? 'Updating...' : 'Update Profile'}
-            </button>
+            <div className="p-6">
+              <p className="text-sm opacity-80">If you discard now, all unsaved edits will be lost and your profile will remain unchanged.</p>
+            </div>
+            <div className="p-4 border-t border-base-300 flex justify-end gap-2">
+              <button className="btn" onClick={() => setDiscardOpen(false)}>Cancel</button>
+              <button className="btn btn-error" onClick={() => { setDiscardOpen(false); setPreview(false); if (setMode) setMode('view'); }}>Discard</button>
+            </div>
           </div>
         </div>
       )}
