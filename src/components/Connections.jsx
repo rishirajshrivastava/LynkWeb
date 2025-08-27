@@ -36,7 +36,7 @@ const Connections = () => {
   return (
     <div className="pt-24 flex justify-center">
       {/* Parent container */}
-      <div className="w-[80%] h-[75vh] bg-base-300 rounded-2xl shadow-xl border border-base-200 p-6 overflow-y-auto">
+      <div className="w-[80%] h-[70vh] bg-base-300 rounded-2xl shadow-xl border border-base-200 p-6 overflow-y-auto">
         <h1 className="text-2xl font-bold text-center mb-6">My Connections</h1>
 
         {/* Responsive grid of cards */}

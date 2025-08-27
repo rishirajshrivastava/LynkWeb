@@ -45,6 +45,9 @@ const Navbar = () => {
           <Link to={"/connections"} className="text-xl font-bold px-36">
             My Connections
           </Link>
+          <Link to={"/requestReview"} className="text-xl font-bold px-36">
+            Pending Requests
+          </Link>
         </div>
 
         {/* Right Side */}

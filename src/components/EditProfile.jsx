@@ -129,23 +129,52 @@ const EditProfile = ({ setMode, setIsPreview, defaultPreview = false }) => {
 
       {/* Discard modal (preview layout) */}
       {preview && discardOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-          <div className="bg-base-200 text-base-content rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
-            <div className="p-6 border-b border-base-300 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-error/20 text-error flex items-center justify-center">!
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-3">
+          <div className="bg-base-100 text-base-content rounded-xl shadow-lg w-full max-w-sm overflow-hidden animate-in fade-in-0 zoom-in-95">
+            
+            {/* Header */}
+            <div className="flex items-center gap-3 px-4 py-3 border-b border-base-200">
+              <div className="w-7 h-7 rounded-full bg-error/10 text-error flex items-center justify-center text-sm font-bold">
+                !
               </div>
-              <h3 className="text-lg font-semibold">Discard changes?</h3>
+              <h3 className="text-base font-semibold">Discard changes?</h3>
             </div>
-            <div className="p-6">
-              <p className="text-sm opacity-80">If you discard now, all unsaved edits will be lost and your profile will remain unchanged.</p>
+            
+            {/* Body */}
+            <div className="px-4 py-3">
+              <p className="text-sm opacity-80 leading-relaxed">
+                If you discard now, all unsaved edits will be lost and your profile will remain unchanged.
+              </p>
             </div>
-            <div className="p-4 border-t border-base-300 flex justify-end gap-2">
-              <button className="btn" onClick={() => setDiscardOpen(false)}>Cancel</button>
-              <button className="btn btn-error" onClick={() => { setDiscardOpen(false); setPreview(false); if (setMode) setMode('view'); }}>Discard</button>
+            
+            {/* Footer */}
+            <div className="px-4 py-3 border-t border-base-200 flex justify-end gap-2">
+              <button
+                className="px-3 py-1.5 rounded-md text-sm font-medium border border-base-300 hover:bg-base-200 transition"
+                onClick={() => setDiscardOpen(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="px-3 py-1.5 rounded-md text-sm font-medium bg-error text-error-content hover:bg-error/90 transition"
+                onClick={() => {
+                  setDiscardOpen(false);
+                  setPreview(false);
+                  if (setMode) setMode("view");
+                }}
+              >
+                Discard
+              </button>
             </div>
           </div>
         </div>
-      )}
+        )}
+      <div className="flex gap-2 justify-center pb-6">
+        <button onClick={handleEditProfile} className={`btn btn-primary btn-sm ${submitting ? 'btn-disabled' : ''}`} disabled={submitting}>
+          {submitting ? 'Updating...' : 'Update profile'}
+        </button>
+        <button onClick={() => setDiscardOpen(true)} className="btn btn-error btn-sm">Discard</button>
+      </div>
     </div>
   )
 }
