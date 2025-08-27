@@ -42,6 +42,9 @@ const Navbar = () => {
           <Link to={"/feed"} className="text-xl font-bold mx-4">
             Lynk 💕🔗
           </Link>
+          <Link to={"/connections"} className="text-xl font-bold px-36">
+            My Connections
+          </Link>
         </div>
 
         {/* Right Side */}
