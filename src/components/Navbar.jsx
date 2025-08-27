@@ -36,7 +36,7 @@ const Navbar = () => {
 
   return (
     <>
-      <div className="navbar bg-base-300 shadow-sm fixed top-0 z-10">
+      <div className="navbar bg-base-300 shadow-sm fixed top-0 z-10 w-full">
         {/* App Logo */}
         <div className="flex-1">
           <Link to={"/feed"} className="text-xl font-bold mx-4">
@@ -72,19 +72,19 @@ const Navbar = () => {
                 className="menu menu-sm dropdown-content mt-3 w-52 p-2 shadow bg-base-100 rounded-box"
               >
                 <li>
-                  <Link to={"/profile"} className="justify-between">
+                  <Link to={"/profile"} className="justify-between" onClick={() => document.activeElement && document.activeElement.blur()}>
                     Profile
                     <span className="badge">New</span>
                   </Link>
                 </li>
                 <li>
-                  <a>Settings</a>
+                  <a onClick={() => document.activeElement && document.activeElement.blur()}>Settings</a>
                 </li>
                 <li>
                   <button
                     onClick={() => {
                       // close dropdown by removing focus first
-                      document.activeElement.blur();
+                      document.activeElement && document.activeElement.blur();
                       setShowLogoutConfirm(true);
                     }}
                   >
