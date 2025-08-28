@@ -73,7 +73,37 @@ const EditProfile = ({ setMode, setIsPreview, defaultPreview = false }) => {
     <div className="bg-base-100 rounded-3xl shadow-xl overflow-hidden border border-base-300/50 flex flex-col">
       {/* Main content - side by side layout */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 p-8 flex-1">
-        {/* Editor Panel (Left) */}
+        {/* Live Preview Panel (Left) */}
+        <div className="bg-base-200/50 rounded-2xl border border-base-300/30">
+          <div className="p-6">
+            <h3 className="text-lg font-semibold text-base-content mb-4 flex items-center">
+              <svg className="w-5 h-5 mr-2 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+              Live Preview
+            </h3>
+            <div className="text-sm sm:text-base text-base-content/60 mb-4">
+              This is exactly how others will see your profile
+            </div>
+            
+            {/* Profile Preview Component */}
+            <div className="bg-base-100 rounded-xl overflow-hidden border border-base-300/30">
+              <ProfilePreview
+                firstName={firstName}
+                lastName={lastName}
+                photoUrl={photoUrl}
+                about={about}
+                skills={skills}
+                onUpdate={handleEditProfile}
+                onDiscard={() => { if (setMode) setMode('view'); }}
+                hideHeader
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Editor Panel (Right) */}
         <div className="bg-base-200/50 rounded-2xl border border-base-300/30">
           <div className="p-8">
             <h3 className="text-xl font-semibold text-base-content mb-6 flex items-center">
@@ -123,9 +153,9 @@ const EditProfile = ({ setMode, setIsPreview, defaultPreview = false }) => {
                   onChange={(e) => setAbout(e.target.value)}
                   placeholder="Tell others about yourself, your interests, or what you're looking for..."
                 />
-                <label className="label">
-                  <span className="label-text-alt text-base-content/60 text-sm">Share your story, interests, or what you're looking for</span>
-                </label>
+                <div className="mt-2">
+                  <span className="text-sm sm:text-base text-base-content/60">Share your story, interests, or what you're looking for</span>
+                </div>
               </div>
 
               {/* Photo URL Field */}
@@ -140,9 +170,9 @@ const EditProfile = ({ setMode, setIsPreview, defaultPreview = false }) => {
                   onChange={(e) => setPhotoUrl(e.target.value)}
                   placeholder="https://example.com/your-photo.jpg"
                 />
-                <label className="label">
-                  <span className="label-text-alt text-base-content/60 text-sm">Paste a direct link to your profile image</span>
-                </label>
+                <div className="mt-2">
+                  <span className="text-sm sm:text-base text-base-content/60">Paste a direct link to your profile image</span>
+                </div>
               </div>
 
               {/* Skills Field */}
@@ -157,17 +187,17 @@ const EditProfile = ({ setMode, setIsPreview, defaultPreview = false }) => {
                   onChange={(e) => setSkillsInput(e.target.value)}
                   placeholder="e.g., Photography, Cooking, Travel, Music"
                 />
-                <label className="label">
-                  <span className="label-text-alt text-base-content/60 text-sm">Separate multiple skills with commas</span>
-                </label>
+                <div className="mt-2">
+                  <span className="text-sm sm:text-base text-base-content/60">Separate multiple skills with commas</span>
+                </div>
               </div>
 
               {/* Action Buttons - Below Skills Section */}
               <div className="pt-4">
-                <div className="flex justify-center gap-3">
+                <div className="flex flex-col sm:flex-row justify-center gap-3">
                   <button 
                     onClick={handleSaveClick} 
-                    className={`btn btn-primary ${submitting ? 'btn-disabled' : ''}`} 
+                    className={`btn btn-primary w-full sm:w-auto text-sm sm:text-base ${submitting ? 'btn-disabled' : ''}`} 
                     disabled={submitting}
                   >
                     {submitting ? (
@@ -176,25 +206,25 @@ const EditProfile = ({ setMode, setIsPreview, defaultPreview = false }) => {
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
-                        Updating...
+                        <span className="text-sm sm:text-base">Updating...</span>
                       </>
                     ) : (
                       <>
                         <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
                         </svg>
-                        Save Changes
+                        <span className="text-sm sm:text-base">Update Profile</span>
                       </>
                     )}
                   </button>
                   <button 
                     onClick={() => setDiscardOpen(true)} 
-                    className="btn btn-outline btn-error"
+                    className="btn btn-outline btn-error w-full sm:w-auto text-sm sm:text-base"
                   >
                     <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
-                    Discard
+                    <span className="text-sm sm:text-base">Discard Changes</span>
                   </button>
                 </div>
               </div>
@@ -208,36 +238,6 @@ const EditProfile = ({ setMode, setIsPreview, defaultPreview = false }) => {
                   <span className="text-base">{error}</span>
                 </div>
               )}
-            </div>
-          </div>
-        </div>
-
-        {/* Live Preview Panel (Right) */}
-        <div className="bg-base-200/50 rounded-2xl border border-base-300/30">
-          <div className="p-6">
-            <h3 className="text-lg font-semibold text-base-content mb-4 flex items-center">
-              <svg className="w-5 h-5 mr-2 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-              </svg>
-              Live Preview
-            </h3>
-            <div className="text-sm text-base-content/60 mb-4">
-              This is exactly how others will see your profile
-            </div>
-            
-            {/* Profile Preview Component */}
-            <div className="bg-base-100 rounded-xl overflow-hidden border border-base-300/30">
-              <ProfilePreview
-                firstName={firstName}
-                lastName={lastName}
-                photoUrl={photoUrl}
-                about={about}
-                skills={skills}
-                onUpdate={handleEditProfile}
-                onDiscard={() => { if (setMode) setMode('view'); }}
-                hideHeader
-              />
             </div>
           </div>
         </div>
