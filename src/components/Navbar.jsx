@@ -68,7 +68,7 @@ const Navbar = () => {
 
   return (
     <>
-      <div className="navbar bg-base-300/95 backdrop-blur-sm shadow-lg border-b border-base-200/50 fixed top-0 z-10 w-full">
+             <div className={`navbar bg-base-300/95 backdrop-blur-sm shadow-lg border-b border-base-200/50 fixed top-0 z-10 w-full ${showLogoutConfirm ? 'blur-sm pointer-events-none' : ''}`}>
         {/* Left: Brand + Mobile toggle */}
         <div className="flex-1">
           <div className="flex items-center">
@@ -242,8 +242,8 @@ const Navbar = () => {
 
       {/* Logout Confirmation Modal */}
       {showLogoutConfirm && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/60 z-50">
-          <div className="bg-base-200 text-base-content rounded-xl shadow-xl w-80 p-5 text-center animate-fade-in">
+                 <div className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-md z-50 pointer-events-auto">
+           <div className="bg-base-200 text-base-content rounded-xl shadow-xl w-80 p-5 text-center animate-fade-in">
             <h2 className="text-lg font-semibold mb-3">Confirm Logout</h2>
             <p className="text-sm opacity-80 mb-5">
               Are you sure you want to log out?
