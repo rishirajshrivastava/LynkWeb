@@ -2,7 +2,7 @@ import axios from "axios"
 import { BASE_URL } from "../utils/constants"
 import { useEffect, useState, useMemo } from "react"
 import { useDispatch, useSelector } from "react-redux"
-import { addFeed } from "../utils/feedSlice"
+import { addFeed, removeFromFeed } from "../utils/feedSlice"
 import UserFeed from "./UserFeed"
 
 const Feed = () => {
@@ -13,7 +13,7 @@ const Feed = () => {
   const [loading, setLoading] = useState(false)
   const [hasMore, setHasMore] = useState(true)
 
-  const getFeed = async (pageNum = 0) => {
+  const getFeed = async (pageNum = 1) => {
     setLoading(true)
     try {
       const res = await axios.get(
@@ -28,8 +28,13 @@ const Feed = () => {
         return
       }
 
-      // Append new profiles to existing feed in Redux
-      dispatch(addFeed([...(feed?.data || feed || []), ...newProfiles]))
+      if (pageNum === 1) {
+        dispatch(addFeed(newProfiles))
+        setCurrentIndex(0)
+      } else {
+        const existing = feed?.data || feed || []
+        dispatch(addFeed([...existing, ...newProfiles]))
+      }
     } catch (error) {
       console.log("Error while fetching feed data", error)
       setHasMore(false)
@@ -71,6 +76,7 @@ const Feed = () => {
         {},
         { withCredentials: true }
       )
+      dispatch(removeFromFeed(profile._id))
     } catch (err) {
       console.log("Error while sending like", err)
     } finally {
@@ -85,6 +91,7 @@ const Feed = () => {
         {},
         { withCredentials: true }
       )
+      dispatch(removeFromFeed(profile._id))
     } catch (err) {
       console.log("Error while sending dislike", err)
     } finally {
@@ -96,8 +103,8 @@ const Feed = () => {
     !loading && (!profiles || currentIndex >= profiles.length) && !hasMore
 
   return (
-    <div className="pt-24 pb-28 px-4 flex items-start justify-center">
-      <div className="w-full max-w-4xl">
+    <div className="pt-24 pb-28 px-3 sm:px-4 flex items-start justify-center">
+      <div className="w-full max-w-5xl">
         {!feed && loading && (
           <div className="flex flex-col items-center justify-center text-center text-gray-400 py-20">
             <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-rose-400 mb-4"></div>
@@ -114,7 +121,7 @@ const Feed = () => {
         )}
 
         {loading && profiles.length > 0 && (
-          <div className="text-center text-gray-400 py-10">Loading more...</div>
+          <div className="text-center text-gray-400 py-6 sm:py-10">Loading more...</div>
         )}
 
         {noMoreProfiles && (

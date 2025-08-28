@@ -27,27 +27,27 @@ const Connections = () => {
 
   if (connections.length === 0) {
     return (
-      <div className="pt-24 flex justify-center items-center h-[75vh]">
-        <h1 className="text-2xl font-bold text-center">No Connections Found</h1>
+      <div className="pt-24 px-4 flex justify-center items-center min-h-[60vh]">
+        <h1 className="text-xl sm:text-2xl font-bold text-center">No Connections Found</h1>
       </div>
     );
   }
 
   return (
-    <div className="pt-24 flex justify-center">
+    <div className="pt-24 pb-28 px-4 flex justify-center">
       {/* Parent container */}
-      <div className="w-[80%] h-[70vh] bg-base-300 rounded-2xl shadow-xl border border-base-200 p-6 overflow-y-auto">
-        <h1 className="text-2xl font-bold text-center mb-6">My Connections</h1>
+      <div className="w-full max-w-6xl min-h-[50vh] bg-base-300 rounded-2xl shadow-xl border border-base-200 p-4 sm:p-6 overflow-hidden">
+        <h1 className="text-xl sm:text-2xl font-bold text-center mb-4 sm:mb-6">My Connections</h1>
 
         {/* Responsive grid of cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 ">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 overflow-y-auto max-h-[60vh] sm:max-h-[64vh] pr-1">
           {connections.map((connection) => (
             <div
               key={connection._id}
               className="bg-base-200 rounded-xl shadow-md overflow-hidden border border-white border-base-300 flex flex-col"
             >
               {/* Profile photo */}
-              <div className="w-full h-48 bg-base-300 flex items-center justify-center">
+              <div className="w-full h-40 sm:h-48 bg-base-300 flex items-center justify-center">
                 {connection.photoUrl ? (
                   <img
                     src={connection.photoUrl}
@@ -63,21 +63,21 @@ const Connections = () => {
 
               {/* Details */}
               <div className="p-4 flex-1 flex flex-col">
-                <h2 className="text-lg font-semibold text-base-content">
+                <h2 className="text-base sm:text-lg font-semibold text-base-content">
                   {connection.firstName} {connection.lastName}
                   {connection.age && (
-                    <span className="ml-2 text-sm font-medium text-base-content/70">
+                    <span className="ml-2 text-xs sm:text-sm font-medium text-base-content/70">
                       {connection.age}
                     </span>
                   )}
                 </h2>
                 {connection.gender && (
-                  <p className="text-sm text-base-content/70 mt-1">
+                  <p className="text-xs sm:text-sm text-base-content/70 mt-1">
                     {connection.gender}
                   </p>
                 )}
 
-                {connection.about && (
+                {/* {connection.about && (
                   <p className="mt-2 text-sm text-base-content/80 line-clamp-3">
                     {connection.about}
                   </p>
@@ -99,7 +99,7 @@ const Connections = () => {
                       ))}
                     </div>
                   </div>
-                )}
+                )} */}
               </div>
             </div>
           ))}

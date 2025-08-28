@@ -38,8 +38,8 @@ const Login = () => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-base-200 px-4">
-      <div className="card bg-base-100 w-full max-w-md shadow-xl rounded-2xl">
+    <div className="flex justify-center items-center min-h-screen bg-base-200 px-3 sm:px-4">
+      <div className="card bg-base-100 w-full max-w-sm sm:max-w-md shadow-xl rounded-2xl">
         <div className="card-body">
           {/* Logo / App Name */}
           <div className="text-center mb-6">
@@ -64,7 +64,7 @@ const Login = () => {
                 type="email"
                 value={email}
                 placeholder="you@example.com"
-                className="w-full px-3 py-2 rounded-md border-b border-base-300 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/30 transition"
+                className="w-full px-3 py-2 rounded-md border-b border-base-300 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/30 transition text-sm"
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
@@ -84,7 +84,7 @@ const Login = () => {
                   type={showPassword ? "text" : "password"}
                   value={password}
                   placeholder="••••••••"
-                  className="w-full px-3 py-2 rounded-md border-b border-base-300 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/30 transition pr-12"
+                  className="w-full px-3 py-2 rounded-md border-b border-base-300 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/30 transition pr-12 text-sm"
                   onChange={(e) => setPassword(e.target.value)}
                   required
                 />

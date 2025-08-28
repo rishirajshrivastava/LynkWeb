@@ -1,4 +1,4 @@
-import { Outlet, useNavigate } from "react-router-dom"
+import { Outlet, useLocation, useNavigate } from "react-router-dom"
 import Navbar from "./Navbar"
 import Footer from "./Footer"
 import axios from "axios"
@@ -9,9 +9,11 @@ import { useEffect } from "react"
 
 const Body = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useDispatch();
   const userData = useSelector((store) => store?.user)
   const fetchUser = async()=>{
+    if (location.pathname === "/login") return;
     if(userData) return;
     try {
       const res = await axios.get(BASE_URL + "/profile/view", {
@@ -20,7 +22,8 @@ const Body = () => {
       dispatch(addUser(res.data?.user))
     }
     catch(err){
-      if(err.status===401){
+      const status = err?.response?.status || err?.status
+      if(status===401){
         navigate("/login")
       }
       console.log("ERR: ", err.message);
@@ -28,7 +31,7 @@ const Body = () => {
   }
   useEffect(()=>{
     fetchUser();
-  },[])
+  },[location.pathname])
 
   return (
     <div>

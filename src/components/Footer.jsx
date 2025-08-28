@@ -1,7 +1,7 @@
 const Footer = () => {
   return (
     <>
-        <footer className="footer sm:footer-horizontal bg-base-300 text-neutral-content items-center p-4 fixed bottom-0 w-full">
+        <footer className="footer sm:footer-horizontal bg-base-200 text-base-content items-center p-3 sm:p-4 fixed bottom-0 w-full border-t border-base-300">
             <aside className="grid-flow-col items-center">
                 <svg
                 width="36"
@@ -16,12 +16,12 @@ const Footer = () => {
                 </svg>
                 <p>Copyright © {new Date().getFullYear()} - All right reserved</p>
             </aside>
-            <nav className="grid-flow-col gap-4 md:place-self-center md:justify-self-end">
+            <nav className="grid-flow-col gap-3 sm:gap-4 md:place-self-center md:justify-self-end">
                 <a
                     href="https://twitter.com"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="transition-colors duration-300 text-white hover:text-sky-400 active:text-sky-600"
+                    className="transition-colors duration-300 text-base-content hover:text-sky-500"
                     style={{
                         transition: 'color 0.3s, background 0.3s',
                     }}
@@ -40,7 +40,7 @@ const Footer = () => {
                     href="https://www.youtube.com"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="transition-colors duration-300 text-white hover:text-red-600 active:text-red-800"
+                    className="transition-colors duration-300 text-base-content hover:text-red-600"
                     style={{
                         transition: 'color 0.3s, background 0.3s',
                     }}
@@ -59,7 +59,7 @@ const Footer = () => {
                 href="https://www.google.com" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="transition-colors duration-200 text-white hover:text-purple-600 active:text-blue-600"
+                className="transition-colors duration-200 text-base-content hover:text-purple-600"
                 >
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
