@@ -81,43 +81,50 @@ const Navbar = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
-                         <Link 
-               to={"/feed"} 
-               className="text-lg sm:text-xl font-bold mx-2 sm:mx-4 text-primary hover:text-primary-focus transition-all duration-200 hover:scale-105 whitespace-nowrap flex-shrink-0"
-             >
+                         <div className="text-lg sm:text-xl font-bold mx-2 sm:mx-4 text-primary whitespace-nowrap flex-shrink-0">
                <span>Lynk</span>
                <span className="ml-1">💕🔗</span>
-             </Link>
+             </div>
           </div>
         </div>
 
-        {/* Center navigation links (desktop) */}
-        {user && (
-          <div className="hidden sm:flex items-center gap-1 lg:gap-2">
-            <Link 
-              to={"/connections"} 
-              className="btn btn-ghost btn-sm normal-case text-base-content hover:bg-primary/10 hover:text-primary border border-transparent hover:border-primary/20 rounded-lg px-2 sm:px-3 lg:px-4 py-2 transition-all duration-200"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 sm:mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
-                             <span className="hidden xl:inline">My Connections</span>
-               <span className="hidden lg:inline xl:hidden">Connections</span>
-               <span className="lg:hidden">Connections</span>
-            </Link>
-            <Link 
-              to={"/requestReview"} 
-              className="btn btn-ghost btn-sm normal-case text-base-content hover:bg-secondary/10 hover:text-secondary border border-transparent hover:border-secondary/20 rounded-lg px-2 sm:px-3 lg:px-4 py-2 transition-all duration-200"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 sm:mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              <span className="hidden xl:inline">Pending Requests</span>
-              <span className="hidden lg:inline xl:hidden">Requests</span>
-              <span className="lg:hidden">Requests</span>
-            </Link>
-          </div>
-        )}
+                 {/* Center navigation links (desktop) */}
+         {user && (
+           <div className="hidden sm:flex items-center gap-1 lg:gap-2">
+             <Link 
+               to={"/feed"} 
+               className="btn btn-ghost btn-sm normal-case text-base-content hover:bg-primary/10 hover:text-primary border border-transparent hover:border-primary/20 rounded-lg px-2 sm:px-3 lg:px-4 py-2 transition-all duration-200"
+             >
+               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 sm:mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+               </svg>
+               <span className="hidden xl:inline">Feed</span>
+               <span className="hidden lg:inline xl:hidden">Feed</span>
+               <span className="lg:hidden">Feed</span>
+             </Link>
+             <Link 
+               to={"/connections"} 
+               className="btn btn-ghost btn-sm normal-case text-base-content hover:bg-primary/10 hover:text-primary border border-transparent hover:border-primary/20 rounded-lg px-2 sm:px-3 lg:px-4 py-2 transition-all duration-200"
+             >
+               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 sm:mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+               </svg>
+               <span className="hidden xl:inline">My Connections</span>
+               <span className="xl:hidden">Connections</span>
+             </Link>
+             <Link 
+               to={"/requestReview"} 
+               className="btn btn-ghost btn-sm normal-case text-base-content hover:bg-secondary/10 hover:text-secondary border border-transparent hover:border-secondary/20 rounded-lg px-2 sm:px-3 lg:px-4 py-2 transition-all duration-200"
+             >
+               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 sm:mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+               </svg>
+               <span className="hidden xl:inline">Pending Requests</span>
+               <span className="hidden lg:inline xl:hidden">Requests</span>
+               <span className="lg:hidden">Requests</span>
+             </Link>
+           </div>
+         )}
 
         {/* Right Side */}
         <div className="flex items-center gap-1 sm:gap-2 lg:gap-3 mr-1 sm:mr-2 lg:mr-4">
@@ -195,13 +202,19 @@ const Navbar = () => {
            <div className={`mobile-menu-container sm:hidden fixed top-16 left-0 z-50 transition-all duration-300 ease-in-out ${mobileOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2 pointer-events-none"}`}>
              <div className="ml-4">
                <div className="w-80 rounded-xl shadow-2xl border border-base-300/50 bg-base-100 overflow-hidden max-h-[calc(100vh-5rem)] overflow-y-auto">
-              <nav className="flex flex-col bg-base-100">
-                <Link onClick={() => setMobileOpen(false)} to={"/connections"} className="px-4 py-3 text-sm hover:bg-primary/10 hover:text-primary border-l-4 border-l-transparent hover:border-l-primary transition-all bg-base-100/95">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-3 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                  </svg>
-                  My Connections
-                </Link>
+                             <nav className="flex flex-col bg-base-100">
+                 <Link onClick={() => setMobileOpen(false)} to={"/feed"} className="px-4 py-3 text-sm hover:bg-primary/10 hover:text-primary border-l-4 border-l-transparent hover:border-l-primary transition-all bg-base-100/95">
+                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-3 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                   </svg>
+                   Feed
+                 </Link>
+                 <Link onClick={() => setMobileOpen(false)} to={"/connections"} className="px-4 py-3 text-sm hover:bg-primary/10 hover:text-primary border-l-4 border-l-transparent hover:border-l-primary transition-all bg-base-100/95">
+                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-3 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                   </svg>
+                   My Connections
+                 </Link>
                 <Link onClick={() => setMobileOpen(false)} to={"/requestReview"} className="px-4 py-3 text-sm hover:bg-secondary/10 hover:text-secondary border-l-4 border-l-transparent hover:border-l-secondary transition-all bg-base-100/95">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-3 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
