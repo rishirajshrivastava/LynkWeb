@@ -72,71 +72,70 @@ const Navbar = () => {
         {/* Left: Brand + Mobile toggle */}
         <div className="flex-1">
           <div className="flex items-center">
-                         <button
-               className="mobile-toggle-btn btn btn-ghost btn-square sm:hidden ml-1 hover:bg-primary/10 hover:text-primary transition-all duration-200"
-               aria-label="Toggle menu"
-               onClick={() => setMobileOpen((o) => !o)}
-             >
+            <button
+              className="mobile-toggle-btn btn btn-ghost btn-square sm:hidden ml-1 hover:bg-primary/10 hover:text-primary transition-all duration-200"
+              aria-label="Toggle menu"
+              onClick={() => setMobileOpen((o) => !o)}
+            >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
-            <Link to={"/feed"} className="text-xl font-bold mx-4 text-primary hover:text-primary-focus transition-all duration-200 hover:scale-105">
-              Lynk 💕🔗
-            </Link>
+                         <Link 
+               to={"/feed"} 
+               className="text-lg sm:text-xl font-bold mx-2 sm:mx-4 text-primary hover:text-primary-focus transition-all duration-200 hover:scale-105 whitespace-nowrap flex-shrink-0"
+             >
+               <span>Lynk</span>
+               <span className="ml-1">💕🔗</span>
+             </Link>
           </div>
         </div>
 
         {/* Center navigation links (desktop) */}
         {user && (
-          <div className="hidden sm:flex items-center gap-2">
+          <div className="hidden sm:flex items-center gap-1 lg:gap-2">
             <Link 
               to={"/connections"} 
-              className="btn btn-ghost btn-sm normal-case text-base-content hover:bg-primary/10 hover:text-primary border border-transparent hover:border-primary/20 rounded-lg px-3 sm:px-4 py-2 transition-all duration-200"
+              className="btn btn-ghost btn-sm normal-case text-base-content hover:bg-primary/10 hover:text-primary border border-transparent hover:border-primary/20 rounded-lg px-2 sm:px-3 lg:px-4 py-2 transition-all duration-200"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 sm:mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
-              <span className="hidden lg:inline">My Connections</span>
-              <span className="lg:hidden">Connections</span>
+                             <span className="hidden xl:inline">My Connections</span>
+               <span className="lg:hidden xl:hidden">Connections</span>
             </Link>
             <Link 
               to={"/requestReview"} 
-              className="btn btn-ghost btn-sm normal-case text-base-content hover:bg-secondary/10 hover:text-secondary border border-transparent hover:border-secondary/20 rounded-lg px-3 sm:px-4 py-2 transition-all duration-200"
+              className="btn btn-ghost btn-sm normal-case text-base-content hover:bg-secondary/10 hover:text-secondary border border-transparent hover:border-secondary/20 rounded-lg px-2 sm:px-3 lg:px-4 py-2 transition-all duration-200"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 sm:mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
-              <span className="hidden lg:inline">Pending Requests</span>
+              <span className="hidden xl:inline">Pending Requests</span>
+              <span className="hidden lg:inline xl:hidden">Requests</span>
               <span className="lg:hidden">Requests</span>
             </Link>
           </div>
         )}
 
         {/* Right Side */}
-        <div className="flex items-center gap-2 sm:gap-3 mr-2 sm:mr-4">
+        <div className="flex items-center gap-1 sm:gap-2 lg:gap-3 mr-1 sm:mr-2 lg:mr-4">
           {/* Elegant dark theme toggle - always visible */}
           <button
-            className="btn btn-ghost btn-sm normal-case px-3 py-2 hover:bg-primary/10 hover:text-primary border border-transparent hover:border-primary/20 rounded-lg transition-all duration-200 flex items-center gap-2"
+            className="btn btn-ghost btn-sm normal-case px-2 sm:px-3 lg:px-3 py-2 hover:bg-primary/10 hover:text-primary border border-transparent hover:border-primary/20 rounded-lg transition-all duration-200 flex items-center gap-1 sm:gap-2"
             aria-label="Toggle dark mode"
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
             title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
           >
-            {theme === "dark" ? (
-              <>
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                </svg>
-                <span className="hidden md:inline text-sm font-medium">Light Mode</span>
-              </>
-            ) : (
-              <>
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                </svg>
-                <span className="hidden md:inline text-sm font-medium">Dark Mode</span>
-              </>
-            )}
+                         {theme === "dark" ? (
+               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+               </svg>
+             ) : (
+               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+               </svg>
+             )}
           </button>
           
                      {user && (
@@ -145,16 +144,19 @@ const Navbar = () => {
                <div
                  tabIndex={0}
                  role="button"
-                 className="flex items-center gap-2 sm:gap-3 cursor-pointer bg-base-200 hover:bg-base-100 rounded-lg px-2 sm:px-3 py-2 transition-all duration-200 border border-base-300 hover:border-primary/30 active:scale-95"
+                 className="flex items-center gap-1 sm:gap-2 lg:gap-3 cursor-pointer bg-base-200 hover:bg-base-100 rounded-lg px-2 sm:px-3 py-2 transition-all duration-200 border border-base-300 hover:border-primary/30 active:scale-95"
                  onClick={() => setDropdownOpen(!dropdownOpen)}
                >
-                <span className="hidden sm:block text-sm font-medium text-base-content/80">
+                <span className="hidden lg:block text-sm font-medium text-base-content/80">
                   Welcome,
                   <span className="ml-1 text-base-content font-semibold">{user.firstName}</span>
                 </span>
+                <span className="hidden sm:block lg:hidden text-sm font-medium text-base-content/80">
+                  {user.firstName}
+                </span>
 
                 <div className="avatar">
-                  <div className="w-8 sm:w-9 md:w-10 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
+                  <div className="w-7 sm:w-8 lg:w-9 xl:w-10 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
                     <img src={user.photoUrl} alt="User Avatar" />
                   </div>
                 </div>
