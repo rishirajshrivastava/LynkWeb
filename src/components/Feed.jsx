@@ -104,7 +104,7 @@ const Feed = () => {
     !loading && (!profiles || currentIndex >= profiles.length) && !hasMore
 
   return (
-    <div className={`px-3 sm:px-4 flex items-start justify-center ${noMoreProfiles ? 'pt-0 pb-0' : 'pt-24 pb-28'}`}>
+    <div className={`px-3 sm:px-4 flex items-start justify-center ${noMoreProfiles ? 'pt-16 pb-8' : 'pt-24 pb-20'}`}>
       <div className="w-full max-w-5xl">
         {!feed && loading && (
           <div className="flex flex-col items-center justify-center text-center text-gray-400 py-20">
