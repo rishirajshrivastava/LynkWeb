@@ -17,7 +17,7 @@ const Profile = () => {
     <div className="min-h-screen bg-gradient-to-b from-base-100 to-base-200 px-4 pt-24 pb-28">
       <div className="w-full max-w-7xl mx-auto">
         {/* Toggle */}
-        <div className="mb-6 flex items-center justify-center sticky top-16 z-20">
+        <div className="mb-6 flex items-center justify-center">
           <div className="relative bg-base-100 border border-base-300 rounded-2xl p-1.5 w-full max-w-sm shadow-lg">
             <motion.div
               className="absolute top-1.5 bottom-1.5 w-[calc(50%-0.375rem)] rounded-xl bg-primary shadow-sm"

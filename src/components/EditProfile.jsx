@@ -32,6 +32,7 @@ const EditProfile = ({ setMode, setIsPreview, defaultPreview = false }) => {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState("")
   const [discardOpen, setDiscardOpen] = useState(false)
+  const [saveConfirmOpen, setSaveConfirmOpen] = useState(false)
 
   const handleEditProfile = async () => {
     try {
@@ -64,117 +65,270 @@ const EditProfile = ({ setMode, setIsPreview, defaultPreview = false }) => {
     }
   }
 
-  return (
-    <div className="bg-base-200 rounded-2xl shadow-xl overflow-hidden border border-base-200">
-      {/* Edit + Preview side-by-side */}
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 p-6">
-          {/* Editor (left) */}
-          <div className="bg-base-100 rounded-xl border border-base-300">
-            <div className="p-4 border-b border-base-200 flex items-center justify-between">
-              <h3 className="text-lg font-semibold">Edit Profile</h3>
-              <div className="flex gap-2">
-                <button onClick={handleEditProfile} className={`btn btn-primary btn-sm ${submitting ? 'btn-disabled' : ''}`} disabled={submitting}>
-                  {submitting ? 'Updating...' : 'Update profile'}
-                </button>
-                <button onClick={() => setDiscardOpen(true)} className="btn btn-error btn-sm">Discard</button>
-              </div>
-            </div>
-            <div className="p-4 space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="form-control w-full">
-                  <label className="label"><span className="label-text">First Name</span></label>
-                  <input type="text" className="input input-bordered w-full" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
-                </div>
-                <div className="form-control w-full">
-                  <label className="label"><span className="label-text">Last Name</span></label>
-                  <input type="text" className="input input-bordered w-full" value={lastName} onChange={(e) => setLastName(e.target.value)} />
-                </div>
-              </div>
-              <div className="form-control w-full">
-                <label className="label"><span className="label-text">About</span></label>
-                <textarea className="textarea textarea-bordered w-full h-40 resize-none" value={about} onChange={(e) => setAbout(e.target.value)} />
-              </div>
-              <div className="form-control w-full">
-                <label className="label"><span className="label-text">Photo URL</span></label>
-                <input type="url" className="input input-bordered w-full" value={photoUrl} onChange={(e) => setPhotoUrl(e.target.value)} />
-              </div>
-              <div className="form-control w-full">
-                <label className="label"><span className="label-text">Skills (comma separated)</span></label>
-                <input type="text" className="input input-bordered w-full" value={skillsInput} onChange={(e) => setSkillsInput(e.target.value)} />
-                {skills.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {skills.map((s, i) => (
-                      <span key={i} className="px-3 py-1 rounded-full text-xs bg-primary/10 text-primary">{s}</span>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
+  const handleSaveClick = () => {
+    setSaveConfirmOpen(true)
+  }
 
-          {/* Live Preview (right) */}
-          <div className="bg-base-100 rounded-xl border border-base-300">
-            <ProfilePreview
-              firstName={firstName}
-              lastName={lastName}
-              photoUrl={photoUrl}
-              about={about}
-              skills={skills}
-              onUpdate={handleEditProfile}
-              onDiscard={() => { if (setMode) setMode('view'); }}
-              hideHeader
-            />
+  return (
+    <div className="bg-base-100 rounded-3xl shadow-xl overflow-hidden border border-base-300/50 flex flex-col">
+      {/* Main content - side by side layout */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 p-8 flex-1">
+        {/* Editor Panel (Left) */}
+        <div className="bg-base-200/50 rounded-2xl border border-base-300/30">
+          <div className="p-8">
+            <h3 className="text-xl font-semibold text-base-content mb-6 flex items-center">
+              <svg className="w-6 h-6 mr-3 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+              Edit Your Information
+            </h3>
+            
+            <div className="space-y-6">
+              {/* Name Fields */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text font-medium text-base-content/80 text-base">First Name</span>
+                  </label>
+                  <input 
+                    type="text" 
+                    className="input input-bordered w-full h-12 text-base bg-base-100 focus:border-primary focus:ring-1 focus:ring-primary/20" 
+                    value={firstName} 
+                    onChange={(e) => setFirstName(e.target.value)}
+                    placeholder="Enter your first name"
+                  />
+                </div>
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text font-medium text-base-content/80 text-base">Last Name</span>
+                  </label>
+                  <input 
+                    type="text" 
+                    className="input input-bordered w-full h-12 text-base bg-base-100 focus:border-primary focus:ring-1 focus:ring-primary/20" 
+                    value={lastName} 
+                    onChange={(e) => setLastName(e.target.value)}
+                    placeholder="Enter your last name"
+                  />
+                </div>
+              </div>
+
+              {/* About Field */}
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text font-medium text-base-content/80 text-base">About You</span>
+                </label>
+                <textarea 
+                  className="textarea textarea-bordered w-full h-40 text-base resize-none bg-base-100 focus:border-primary focus:ring-1 focus:ring-primary/20" 
+                  value={about} 
+                  onChange={(e) => setAbout(e.target.value)}
+                  placeholder="Tell others about yourself, your interests, or what you're looking for..."
+                />
+                <label className="label">
+                  <span className="label-text-alt text-base-content/60 text-sm">Share your story, interests, or what you're looking for</span>
+                </label>
+              </div>
+
+              {/* Photo URL Field */}
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text font-medium text-base-content/80 text-base">Profile Photo URL</span>
+                </label>
+                <input 
+                  type="url" 
+                  className="input input-bordered w-full h-12 text-base bg-base-100 focus:border-primary focus:ring-1 focus:ring-primary/20" 
+                  value={photoUrl} 
+                  onChange={(e) => setPhotoUrl(e.target.value)}
+                  placeholder="https://example.com/your-photo.jpg"
+                />
+                <label className="label">
+                  <span className="label-text-alt text-base-content/60 text-sm">Paste a direct link to your profile image</span>
+                </label>
+              </div>
+
+              {/* Skills Field */}
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text font-medium text-base-content/80 text-base">Skills & Interests</span>
+                </label>
+                <input 
+                  type="text" 
+                  className="input input-bordered w-full h-12 text-base bg-base-100 focus:border-primary focus:ring-1 focus:ring-primary/20" 
+                  value={skillsInput} 
+                  onChange={(e) => setSkillsInput(e.target.value)}
+                  placeholder="e.g., Photography, Cooking, Travel, Music"
+                />
+                <label className="label">
+                  <span className="label-text-alt text-base-content/60 text-sm">Separate multiple skills with commas</span>
+                </label>
+              </div>
+
+              {/* Action Buttons - Below Skills Section */}
+              <div className="pt-4">
+                <div className="flex justify-center gap-3">
+                  <button 
+                    onClick={handleSaveClick} 
+                    className={`btn btn-primary ${submitting ? 'btn-disabled' : ''}`} 
+                    disabled={submitting}
+                  >
+                    {submitting ? (
+                      <>
+                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Updating...
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        Save Changes
+                      </>
+                    )}
+                  </button>
+                  <button 
+                    onClick={() => setDiscardOpen(true)} 
+                    className="btn btn-outline btn-error"
+                  >
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    Discard
+                  </button>
+                </div>
+              </div>
+
+              {/* Error Display */}
+              {error && (
+                <div className="alert alert-error mt-6">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span className="text-base">{error}</span>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
-      {/* Discard modal (preview layout) */}
-      {preview && discardOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-3">
-          <div className="bg-base-100 text-base-content rounded-xl shadow-lg w-full max-w-sm overflow-hidden animate-in fade-in-0 zoom-in-95">
+        {/* Live Preview Panel (Right) */}
+        <div className="bg-base-200/50 rounded-2xl border border-base-300/30">
+          <div className="p-6">
+            <h3 className="text-lg font-semibold text-base-content mb-4 flex items-center">
+              <svg className="w-5 h-5 mr-2 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+              Live Preview
+            </h3>
+            <div className="text-sm text-base-content/60 mb-4">
+              This is exactly how others will see your profile
+            </div>
             
+            {/* Profile Preview Component */}
+            <div className="bg-base-100 rounded-xl overflow-hidden border border-base-300/30">
+              <ProfilePreview
+                firstName={firstName}
+                lastName={lastName}
+                photoUrl={photoUrl}
+                about={about}
+                skills={skills}
+                onUpdate={handleEditProfile}
+                onDiscard={() => { if (setMode) setMode('view'); }}
+                hideHeader
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Discard Confirmation Modal */}
+      {discardOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="bg-base-100 text-base-content rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
             {/* Header */}
-            <div className="flex items-center gap-3 px-4 py-3 border-b border-base-200">
-              <div className="w-7 h-7 rounded-full bg-error/10 text-error flex items-center justify-center text-sm font-bold">
-                !
+            <div className="flex items-center gap-3 px-6 py-4 border-b border-base-200">
+              <div className="w-10 h-10 rounded-full bg-error/10 text-error flex items-center justify-center">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
               </div>
-              <h3 className="text-base font-semibold">Discard changes?</h3>
+              <h3 className="text-lg font-semibold">Discard Changes?</h3>
             </div>
             
             {/* Body */}
-            <div className="px-4 py-3">
-              <p className="text-sm opacity-80 leading-relaxed">
-                If you discard now, all unsaved edits will be lost and your profile will remain unchanged.
+            <div className="px-6 py-4">
+              <p className="text-base-content/80 leading-relaxed">
+                All your unsaved changes will be lost. Your profile will remain unchanged.
               </p>
             </div>
             
             {/* Footer */}
-            <div className="px-4 py-3 border-t border-base-200 flex justify-end gap-2">
+            <div className="px-6 py-4 border-t border-base-200 flex justify-end gap-3">
               <button
-                className="px-3 py-1.5 rounded-md text-sm font-medium border border-base-300 hover:bg-base-200 transition"
+                className="btn btn-outline btn-sm"
                 onClick={() => setDiscardOpen(false)}
               >
                 Cancel
               </button>
               <button
-                className="px-3 py-1.5 rounded-md text-sm font-medium bg-error text-error-content hover:bg-error/90 transition"
+                className="btn btn-error btn-sm"
                 onClick={() => {
                   setDiscardOpen(false);
                   setPreview(false);
                   if (setMode) setMode("view");
                 }}
               >
-                Discard
+                Discard Changes
               </button>
             </div>
           </div>
         </div>
-        )}
-      <div className="flex gap-2 justify-center pb-6">
-        <button onClick={handleEditProfile} className={`btn btn-primary btn-sm ${submitting ? 'btn-disabled' : ''}`} disabled={submitting}>
-          {submitting ? 'Updating...' : 'Update profile'}
-        </button>
-        <button onClick={() => setDiscardOpen(true)} className="btn btn-error btn-sm">Discard</button>
-      </div>
+      )}
+
+      {/* Save Confirmation Modal */}
+      {saveConfirmOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="bg-base-100 text-base-content rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+            {/* Header */}
+            <div className="flex items-center gap-3 px-6 py-4 border-b border-base-200">
+              <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold">Update Profile?</h3>
+            </div>
+            
+            {/* Body */}
+            <div className="px-6 py-4">
+              <p className="text-base-content/80 leading-relaxed">
+                Are you sure you want to save these changes to your profile? This will update your public profile information.
+              </p>
+            </div>
+            
+            {/* Footer */}
+            <div className="px-6 py-4 border-t border-base-200 flex justify-end gap-3">
+              <button
+                className="btn btn-outline btn-sm"
+                onClick={() => setSaveConfirmOpen(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="btn btn-primary btn-sm"
+                onClick={() => {
+                  setSaveConfirmOpen(false);
+                  handleEditProfile();
+                }}
+              >
+                Yes, Update Profile
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
