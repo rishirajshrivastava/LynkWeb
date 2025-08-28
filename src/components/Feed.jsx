@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { addFeed, removeFromFeed } from "../utils/feedSlice"
 import UserFeed from "./UserFeed"
+import NoMoreUsers from "./NoMoreUsers"
 
 const Feed = () => {
   const feed = useSelector((store) => store.feed)
@@ -103,7 +104,7 @@ const Feed = () => {
     !loading && (!profiles || currentIndex >= profiles.length) && !hasMore
 
   return (
-    <div className="pt-24 pb-28 px-3 sm:px-4 flex items-start justify-center">
+    <div className={`px-3 sm:px-4 flex items-start justify-center ${noMoreProfiles ? 'pt-0 pb-0' : 'pt-24 pb-28'}`}>
       <div className="w-full max-w-5xl">
         {!feed && loading && (
           <div className="flex flex-col items-center justify-center text-center text-gray-400 py-20">
@@ -124,12 +125,7 @@ const Feed = () => {
           <div className="text-center text-gray-400 py-6 sm:py-10">Loading more...</div>
         )}
 
-        {noMoreProfiles && (
-          <div className="text-center text-gray-300 py-16">
-            <h3 className="text-xl font-semibold mb-2">You're all caught up ✨</h3>
-            <p className="text-gray-400">Check back later for more matches.</p>
-          </div>
-        )}
+        {noMoreProfiles && <NoMoreUsers />}
       </div>
     </div>
   )

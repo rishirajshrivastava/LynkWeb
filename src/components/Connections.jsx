@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { BASE_URL } from "../utils/constants";
 import { useDispatch, useSelector } from "react-redux";
 import { addConnections } from "../utils/connectionSlice";
+import NoConnections from "./NoConnections";
 
 const Connections = () => {
   const connections = useSelector((store) => store.connections);
@@ -26,15 +27,11 @@ const Connections = () => {
   if (!connections) return null;
 
   if (connections.length === 0) {
-    return (
-      <div className="pt-24 px-4 flex justify-center items-center min-h-[60vh]">
-        <h1 className="text-xl sm:text-2xl font-bold text-center">No Connections Found</h1>
-      </div>
-    );
+    return <NoConnections />;
   }
 
   return (
-    <div className="pt-24 pb-28 px-4 flex justify-center">
+    <div className="pt-16 pb-20 px-4 flex justify-center">
       {/* Parent container */}
       <div className="w-full max-w-6xl min-h-[50vh] bg-base-300 rounded-2xl shadow-xl border border-base-200 p-4 sm:p-6 overflow-hidden">
         <h1 className="text-xl sm:text-2xl font-bold text-center mb-4 sm:mb-6">My Connections</h1>
@@ -76,30 +73,6 @@ const Connections = () => {
                     {connection.gender}
                   </p>
                 )}
-
-                {/* {connection.about && (
-                  <p className="mt-2 text-sm text-base-content/80 line-clamp-3">
-                    {connection.about}
-                  </p>
-                )}
-
-                {connection.skills && connection.skills.length > 0 && (
-                  <div className="mt-3">
-                    <h3 className="text-xs font-semibold text-base-content">
-                      Skills
-                    </h3>
-                    <div className="flex flex-wrap mt-1 gap-2">
-                      {connection.skills.map((skill, idx) => (
-                        <span
-                          key={idx}
-                          className="px-2 py-0.5 bg-primary/10 text-primary text-xs rounded-full"
-                        >
-                          {skill}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )} */}
               </div>
             </div>
           ))}
