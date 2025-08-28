@@ -1,3 +1,67 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Custom styles for navbar components */
+@layer components {
+  /* Ensure dropdown menu works properly on all screen sizes */
+  .dropdown-content {
+    z-index: 9999 !important;
+  }
+  
+  /* Improve mobile menu positioning and scrolling */
+  .mobile-menu {
+    @apply sm:hidden fixed left-0 right-0 z-50;
+  }
+  
+  .mobile-menu-content {
+    max-height: calc(100vh - 5rem);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Smooth transitions for theme changes */
+  .theme-transition {
+    transition: all 0.3s ease-in-out;
+  }
+  
+  /* Ensure navbar has proper z-index */
+  .navbar {
+    z-index: 1000 !important;
+  }
+}
+
+/* Custom scrollbar for mobile menu */
+.mobile-menu-content::-webkit-scrollbar {
+  width: 4px;
+}
+
+.mobile-menu-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.mobile-menu-content::-webkit-scrollbar-thumb {
+  background: hsl(var(--bc) / 0.2);
+  border-radius: 2px;
+}
+
+.mobile-menu-content::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--bc) / 0.4);
+}
+
+/* Ensure dropdown menu appears above other elements */
+.dropdown .dropdown-content {
+  z-index: 9999 !important;
+  position: absolute !important;
+}
+
+/* Ensure dropdown works on click, not hover */
+.dropdown .dropdown-content {
+  display: none;
+}
+
+.dropdown.dropdown-open .dropdown-content,
+.dropdown:focus .dropdown-content,
+.dropdown:focus-within .dropdown-content {
+  display: block;
+}
