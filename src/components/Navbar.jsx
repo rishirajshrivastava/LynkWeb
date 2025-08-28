@@ -81,10 +81,17 @@ const Navbar = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
-                         <div className="text-lg sm:text-xl font-bold mx-2 sm:mx-4 text-primary whitespace-nowrap flex-shrink-0">
-               <span>Lynk</span>
-               <span className="ml-1">💕🔗</span>
-             </div>
+                             <div className="mx-2 sm:mx-4 whitespace-nowrap flex-shrink-0">
+                <div className="flex items-center cursor-pointer group">
+                  <span className="text-xl sm:text-2xl font-bold text-primary tracking-wide group-hover:text-primary/80 transition-colors duration-300">
+                    Lynk
+                  </span>
+                  <span className="ml-2 flex items-center gap-1">
+                    <span className="text-lg sm:text-xl">💕</span>
+                    <span className="text-lg sm:text-xl">🔗</span>
+                  </span>
+                </div>
+              </div>
           </div>
         </div>
 
