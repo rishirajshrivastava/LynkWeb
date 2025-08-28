@@ -6,10 +6,10 @@ const NoMoreUsers = () => {
   };
 
   return (
-    <div className="pt-24 pb-28 px-4 flex justify-center">
+         <div className="pt-8 pb-8 px-4 flex justify-center">
       <div className="w-full max-w-2xl mx-auto">
         {/* Sober Empty State Container */}
-        <div className="bg-base-200 rounded-xl shadow-md border border-base-300/50 overflow-hidden">
+        <div className="bg-base-200 rounded-xl shadow-md border border-base-300/50">
           {/* Header Section - Clean and Simple */}
           <div className="bg-gradient-to-r from-primary/5 to-secondary/5 px-4 py-4 text-center">
             <div className="w-12 h-12 mx-auto mb-3 bg-primary/10 rounded-full flex items-center justify-center">

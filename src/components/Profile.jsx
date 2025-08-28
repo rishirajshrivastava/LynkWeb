@@ -74,7 +74,7 @@ const Profile = () => {
                           <img
                             src={user.photoUrl}
                             alt={`${user.firstName} ${user.lastName}`}
-                            className="w-32 h-32 object-cover rounded-full shadow-lg border-4 border-base-100"
+                            className="w-32 h-32 object-contain rounded-full shadow-lg border-4 border-base-100 bg-base-200"
                             onError={(e) => {
                               e.currentTarget.style.display = "none"
                             }}
