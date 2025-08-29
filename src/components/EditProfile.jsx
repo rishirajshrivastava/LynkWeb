@@ -245,35 +245,35 @@ const EditProfile = ({ setMode, setIsPreview, defaultPreview = false }) => {
 
       {/* Discard Confirmation Modal */}
       {discardOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="bg-base-100 text-base-content rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-2 sm:p-4">
+          <div className="bg-base-100 text-base-content rounded-2xl shadow-2xl w-full max-w-xs sm:max-w-sm overflow-hidden">
             {/* Header */}
-            <div className="flex items-center gap-3 px-6 py-4 border-b border-base-200">
-              <div className="w-10 h-10 rounded-full bg-error/10 text-error flex items-center justify-center">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3 border-b border-base-200">
+              <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-error/10 text-error flex items-center justify-center flex-shrink-0">
+                <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold">Discard Changes?</h3>
+              <h3 className="text-sm sm:text-base font-semibold">Discard Changes?</h3>
             </div>
             
             {/* Body */}
-            <div className="px-6 py-4">
-              <p className="text-base-content/80 leading-relaxed">
+            <div className="px-3 sm:px-4 py-2 sm:py-3">
+              <p className="text-xs sm:text-sm text-base-content/80 leading-relaxed">
                 All your unsaved changes will be lost. Your profile will remain unchanged.
               </p>
             </div>
             
             {/* Footer */}
-            <div className="px-6 py-4 border-t border-base-200 flex justify-end gap-3">
+            <div className="px-3 sm:px-4 py-2 sm:py-3 border-t border-base-200 flex flex-col sm:flex-row justify-end gap-2 sm:gap-3">
               <button
-                className="btn btn-outline btn-sm"
+                className="btn btn-outline btn-xs sm:btn-sm w-full sm:w-auto"
                 onClick={() => setDiscardOpen(false)}
               >
                 Cancel
               </button>
               <button
-                className="btn btn-error btn-sm"
+                className="btn btn-error btn-xs sm:btn-sm w-full sm:w-auto"
                 onClick={() => {
                   setDiscardOpen(false);
                   setPreview(false);
@@ -289,35 +289,35 @@ const EditProfile = ({ setMode, setIsPreview, defaultPreview = false }) => {
 
       {/* Save Confirmation Modal */}
       {saveConfirmOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="bg-base-100 text-base-content rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-2 sm:p-4">
+          <div className="bg-base-100 text-base-content rounded-2xl shadow-2xl w-full max-w-xs sm:max-w-sm overflow-hidden">
             {/* Header */}
-            <div className="flex items-center gap-3 px-6 py-4 border-b border-base-200">
-              <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3 border-b border-base-200">
+              <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center flex-shrink-0">
+                <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold">Update Profile?</h3>
+              <h3 className="text-sm sm:text-base font-semibold">Update Profile?</h3>
             </div>
             
             {/* Body */}
-            <div className="px-6 py-4">
-              <p className="text-base-content/80 leading-relaxed">
+            <div className="px-3 sm:px-4 py-2 sm:py-3">
+              <p className="text-xs sm:text-sm text-base-content/80 leading-relaxed">
                 Are you sure you want to save these changes to your profile? This will update your public profile information.
               </p>
             </div>
             
             {/* Footer */}
-            <div className="px-6 py-4 border-t border-base-200 flex justify-end gap-3">
+            <div className="px-3 sm:px-4 py-2 sm:py-3 border-t border-base-200 flex flex-col sm:flex-row justify-end gap-2 sm:gap-3">
               <button
-                className="btn btn-outline btn-sm"
+                className="btn btn-outline btn-xs sm:btn-sm w-full sm:w-auto"
                 onClick={() => setSaveConfirmOpen(false)}
               >
                 Cancel
               </button>
               <button
-                className="btn btn-primary btn-sm"
+                className="btn btn-primary btn-xs sm:btn-sm w-full sm:w-auto"
                 onClick={() => {
                   setSaveConfirmOpen(false);
                   handleEditProfile();

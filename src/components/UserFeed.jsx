@@ -28,34 +28,34 @@ const UserFeed = ({ profile, onLike, onDislike }) => {
             </div>
           )}
 
-          {/* Action Buttons */}
-          <div className="absolute bottom-6 left-0 right-0 flex items-center justify-center gap-6">
-            {/* Dislike Button */}
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => onDislike?.(profile)}
-              className="w-16 h-16 rounded-full bg-base-100 shadow-lg border-2 border-base-300 flex items-center justify-center hover:bg-base-200 hover:border-base-400 transition-all duration-200"
-              aria-label="Not interested"
-            >
-              <svg className="w-7 h-7 text-base-content/70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </motion.button>
+                     {/* Action Buttons */}
+           <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center gap-6 translate-y-1/2">
+             {/* Dislike Button */}
+             <motion.button
+               whileHover={{ scale: 1.05 }}
+               whileTap={{ scale: 0.95 }}
+               onClick={() => onDislike?.(profile)}
+               className="w-16 h-16 rounded-full bg-gradient-to-br from-red-50 to-red-100 shadow-xl border-2 border-red-200 flex items-center justify-center hover:bg-gradient-to-br hover:from-red-100 hover:to-red-200 hover:border-red-300 hover:shadow-red-500/20 transition-all duration-200 group"
+               aria-label="Not interested"
+             >
+               <svg className="w-7 h-7 text-red-500 group-hover:text-red-600 transition-colors duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+               </svg>
+             </motion.button>
 
-            {/* Like Button */}
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => onLike?.(profile)}
-              className="w-16 h-16 rounded-full bg-primary shadow-lg flex items-center justify-center hover:bg-primary/90 transition-all duration-200"
-              aria-label="Interested"
-            >
-              <svg className="w-7 h-7 text-primary-content" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 6 4 4 6.5 4c1.74 0 3.41 1 4.22 2.44C11.09 5 12.76 4 14.5 4 17 4 19 6 19 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-              </svg>
-            </motion.button>
-          </div>
+             {/* Like Button */}
+             <motion.button
+               whileHover={{ scale: 1.05 }}
+               whileTap={{ scale: 0.95 }}
+               onClick={() => onLike?.(profile)}
+               className="w-16 h-16 rounded-full bg-gradient-to-br from-pink-400 to-rose-500 shadow-xl flex items-center justify-center hover:bg-gradient-to-br hover:from-pink-500 hover:to-rose-600 hover:shadow-pink-500/30 transition-all duration-200 group"
+               aria-label="Interested"
+             >
+               <svg className="w-7 h-7 text-white group-hover:scale-105 transition-transform duration-200" viewBox="0 0 24 24" fill="currentColor">
+                 <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 6 4 4 6.5 4c1.74 0 3.41 1 4.22 2.44C11.09 5 12.76 4 14.5 4 17 4 19 6 19 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+               </svg>
+             </motion.button>
+           </div>
         </div>
 
         {/* Right: Details Section */}

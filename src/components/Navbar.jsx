@@ -215,71 +215,59 @@ const Navbar = () => {
                                                        {/* Mobile slide-down menu */}
          {user && (
            <div className={`mobile-menu-container sm:hidden fixed top-16 left-0 z-50 transition-all duration-300 ease-in-out ${mobileOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2 pointer-events-none"}`}>
-             <div className="ml-4">
-               <div className="w-80 rounded-xl shadow-2xl border border-base-300/50 bg-base-100 overflow-hidden max-h-[calc(100vh-5rem)] overflow-y-auto">
+             <div className="ml-1 sm:ml-2">
+               <div className="w-56 xs:w-64 sm:w-72 rounded-xl shadow-2xl border border-base-300/50 bg-base-100 overflow-hidden max-h-[calc(100vh-5rem)] overflow-y-auto">
                              <nav className="flex flex-col bg-base-100">
-                 <Link onClick={() => setMobileOpen(false)} to={"/feed"} className="px-4 py-3 text-sm hover:bg-primary/10 hover:text-primary border-l-4 border-l-transparent hover:border-l-primary transition-all bg-base-100/95">
-                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-3 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                 <Link onClick={() => setMobileOpen(false)} to={"/feed"} className="px-2.5 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm hover:bg-primary/10 hover:text-primary border-l-4 border-l-transparent hover:border-l-primary transition-all bg-base-100/95 flex items-center">
+                   <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-2 sm:mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                    </svg>
-                   Feed
+                   <span className="truncate">Feed</span>
                  </Link>
-                 <Link onClick={() => setMobileOpen(false)} to={"/connections"} className="px-4 py-3 text-sm hover:bg-primary/10 hover:text-primary border-l-4 border-l-transparent hover:border-l-primary transition-all bg-base-100/95">
-                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-3 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                 <Link onClick={() => setMobileOpen(false)} to={"/connections"} className="px-2.5 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm hover:bg-primary/10 hover:text-primary border-l-4 border-l-transparent hover:border-l-primary transition-all bg-base-100/95 flex items-center">
+                   <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-2 sm:mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                    </svg>
-                   My Connections
+                   <span className="truncate">My Connections</span>
                  </Link>
-                <Link onClick={() => setMobileOpen(false)} to={"/requestReview"} className="px-4 py-3 text-sm hover:bg-secondary/10 hover:text-secondary border-l-4 border-l-transparent hover:border-l-secondary transition-all bg-base-100/95">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-3 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <Link onClick={() => setMobileOpen(false)} to={"/requestReview"} className="px-2.5 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm hover:bg-secondary/10 hover:text-secondary border-l-4 border-l-transparent hover:border-l-secondary transition-all bg-base-100/95 flex items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-2 sm:mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
-                  Pending Requests
-                </Link>
-                <Link onClick={() => setMobileOpen(false)} to={"/profile"} className="px-4 py-3 text-sm hover:bg-base-200 border-l-4 border-l-transparent hover:border-l-base-content/30 transition-all bg-base-100/95">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-3 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
-                  Profile
+                  <span className="truncate">Pending Requests</span>
                 </Link>
                 
-                <button onClick={() => { setMobileOpen(false); setShowLogoutConfirm(true); }} className="px-4 py-3 text-left text-sm hover:bg-error/10 hover:text-error border-l-4 border-l-transparent hover:border-l-error transition-all bg-base-100/95">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-3 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                  </svg>
-                  Logout
-                </button>
               </nav>
             </div>
           </div>
         </div>
       )}
 
-      {/* Logout Confirmation Modal */}
-      {showLogoutConfirm && (
-                 <div className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-md z-50 pointer-events-auto">
-           <div className="bg-base-200 text-base-content rounded-xl shadow-xl w-80 p-5 text-center animate-fade-in">
-            <h2 className="text-lg font-semibold mb-3">Confirm Logout</h2>
-            <p className="text-sm opacity-80 mb-5">
-              Are you sure you want to log out?
-            </p>
-            <div className="flex justify-center gap-3">
-              <button
-                onClick={handleLogout}
-                className="px-4 py-2 rounded-lg bg-gradient-to-r from-red-500 to-red-600 text-white font-medium shadow-sm hover:from-red-600 hover:to-red-700 transition-all"
-              >
-                Yes, Log out
-              </button>
-              <button
-                onClick={() => setShowLogoutConfirm(false)}
-                className="px-4 py-2 rounded-lg border border-gray-500 text-gray-300 hover:bg-gray-700 transition-all"
-              >
-                Cancel
-              </button>
+                           {/* Logout Confirmation Modal */}
+        {showLogoutConfirm && (
+                   <div className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-md z-50 pointer-events-auto p-2 sm:p-4">
+             <div className="bg-base-200 text-base-content rounded-xl shadow-xl w-full max-w-xs sm:max-w-sm p-3 sm:p-5 text-center animate-fade-in">
+              <h2 className="text-sm sm:text-base font-semibold mb-2 sm:mb-3">Confirm Logout</h2>
+              <p className="text-xs sm:text-sm opacity-80 mb-3 sm:mb-4">
+                Are you sure you want to log out?
+              </p>
+              <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-3">
+                <button
+                  onClick={handleLogout}
+                  className="px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg bg-gradient-to-r from-red-500 to-red-600 text-white font-medium shadow-sm hover:from-red-600 hover:to-red-700 transition-all text-xs sm:text-sm"
+                >
+                  Yes, Log out
+                </button>
+                <button
+                  onClick={() => setShowLogoutConfirm(false)}
+                  className="px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border border-gray-500 text-gray-300 hover:bg-gray-700 transition-all text-xs sm:text-sm"
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
     </>
   );
 };

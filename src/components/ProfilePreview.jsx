@@ -63,13 +63,13 @@ const ProfilePreview = ({ firstName, lastName, photoUrl, about, skills = [], onB
 
       {/* Discard confirmation modal */}
       {!hideHeader && showConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-          <div className="bg-base-200 text-base-content rounded-xl shadow-xl w-full max-w-md p-6">
-            <h3 className="text-lg font-semibold mb-2">Discard changes?</h3>
-            <p className="text-sm opacity-80 mb-5">If you proceed, your unsaved edits will be lost and no changes will be applied.</p>
-            <div className="flex justify-end gap-2">
-              <button className="btn" onClick={() => setShowConfirm(false)}>Cancel</button>
-              <button className="btn btn-error" onClick={() => { setShowConfirm(false); onDiscard && onDiscard(); }}>Discard</button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-2 sm:p-4">
+          <div className="bg-base-200 text-base-content rounded-xl shadow-xl w-full max-w-xs sm:max-w-sm p-3 sm:p-4">
+            <h3 className="text-sm sm:text-base font-semibold mb-2 sm:mb-3">Discard changes?</h3>
+            <p className="text-xs sm:text-sm opacity-80 mb-3 sm:mb-4">If you proceed, your unsaved edits will be lost and no changes will be applied.</p>
+            <div className="flex flex-col sm:flex-row justify-end gap-2">
+              <button className="btn btn-xs sm:btn-sm w-full sm:w-auto" onClick={() => setShowConfirm(false)}>Cancel</button>
+              <button className="btn btn-error btn-xs sm:btn-sm w-full sm:w-auto" onClick={() => { setShowConfirm(false); onDiscard && onDiscard(); }}>Discard</button>
             </div>
           </div>
         </div>
