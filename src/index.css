@@ -65,3 +65,28 @@
 .dropdown:focus-within .dropdown-content {
   display: block;
 }
+
+/* Basic responsive alerts dropdown styling */
+.alerts-dropdown .dropdown-content {
+  width: auto !important;
+  min-width: 280px !important;
+  max-width: calc(100vw - 2rem) !important;
+  right: 0 !important;
+  left: auto !important;
+}
+
+/* Ensure dropdown positioning works correctly */
+.dropdown.dropdown-end .dropdown-content {
+  right: 0 !important;
+  left: auto !important;
+}
+
+/* Ensure proper z-index for dropdowns */
+.dropdown .dropdown-content {
+  z-index: 50 !important;
+}
+
+/* Smooth transitions for dropdowns */
+.dropdown .dropdown-content {
+  transition: all 0.2s ease-in-out !important;
+}
