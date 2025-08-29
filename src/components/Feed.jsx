@@ -55,6 +55,13 @@ const Feed = () => {
     return Array.isArray(feed?.data) ? feed.data : Array.isArray(feed) ? feed : []
   }, [feed])
 
+  // Adjust currentIndex if it becomes invalid after removing profiles
+  useEffect(() => {
+    if (profiles.length > 0 && currentIndex >= profiles.length) {
+      setCurrentIndex(0)
+    }
+  }, [profiles.length, currentIndex])
+
   const handleNext = () => {
     const nextIndex = currentIndex + 1
 
@@ -68,6 +75,7 @@ const Feed = () => {
         setCurrentIndex(nextIndex)
       })
     }
+    // No loop back - let it naturally show NoMoreUsers when no more data
   }
 
   const handleLike = async (profile) => {
@@ -80,6 +88,13 @@ const Feed = () => {
       dispatch(removeFromFeed(profile._id))
     } catch (err) {
       console.log("Error while sending like", err)
+      
+      // Handle "Connection request already exists" error
+      if (err.response?.data?.error?.includes("Connection request already exists") || 
+          err.response?.data?.message?.includes("Connection request already exists")) {
+        // Remove user from store and show next card
+        dispatch(removeFromFeed(profile._id))
+      }
     } finally {
       handleNext()
     }
@@ -95,13 +110,20 @@ const Feed = () => {
       dispatch(removeFromFeed(profile._id))
     } catch (err) {
       console.log("Error while sending dislike", err)
+      
+      // Handle "Connection request already exists" error
+      if (err.response?.data?.error?.includes("Connection request already exists") || 
+          err.response?.data?.message?.includes("Connection request already exists")) {
+        // Remove user from store and show next card
+        dispatch(removeFromFeed(profile._id))
+      }
     } finally {
       handleNext()
     }
   }
 
   const noMoreProfiles =
-    !loading && (!profiles || currentIndex >= profiles.length) && !hasMore
+    !loading && profiles.length === 0 && !hasMore
 
   return (
     <div className={`px-3 sm:px-4 flex items-start justify-center ${noMoreProfiles ? 'pt-16 pb-8' : 'pt-24 pb-20'}`}>
@@ -113,19 +135,19 @@ const Feed = () => {
           </div>
         )}
 
-        {profiles[currentIndex] && (
+        {profiles.length > 0 && profiles[currentIndex] ? (
           <UserFeed
             profile={profiles[currentIndex]}
             onLike={handleLike}
             onDislike={handleDislike}
           />
-        )}
+        ) : noMoreProfiles ? (
+          <NoMoreUsers />
+        ) : null}
 
         {loading && profiles.length > 0 && (
           <div className="text-center text-gray-400 py-6 sm:py-10">Loading more...</div>
         )}
-
-        {noMoreProfiles && <NoMoreUsers />}
       </div>
     </div>
   )

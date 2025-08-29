@@ -80,37 +80,37 @@ const Requests = () => {
                      )}
                    </h2>
                    {request.fromUserId.gender && (
-                     <p className="text-xs text-base-content/70 mt-0.5">
+                     <p className="text-xs text-base-content/70 mt-0.5 mb-3">
                        {request.fromUserId.gender}
                      </p>
                    )}
 
                    {request.fromUserId.about && (
-                     <p className="mt-1.5 text-xs text-base-content/80 line-clamp-2">
-                       {request.fromUserId.about}
-                     </p>
+                     <div className="mb-4">
+                       <h3 className="text-xs font-medium text-success mb-1">
+                         About
+                       </h3>
+                       <p className="text-xs text-base-content/80 break-words whitespace-pre-wrap min-h-0 leading-relaxed">
+                         {request.fromUserId.about}
+                       </p>
+                     </div>
                    )}
 
                    {request.fromUserId.skills &&
                      request.fromUserId.skills.length > 0 && (
-                       <div className="mt-2">
-                         <h3 className="text-xs font-semibold text-base-content">
+                       <div className="mt-4">
+                         <h3 className="text-xs font-medium text-info mb-2">
                            Skills
                          </h3>
-                         <div className="flex flex-wrap mt-1 gap-1.5">
-                           {request.fromUserId.skills.slice(0, 3).map((skill, idx) => (
+                         <div className="flex flex-wrap gap-1.5">
+                           {request.fromUserId.skills.map((skill, idx) => (
                              <span
                                key={idx}
-                               className="px-1.5 py-0.5 bg-primary/10 text-primary text-[10px] rounded-full"
+                               className="px-2 py-1 bg-base-300 text-base-content/80 text-xs rounded-md"
                              >
                                {skill}
                              </span>
                            ))}
-                           {request.fromUserId.skills.length > 3 && (
-                             <span className="px-1.5 py-0.5 bg-base-content/10 text-base-content/70 text-[10px] rounded-full">
-                               +{request.fromUserId.skills.length - 3} more
-                             </span>
-                           )}
                          </div>
                        </div>
                      )}
