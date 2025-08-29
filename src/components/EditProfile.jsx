@@ -84,7 +84,7 @@ const EditProfile = ({ setMode, setIsPreview, defaultPreview = false }) => {
               Live Preview
             </h3>
             <div className="text-sm text-base-content/60 mb-3">
-              This is exactly how others will see your profile
+              This is how others will see your profile
             </div>
             
             {/* Profile Preview Component */}

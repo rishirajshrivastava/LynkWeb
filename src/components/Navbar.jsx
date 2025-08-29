@@ -156,26 +156,34 @@ const Navbar = () => {
                      {user && (
              <div className={`dropdown dropdown-end ${dropdownOpen ? 'dropdown-open' : ''}`} data-theme={theme}>
                {/* Username + Avatar */}
-               <div
-                 tabIndex={0}
-                 role="button"
-                 className="flex items-center gap-1 sm:gap-2 lg:gap-3 cursor-pointer bg-base-200 hover:bg-base-100 rounded-lg px-2 sm:px-3 py-2 transition-all duration-200 border border-base-300 hover:border-primary/30 active:scale-95"
-                 onClick={() => setDropdownOpen(!dropdownOpen)}
-               >
-                <span className="hidden lg:block text-sm font-medium text-base-content/80">
-                  Welcome,
-                  <span className="ml-1 text-base-content font-semibold">{user.firstName}</span>
-                </span>
-                <span className="hidden sm:block lg:hidden text-sm font-medium text-base-content/80">
-                  {user.firstName}
-                </span>
-
-                <div className="avatar">
-                  <div className="w-7 sm:w-8 lg:w-9 xl:w-10 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
-                    <img src={user.photoUrl} alt="User Avatar" />
-                  </div>
-                </div>
-              </div>
+                               <div
+                  tabIndex={0}
+                  role="button"
+                  className="flex items-center cursor-pointer bg-base-200 hover:bg-base-100 rounded-lg px-2 sm:px-3 py-2 transition-all duration-200 border border-base-300 hover:border-primary/30 active:scale-95"
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
+                >
+                 {/* Avatar only - no username */}
+                 <div className="avatar flex-shrink-0">
+                   <div className="w-8 h-8 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 bg-base-200">
+                     {user.photoUrl ? (
+                       <img 
+                         src={user.photoUrl} 
+                         alt="User Avatar" 
+                         className="w-full h-full object-contain rounded-full"
+                         onError={(e) => {
+                           e.target.style.display = 'none';
+                           e.target.nextSibling.style.display = 'flex';
+                         }}
+                       />
+                     ) : null}
+                     <div className={`w-full h-full bg-primary/20 rounded-full flex items-center justify-center ${user.photoUrl ? 'hidden' : 'flex'}`}>
+                       <span className="text-primary font-semibold text-sm">
+                         {user.firstName ? user.firstName.charAt(0).toUpperCase() : 'U'}
+                       </span>
+                     </div>
+                   </div>
+                 </div>
+               </div>
 
                              {/* Dropdown Menu */}
                <ul
