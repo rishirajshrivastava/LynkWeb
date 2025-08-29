@@ -5,19 +5,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { addRequests, removeRequest } from "../utils/requestsSlice";
 import { Check, X } from "lucide-react";
 import NoRequests from "./NoRequests";
+import { addConnection } from "../utils/connectionSlice";
 
 const Requests = () => {
   const requests = useSelector((store) => store.requests);
   const dispatch = useDispatch();
-
-  const handleRequestReview = (fromUserId, status) => async () => {
-    const response = await axios.post(
-      `${BASE_URL}/request/review/${status}/${fromUserId}`,
-        {},
-        { withCredentials: true }
-    );
-    dispatch(removeRequest(fromUserId));
-  };
 
   const fetchRequests = async () => {
     try {
@@ -40,6 +32,48 @@ const Requests = () => {
     return <NoRequests />;
   }
 
+  // Sort requests by creation date (most recent first)
+  const sortedRequests = Array.isArray(requests) ? [...requests].sort((a, b) => {
+    const dateA = new Date(a.createdAt || a.updatedAt || 0);
+    const dateB = new Date(b.createdAt || b.updatedAt || 0);
+    return dateB - dateA;
+  }) : [];
+
+  const handleRequestReview = (request, status) => {
+    return async () => {
+      try {
+        const response = await axios.post(
+          `${BASE_URL}/request/review/${status}/${request._id}`,
+            {},
+            { withCredentials: true }
+        );
+        
+        // Remove the request from the requests list
+        dispatch(removeRequest(request._id));
+        
+        // If accepted, add the new connection to the connections list
+        if (status === "accepted") {
+          // Create new connection from the request data since API response doesn't contain user info
+          const newConnection = {
+            _id: request.fromUserId._id,
+            firstName: request.fromUserId.firstName,
+            lastName: request.fromUserId.lastName,
+            age: request.fromUserId.age,
+            gender: request.fromUserId.gender,
+            photoUrl: request.fromUserId.photoUrl,
+            about: request.fromUserId.about,
+            skills: request.fromUserId.skills,
+            createdAt: new Date().toISOString(),
+            _isNew: true
+          };
+          dispatch(addConnection(newConnection));
+        }
+      } catch (error) {
+        console.error("Error reviewing request:", error);
+      }
+    };
+  };
+
   return (
     <div className="pt-24 pb-28 px-4 flex justify-center">
       {/* Parent container - More compact */}
@@ -48,9 +82,9 @@ const Requests = () => {
 
         {/* Cards stacked vertically - No scroll, compact spacing */}
         <div className="flex flex-col gap-3 sm:gap-4">
-          {requests.map((request) => (
+          {sortedRequests.map((request) => (
             <div
-              key={request.fromUserId._id}
+              key={request._id}
               className="w-full bg-base-200 rounded-xl shadow-md border border-base-300 flex flex-col sm:flex-row overflow-hidden"
             >
               {/* Profile photo - More compact */}
@@ -119,19 +153,13 @@ const Requests = () => {
                                  {/* Action Buttons - More compact */}
                  <div className="mt-3 flex gap-2 justify-end">
                    <button
-                     onClick={handleRequestReview(
-                       request._id,
-                       "accepted"
-                     )}
+                     onClick={handleRequestReview(request, "accepted")}
                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-green-600/80 text-white text-xs font-medium shadow-sm hover:bg-green-500 hover:ring-2 hover:ring-green-400 transition-all duration-200"
                    >
                      <Check size={14} /> Accept
                    </button>
                    <button
-                     onClick={handleRequestReview(
-                       request._id,
-                       "rejected"
-                     )}
+                     onClick={handleRequestReview(request, "rejected")}
                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-red-600/80 text-white text-xs font-medium shadow-sm hover:bg-red-500 hover:ring-2 hover:ring-red-400 transition-all duration-200"
                    >
                      <X size={14} /> Reject

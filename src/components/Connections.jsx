@@ -28,11 +28,19 @@ const Connections = () => {
 
      // Filter connections based on search
    const filteredConnections = useMemo(() => {
-     if (!searchQuery.trim()) return connections;
+     // Ensure connections is an array
+     if (!connections || !Array.isArray(connections)) {
+       return [];
+     }
+     
+     if (!searchQuery.trim()) {
+       // Reverse the array to show most recent connections first (API returns newest first, so reverse to show newest at top)
+       return [...connections].reverse();
+     }
      
      const query = searchQuery.toLowerCase().trim();
      
-     return connections.filter(connection => {
+     const filtered = connections.filter(connection => {
        // Search across all fields with improved logic
        const firstName = connection.firstName?.toLowerCase() || '';
        const lastName = connection.lastName?.toLowerCase() || '';
@@ -50,6 +58,9 @@ const Connections = () => {
        
        return matchesFirstName || matchesLastName || matchesAge || matchesGender || matchesFullName;
      });
+
+     // Reverse filtered results to show most recent first
+     return filtered.reverse();
    }, [connections, searchQuery]);
 
   if (!connections) return null;
