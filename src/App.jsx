@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom"
+import { useEffect } from "react"
 import Body from "./components/Body"
 import Login from "./components/Login"
 import Signup from "./components/Signup"
@@ -8,7 +9,22 @@ import appStore from "./utils/appstore"
 import Feed from "./components/Feed"
 import Requests from "./components/Requests"
 import Connections from "./components/Connections"
+
 function App() {
+  // Disable right-click context menu
+  useEffect(() => {
+    const handleContextMenu = (e) => {
+      e.preventDefault();
+      return false;
+    };
+
+    document.addEventListener('contextmenu', handleContextMenu);
+    
+    return () => {
+      document.removeEventListener('contextmenu', handleContextMenu);
+    };
+  }, []);
+
   return (
     <>
     <Provider store={appStore}>
