@@ -33,11 +33,11 @@ const Connections = () => {
   return (
     <div className="pt-16 pb-20 px-4 flex justify-center">
       {/* Parent container */}
-      <div className="w-full max-w-6xl min-h-[50vh] bg-base-300 rounded-2xl shadow-xl border border-base-200 p-4 sm:p-6 overflow-hidden">
+      <div className="w-full max-w-6xl bg-base-300 rounded-2xl shadow-xl border border-base-200 p-4 sm:p-6">
         <h1 className="text-xl sm:text-2xl font-bold text-center mb-4 sm:mb-6">My Connections</h1>
 
         {/* Responsive grid of cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 overflow-y-auto max-h-[60vh] sm:max-h-[64vh] pr-1">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {connections.map((connection) => (
             <div
               key={connection._id}
