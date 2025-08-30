@@ -285,7 +285,7 @@ const Navbar = () => {
                 
                 <li>
                   <Link to={"/profile"} className="justify-between" onClick={() => document.activeElement && document.activeElement.blur()}>
-                    Profile
+                    My Profile
                   </Link>
                 </li>
                 
