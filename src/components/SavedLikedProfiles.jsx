@@ -12,6 +12,8 @@ const SavedLikedProfiles = () => {
   const [showReminderModal, setShowReminderModal] = useState(false)
   const [isSendingReminder, setIsSendingReminder] = useState(false)
   const [reminderStatuses, setReminderStatuses] = useState({})
+  const [requestStatuses, setRequestStatuses] = useState({})
+  const [refreshingStatuses, setRefreshingStatuses] = useState({})
 
 
   // Fetch saved profiles from API
@@ -68,6 +70,78 @@ const SavedLikedProfiles = () => {
     }
   }
 
+    // Fetch request status for each profile
+  const fetchRequestStatuses = async (profiles) => {
+    try {
+      // If it's a single profile refresh, update only that profile's status
+      if (profiles.length === 1) {
+        const profile = profiles[0]
+        
+        // Set refreshing state for this profile
+        setRefreshingStatuses(prev => ({ ...prev, [profile._id]: true }))
+        
+        try {
+          const response = await axios.get(`${BASE_URL}/request/status/${profile._id}`, {
+            withCredentials: true
+          })
+          const newStatus = response.data.data?.status || 'pending'
+          
+          // Update only this specific profile's status without affecting others
+          setRequestStatuses(prev => ({
+            ...prev,
+            [profile._id]: newStatus
+          }))
+          
+          // Add a brief highlight effect by temporarily adding a class
+          setTimeout(() => {
+            setRefreshingStatuses(prev => ({ ...prev, [profile._id]: false }))
+          }, 1000)
+          
+        } catch (error) {
+          console.error(`Error fetching request status for ${profile._id}:`, error)
+          // Update only this profile's status to pending on error
+          setRequestStatuses(prev => ({
+            ...prev,
+            [profile._id]: 'pending'
+          }))
+          
+          // Clear refreshing state on error too
+          setTimeout(() => {
+            setRefreshingStatuses(prev => ({ ...prev, [profile._id]: false }))
+          }, 1000)
+        }
+        return
+      }
+      
+      // For multiple profiles (initial load), fetch all statuses
+      const statuses = {}
+      
+      // Fetch request status for each profile
+      for (const profile of profiles) {
+        try {
+          const response = await axios.get(`${BASE_URL}/request/status/${profile._id}`, {
+            withCredentials: true
+          })
+          statuses[profile._id] = response.data.data?.status || 'pending'
+        } catch (error) {
+          console.error(`Error fetching request status for ${profile._id}:`, error)
+          // Default to pending if there's an error
+          statuses[profile._id] = 'pending'
+        }
+      }
+      
+      setRequestStatuses(statuses)
+    } catch (error) {
+      console.error('Error fetching request statuses:', error)
+      // Set all to pending if there's a general error
+      const fallbackStatuses = {}
+      profiles.forEach(profile => {
+        fallbackStatuses[profile._id] = 'pending'
+      })
+      setRequestStatuses(fallbackStatuses)
+    }
+  }
+
   useEffect(() => {
     fetchSavedProfiles()
     fetchSpecialLikeInfo()
@@ -77,6 +151,7 @@ const SavedLikedProfiles = () => {
   useEffect(() => {
     if (savedProfiles.length > 0) {
       fetchReminderStatuses(savedProfiles)
+      fetchRequestStatuses(savedProfiles)
     }
   }, [savedProfiles])
 
@@ -92,25 +167,27 @@ const SavedLikedProfiles = () => {
     switch (status) {
       case 'accepted':
         return 'badge-success'
-      case 'pending':
-        return 'badge-warning'
       case 'rejected':
         return 'badge-error'
+      case 'interested':
+      case 'ignored':
+      case 'pending':
       default:
-        return 'badge-base-content/70'
+        return 'badge-warning'
     }
   }
 
   const getStatusText = (status) => {
     switch (status) {
       case 'accepted':
-        return 'Accepted! 🎉'
-      case 'pending':
-        return 'Pending ⏳'
+        return 'Request Accepted! 🎉'
       case 'rejected':
-        return 'Declined ❌'
+        return 'Request Rejected ❌'
+      case 'interested':
+      case 'ignored':
+      case 'pending':
       default:
-        return 'Unknown'
+        return 'Pending Review ⏳'
     }
   }
 
@@ -329,6 +406,12 @@ const SavedLikedProfiles = () => {
             <h1 className="text-xl sm:text-2xl font-bold text-base-content">Saved Liked Profiles</h1>
             <p className="text-sm text-base-content/70 mt-1">
               Track your special connection requests ({savedProfiles.length}/5)
+              {Object.keys(requestStatuses).length === 0 && savedProfiles.length > 0 && (
+                <span className="ml-2 inline-flex items-center gap-1 text-xs text-base-content/50 bg-base-content/10 px-2 py-1 rounded-full">
+                  <span className="loading loading-spinner loading-xs"></span>
+                  Loading statuses...
+                </span>
+              )}
             </p>
           </div>
           
@@ -340,6 +423,7 @@ const SavedLikedProfiles = () => {
               fetchSpecialLikeInfo()
               // Reset reminder statuses when refreshing
               setReminderStatuses({})
+              setRequestStatuses({})
             }}
             className="btn btn-sm btn-outline"
             disabled={isLoading}
@@ -412,29 +496,110 @@ const SavedLikedProfiles = () => {
 
                   {/* Status Badge */}
                   <div className="mt-3">
-                    <span className={`badge ${getStatusColor(profile.status || 'pending')} text-xs`}>
-                      {getStatusText(profile.status || 'pending')}
-                    </span>
+                    {requestStatuses[profile._id] === undefined ? (
+                      <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium bg-base-content/10 text-base-content/70 border border-base-content/20">
+                        <span className="loading loading-spinner loading-xs"></span>
+                        Loading status...
+                      </div>
+                    ) : (
+                      <>
+                        <div className="flex items-center gap-2">
+                          <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-300 ${
+                            requestStatuses[profile._id] === 'accepted' 
+                              ? 'bg-success/10 text-success border border-success/20' 
+                              : requestStatuses[profile._id] === 'rejected'
+                                ? 'bg-error/10 text-error border border-error/20'
+                                : 'bg-warning/10 text-warning border border-warning/20'
+                          } ${
+                            refreshingStatuses[profile._id] ? 'ring-2 ring-warning/50 shadow-lg scale-105' : ''
+                          }`}>
+                            {requestStatuses[profile._id] === 'accepted' && (
+                              <div className="w-3 h-3 bg-success rounded-full flex items-center justify-center">
+                                <svg className="w-2 h-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                              </div>
+                            )}
+                            {requestStatuses[profile._id] === 'rejected' && (
+                              <div className="w-3 h-3 bg-error rounded-full flex items-center justify-center">
+                                <svg className="w-2 h-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                              </div>
+                            )}
+                            {['interested', 'ignored', 'pending'].includes(requestStatuses[profile._id]) && (
+                              <div className="w-3 h-3 bg-warning rounded-full flex items-center justify-center">
+                                <svg className="w-2 h-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                              </div>
+                            )}
+                            {getStatusText(requestStatuses[profile._id] || 'pending')}
+                          </div>
+                          
+                                                     {/* Retry button for failed status loads */}
+                           {['interested', 'ignored', 'pending'].includes(requestStatuses[profile._id]) && (
+                             <button
+                               onClick={() => fetchRequestStatuses([profile])}
+                               disabled={refreshingStatuses[profile._id]}
+                               className={`btn btn-lg btn-ghost p-3 min-h-0 h-10 w-10 hover:bg-warning/20 hover:scale-110 transition-all duration-200 ${
+                                 refreshingStatuses[profile._id] ? 'animate-pulse bg-warning/30' : ''
+                               }`}
+                               title={refreshingStatuses[profile._id] ? "Refreshing..." : "Refresh status"}
+                             >
+                               <svg className={`w-6 h-6 ${refreshingStatuses[profile._id] ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                               </svg>
+                             </button>
+                           )}
+                        </div>
+                        
+                        {/* Connection Info for Accepted Requests */}
+                        {requestStatuses[profile._id] === 'accepted' && (
+                          <div className="mt-2">
+                            <div className="bg-success/10 border border-success/20 rounded-lg px-3 py-2">
+                              <div className="flex items-center gap-2">
+                                <div className="w-4 h-4 bg-success rounded-full flex items-center justify-center">
+                                  <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                                  </svg>
+                                </div>
+                                <span className="text-xs font-medium text-success">
+                                  Connection Established
+                                </span>
+                              </div>
+                              <p className="text-xs text-success/80 mt-1">
+                                You can now find this user in your connections
+                              </p>
+                            </div>
+                          </div>
+                        )}
+                        
+
+                      </>
+                    )}
                   </div>
 
                   {/* Send Reminder Button */}
                   <div className="mt-auto pt-3">
                     <button
                       onClick={() => handleSendReminder(profile)}
-                      disabled={profile.status === 'accepted' || reminderStatuses[profile._id] === true}
+                      disabled={requestStatuses[profile._id] === 'accepted' || reminderStatuses[profile._id] === true || requestStatuses[profile._id] === undefined}
                       className={`btn btn-sm w-full ${
-                        profile.status === 'accepted' || reminderStatuses[profile._id] === true
+                        requestStatuses[profile._id] === 'accepted' || reminderStatuses[profile._id] === true || requestStatuses[profile._id] === undefined
                           ? 'btn-disabled opacity-50' 
                           : 'btn-primary'
                       }`}
                     >
-                      {profile.status === 'accepted' 
-                        ? '✅ Connected' 
-                        : reminderStatuses[profile._id] === true 
-                          ? '📤 Reminder Sent' 
-                          : reminderStatuses[profile._id] === undefined
-                            ? '⏳ Loading...'
-                            : '💬 Send Reminder'
+                      {requestStatuses[profile._id] === undefined
+                        ? '⏳ Loading...'
+                        : requestStatuses[profile._id] === 'accepted' 
+                          ? '✅ Connected' 
+                          : reminderStatuses[profile._id] === true 
+                            ? '📤 Reminder Sent' 
+                            : reminderStatuses[profile._id] === undefined
+                              ? '⏳ Loading...'
+                              : '💬 Send Reminder'
                       }
                     </button>
                   </div>
