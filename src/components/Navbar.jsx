@@ -285,6 +285,15 @@ const Navbar = () => {
                      </div>
                    </a>
                  </li>
+
+                 <li>
+                  <Link to={"/savedLikedProfiles"} className="justify-between" onClick={() => document.activeElement && document.activeElement.blur()}>
+                    <div className="flex items-center gap-2">
+                      <span>Saved Profiles</span>
+                      <span>✨</span>
+                    </div>
+                  </Link>
+                </li>
                 
                 <li>
                   <Link to={"/profile"} className="justify-between" onClick={() => document.activeElement && document.activeElement.blur()}>
@@ -292,15 +301,6 @@ const Navbar = () => {
                   </Link>
                 </li>
                 
-                <li>
-                  <Link to={"/savedLikedProfiles"} className="justify-between" onClick={() => document.activeElement && document.activeElement.blur()}>
-                    <div className="flex items-center gap-2">
-                      <span>✨</span>
-                      <span>Saved Profiles</span>
-                      <div className="badge badge-primary badge-xs ml-auto">5</div>
-                    </div>
-                  </Link>
-                </li>
                 
                 <li>
                   <button
@@ -324,6 +324,10 @@ const Navbar = () => {
           <div className="ml-1 sm:ml-2">
             <div className="w-56 xs:w-64 sm:w-72 rounded-xl shadow-2xl border border-base-300/50 bg-base-100 overflow-hidden max-h-[calc(100vh-5rem)] overflow-y-auto">
               <nav className="flex flex-col bg-base-100">
+                <Link onClick={() => setMobileOpen(false)} to={"savedLikedProfiles"} className="px-2.5 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm hover:bg-primary/10 hover:text-primary border-l-4 border-l-transparent hover:border-l-primary transition-all bg-base-100/95 flex items-center">
+                  <span className="truncate">Saved Profiles</span>
+                  <span className="text-lg mr-2 sm:mr-3 flex-shrink-0">✨</span>
+                </Link>
                 <Link onClick={() => setMobileOpen(false)} to={"/feed"} className="px-2.5 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm hover:bg-primary/10 hover:text-primary border-l-4 border-l-transparent hover:border-l-primary transition-all bg-base-100/95 flex items-center">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-2 sm:mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
@@ -341,12 +345,6 @@ const Navbar = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                   <span className="truncate">Pending Requests</span>
-                </Link>
-                
-                <Link onClick={() => setMobileOpen(false)} to={"savedLikedProfiles"} className="px-2.5 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm hover:bg-primary/10 hover:text-primary border-l-4 border-l-transparent hover:border-l-primary transition-all bg-base-100/95 flex items-center">
-                  <span className="text-lg mr-2 sm:mr-3 flex-shrink-0">✨</span>
-                  <span className="truncate">Saved Profiles</span>
-                  <div className="badge badge-primary badge-xs ml-auto">5</div>
                 </Link>
                 
 

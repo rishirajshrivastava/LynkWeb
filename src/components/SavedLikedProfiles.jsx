@@ -118,7 +118,7 @@ const SavedLikedProfiles = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-base-200 flex items-center justify-center pb-24">
+      <div className="min-h-screen bg-base-200 flex items-center justify-center pb-40">
         <div className="text-center">
           <div className="loading loading-spinner loading-lg text-primary"></div>
           <p className="mt-4 text-base-content/70">Loading your saved profiles...</p>
@@ -129,7 +129,7 @@ const SavedLikedProfiles = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-base-200 flex items-center justify-center pb-24">
+      <div className="min-h-screen bg-base-200 flex items-center justify-center pb-40">
         <div className="text-center max-w-md mx-auto px-4">
           <div className="text-6xl mb-4">⚠️</div>
           <h3 className="text-xl font-semibold text-base-content mb-2">Something went wrong</h3>
@@ -145,22 +145,22 @@ const SavedLikedProfiles = () => {
     )
   }
 
-  return (
-    <div className="min-h-screen bg-base-200 p-4 sm:p-6 pb-56">
+    return (
+    <div className="min-h-screen bg-base-200 p-4 sm:p-6 pb-40">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-8">
-          <div className="text-4xl mb-4">✨</div>
-          <h1 className="text-3xl sm:text-4xl font-bold text-base-content mb-2">
+        <div className="text-center mb-6">
+          <div className="text-3xl mb-3">✨</div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-base-content mb-2">
             Saved Liked Profiles
           </h1>
           <p className="text-base-content/70 text-sm sm:text-base">
             Track your special connection requests
           </p>
-          <div className="mt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <div className="inline-flex items-center gap-2 bg-base-100 px-4 py-2 rounded-full border border-base-300">
-              <span className="text-sm text-base-content/70">Profiles saved:</span>
-              <span className="badge badge-primary badge-sm">{savedProfiles.length}/5</span>
+          <div className="mt-3 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <div className="inline-flex items-center gap-2 bg-base-100 px-3 py-1.5 rounded-full border border-base-300">
+            <span className="text-sm text-base-content/70">Profiles saved:</span>
+            <span className="badge badge-primary badge-sm">{savedProfiles.length}/5</span>
             </div>
             <button 
               onClick={() => {
@@ -185,20 +185,82 @@ const SavedLikedProfiles = () => {
 
         {/* Profiles Grid */}
         {savedProfiles.length === 0 ? (
-          <div className="text-center py-16">
-            <div className="text-6xl mb-4">💫</div>
-            <h3 className="text-xl font-semibold text-base-content mb-2">No saved profiles yet</h3>
-            <p className="text-base-content/70 mb-6">
-              Use the ✨ button when liking profiles to save them here for tracking
-            </p>
-            <div className="bg-base-100 p-6 rounded-2xl border border-base-300 max-w-md mx-auto">
-              <h4 className="font-semibold text-base-content mb-3">How it works:</h4>
-              <ul className="text-sm text-base-content/70 space-y-2 text-left">
-                <li>• Like profiles with the ✨ button to save them</li>
-                <li>• Track connection request status</li>
-                <li>• Maximum 5 profiles can be saved</li>
-                <li>• Send reminders when needed</li>
-              </ul>
+          <div className="text-center py-12">
+            {/* Feature Cards Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl mx-auto mb-6">
+              {/* Card 1: Special Like */}
+              <div className="bg-base-100 p-4 rounded-xl border border-base-300 hover:shadow-lg transition-all duration-300 hover:border-primary/30">
+                <div className="text-3xl mb-3">✨</div>
+                <h4 className="text-base font-semibold text-base-content mb-2">Send Special Likes</h4>
+                <p className="text-sm text-base-content/70 leading-relaxed">
+                  Use the sparkle button to show special interest in profiles. Each special like saves the profile here for tracking.
+                </p>
+              </div>
+
+              {/* Card 2: Status Tracking */}
+              <div className="bg-base-100 p-4 rounded-xl border border-base-300 hover:shadow-lg transition-all duration-300 hover:border-secondary/30">
+                <div className="text-3xl mb-3">📊</div>
+                <h4 className="text-base font-semibold text-base-content mb-2">Track Status</h4>
+                <p className="text-sm text-base-content/70 leading-relaxed">
+                  Monitor the progress of your connection requests - pending, accepted, or declined. Stay updated on your matches.
+                </p>
+              </div>
+
+              {/* Card 3: Reminder System */}
+              <div className="bg-base-100 p-4 rounded-xl border border-base-300 hover:shadow-lg transition-all duration-300 hover:border-accent/30">
+                <div className="text-3xl mb-3">⏰</div>
+                <h4 className="text-base font-semibold text-base-content mb-2">Send Reminders</h4>
+                <p className="text-sm text-base-content/70 leading-relaxed">
+                  Gently remind users to review your connection request when needed. Keep the conversation flowing.
+                </p>
+              </div>
+            </div>
+
+            {/* How it works section */}
+            <div className="bg-gradient-to-br from-base-100 to-base-200 p-6 rounded-2xl border border-base-300 max-w-4xl mx-auto">
+              <h4 className="text-lg font-bold text-base-content mb-4 text-center">How the Special Like System Works</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-3">
+                  <div className="flex items-start gap-3">
+                    <div className="w-6 h-6 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                      <span className="text-primary font-bold text-xs">1</span>
+                    </div>
+                    <div>
+                      <h5 className="font-semibold text-base-content mb-1 text-sm">Browse Profiles</h5>
+                      <p className="text-xs text-base-content/70">Go through your daily feed and find profiles that interest you</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="w-6 h-6 bg-secondary/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                      <span className="text-secondary font-bold text-xs">2</span>
+                    </div>
+                    <div>
+                      <h5 className="font-semibold text-base-content mb-1 text-sm">Send Special Like</h5>
+                      <p className="text-xs text-base-content/70">Click the ✨ button to show special interest and save the profile</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <div className="flex items-start gap-3">
+                    <div className="w-6 h-6 bg-accent/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                      <span className="text-accent font-bold text-xs">3</span>
+                    </div>
+                    <div>
+                      <h5 className="font-semibold text-base-content mb-1 text-sm">Track Progress</h5>
+                      <p className="text-xs text-base-content/70">Monitor connection status and manage your saved profiles</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="w-6 h-6 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                      <span className="text-primary font-bold text-xs">4</span>
+                    </div>
+                    <div>
+                      <h5 className="font-semibold text-base-content mb-1 text-sm">Stay Connected</h5>
+                      <p className="text-xs text-base-content/70">Send reminders and maintain engagement with your matches</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         ) : (
@@ -215,12 +277,13 @@ const SavedLikedProfiles = () => {
                   <div className="lg:w-80 p-6 bg-gradient-to-br from-primary/5 to-secondary/5 border-r border-base-300">
                     <div className="flex flex-col items-center text-center">
                       {/* Profile Image - Fixed to prevent cutting */}
-                      <div className="w-24 h-24 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-full flex items-center justify-center mb-4 shadow-lg overflow-hidden">
+                      <div className="w-24 h-24 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-full flex items-center justify-center mb-4 shadow-lg overflow-hidden flex-shrink-0">
                         {profile.photoUrl ? (
                           <img 
                             src={profile.photoUrl} 
                             alt={`${profile.firstName} ${profile.lastName}`}
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-cover rounded-full"
+                            style={{ objectPosition: 'center' }}
                           />
                         ) : (
                           <span className="text-2xl font-bold text-primary">

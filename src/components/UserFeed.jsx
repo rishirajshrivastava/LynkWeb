@@ -1,9 +1,21 @@
 import { motion } from 'framer-motion'
+import { useState } from 'react'
 
 const UserFeed = ({ profile, onLike, onDislike, onSparkleLike, sparkleError }) => {
+  const [showSparkleDialog, setShowSparkleDialog] = useState(false)
+  
   if (!profile) return null
 
   const fullName = `${profile.firstName ?? ''} ${profile.lastName ?? ''}`.trim()
+
+  const handleSparkleClick = () => {
+    setShowSparkleDialog(true)
+  }
+
+  const handleConfirmSparkle = () => {
+    setShowSparkleDialog(false)
+    onSparkleLike?.(profile)
+  }
 
   return (
     <div className="rounded-2xl shadow-lg bg-base-100 border border-base-300/30 max-w-4xl mx-auto w-full">
@@ -60,7 +72,7 @@ const UserFeed = ({ profile, onLike, onDislike, onSparkleLike, sparkleError }) =
              <motion.button
                whileHover={{ scale: 1.05 }}
                whileTap={{ scale: 0.95 }}
-               onClick={() => onSparkleLike?.(profile)}
+               onClick={handleSparkleClick}
                className="w-14 h-14 rounded-full bg-gradient-to-br from-slate-700 to-slate-800 shadow-xl border border-slate-600 flex items-center justify-center hover:bg-gradient-to-br hover:from-slate-600 hover:to-slate-700 hover:border-slate-500 hover:shadow-slate-500/20 transition-all duration-200 group"
                aria-label="Send special like"
              >
@@ -143,11 +155,101 @@ const UserFeed = ({ profile, onLike, onDislike, onSparkleLike, sparkleError }) =
                 </div>
               ) : null;
             })()}
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
+                     </div>
+         </div>
+       </div>
+
+       {/* Special Like Confirmation Dialog */}
+       {showSparkleDialog && (
+         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+           <motion.div
+             initial={{ opacity: 0, scale: 0.95, y: 20 }}
+             animate={{ opacity: 1, scale: 1, y: 0 }}
+             exit={{ opacity: 0, scale: 0.95, y: 20 }}
+             className="bg-base-100 rounded-xl shadow-2xl border border-base-300 max-w-sm w-full"
+           >
+                           {/* Header */}
+              <div className="p-3 border-b border-base-300">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 bg-gradient-to-br from-amber-400 to-yellow-500 rounded-full flex items-center justify-center">
+                    <span className="text-lg">✨</span>
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-base-content">Send Special Like</h3>
+                    <p className="text-xs text-base-content/70">Confirm your special interest</p>
+                  </div>
+                </div>
+              </div>
+
+                           {/* Content */}
+              <div className="p-3 space-y-2.5">
+                                 {/* Quick Info */}
+                 <div className="space-y-2">
+                   <div className="flex items-start gap-2">
+                     <div className="w-1.5 h-1.5 bg-amber-400 rounded-full mt-1.5 flex-shrink-0"></div>
+                     <div className="text-xs text-base-content/70 leading-relaxed">
+                       Profile will be saved to your "Saved Profiles" collection
+                     </div>
+                   </div>
+                   
+                   <div className="flex items-start gap-2">
+                     <div className="w-1.5 h-1.5 bg-amber-400 rounded-full mt-1.5 flex-shrink-0"></div>
+                     <div className="text-xs text-base-content/70 leading-relaxed">
+                       Access saved profiles via your profile photo → Saved Profiles
+                     </div>
+                   </div>
+                   
+                   <div className="flex items-start gap-2">
+                     <div className="w-1.5 h-1.5 bg-amber-400 rounded-full mt-1.5 flex-shrink-0"></div>
+                     <div className="text-xs text-base-content/70 leading-relaxed">
+                       Track real-time status updates of your requests
+                     </div>
+                   </div>
+                   
+                   <div className="flex items-start gap-2">
+                     <div className="w-1.5 h-1.5 bg-amber-400 rounded-full mt-1.5 flex-shrink-0"></div>
+                     <div className="text-xs text-base-content/70 leading-relaxed">
+                       Send one reminder if needed to review your profile
+                     </div>
+                   </div>
+                 </div>
+
+                {/* Important Note */}
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-2">
+                  <div className="flex items-start gap-2">
+                    <svg className="w-3.5 h-3.5 text-blue-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <p className="text-xs text-blue-700">
+                      <strong>Limit:</strong> Maximum 5 profiles can be saved in total
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+                           {/* Actions */}
+              <div className="p-3 border-t border-base-300 flex gap-2">
+                <button
+                  onClick={() => setShowSparkleDialog(false)}
+                  className="flex-1 px-2.5 py-1.5 rounded-lg border border-base-300 bg-base-100 text-base-content hover:bg-base-200 transition-colors duration-200 text-xs font-medium"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleConfirmSparkle}
+                  className="flex-1 px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-amber-500 to-yellow-500 text-white hover:from-amber-600 hover:to-yellow-600 transition-all duration-200 text-xs font-medium shadow-lg hover:shadow-xl"
+                >
+                  <span className="flex items-center justify-center gap-1.5">
+                    <span>✨</span>
+                    <span>Send</span>
+                  </span>
+                </button>
+              </div>
+           </motion.div>
+         </div>
+       )}
+     </div>
+   )
+ }
 
 export default UserFeed
