@@ -105,7 +105,7 @@ const Notifications = ({ onNotificationDismiss, isDropdown = false }) => {
       console.log(`Calling API for ${status}:`, profile._id);
 
       const response = await axios.post(
-        `${BASE_URL}/request/review/${status}/${profile._id}`,
+        `${BASE_URL}/request/review/${status}/${profile._id}?reminderReviewed=true`,
         {},
         { withCredentials: true }
       );
