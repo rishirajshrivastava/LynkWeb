@@ -26,6 +26,8 @@ const Notifications = ({ onNotificationDismiss, isDropdown = false }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [currentProfileIndex, setCurrentProfileIndex] = useState(0);
+  const [acceptError, setAcceptError] = useState(null);
+  const [rejectError, setRejectError] = useState(null);
 
   useEffect(() => {
     fetchNotifications();
@@ -35,6 +37,13 @@ const Notifications = ({ onNotificationDismiss, isDropdown = false }) => {
   useEffect(() => {
     setCurrentProfileIndex(0);
   }, [notifications]);
+
+  // Notify parent component when all notifications are cleared
+  useEffect(() => {
+    if (notifications.length === 0 && onNotificationDismiss) {
+      onNotificationDismiss();
+    }
+  }, [notifications, onNotificationDismiss]);
 
   // Inject custom scrollbar styles
   useEffect(() => {
@@ -83,6 +92,53 @@ const Notifications = ({ onNotificationDismiss, isDropdown = false }) => {
       console.error("Error handling notification:", err);
     }
   };
+
+  const handleRequestReview = async (profile, status) => {
+    try {
+      // Clear any previous errors
+      if (status === "accepted") {
+        setAcceptError(null);
+      } else {
+        setRejectError(null);
+      }
+
+      console.log(`Calling API for ${status}:`, profile._id);
+
+      const response = await axios.post(
+        `${BASE_URL}/request/review/${status}/${profile._id}`,
+        {},
+        { withCredentials: true }
+      );
+      
+      console.log(`${status} response:`, response.data);
+      
+      // Remove the notification from the list
+      setNotifications(prev => prev.filter(n => n._id !== profile._id));
+      
+      // Reset current profile index if needed
+      if (currentProfileIndex >= notifications.length - 1) {
+        setCurrentProfileIndex(Math.max(0, notifications.length - 2));
+      }
+      
+      // Notify parent component to refresh notifications
+      if (onNotificationDismiss) {
+        onNotificationDismiss();
+      }
+    } catch (error) {
+      console.error(`Error ${status} request:`, error);
+      const errorMessage = error.response?.data?.message || `Failed to ${status} request`;
+      
+      if (status === "accepted") {
+        setAcceptError(errorMessage);
+        // Auto-clear error after 3 seconds
+        setTimeout(() => setAcceptError(null), 3000);
+      } else {
+        setRejectError(errorMessage);
+        // Auto-clear error after 3 seconds
+        setTimeout(() => setRejectError(null), 3000);
+        }
+      }
+    };
 
   if (loading) {
     return (
@@ -382,19 +438,42 @@ const Notifications = ({ onNotificationDismiss, isDropdown = false }) => {
         </div>
       )}
 
-      {/* Show count when there are notifications */}
-      {notifications.length > 0 && (
-        <div className="text-center mb-4">
-          <div className="bg-base-200/50 rounded-lg p-3 border border-base-300">
-            <h2 className="text-lg font-semibold mb-1">Pending Reminders</h2>
-            <p className="text-sm text-base-content/70">
-              You have <span className="font-bold text-primary">{notifications.length}</span> pending reminder{notifications.length !== 1 ? 's' : ''} to review
-            </p>
-          </div>
-        </div>
-      )}
+             {/* Show count when there are notifications */}
+       {notifications.length > 0 && (
+         <div className="text-center mb-4">
+           <div className="bg-base-200/50 rounded-lg p-3 border border-base-300">
+             <h2 className="text-lg font-semibold mb-1">Pending Reminders</h2>
+             <p className="text-sm text-base-content/70">
+               You have <span className="font-bold text-primary">{notifications.length}</span> pending reminder{notifications.length !== 1 ? 's' : ''} to review
+             </p>
+           </div>
+         </div>
+       )}
 
-      {/* Profile Container */}
+       {/* Error Messages */}
+       {acceptError && (
+         <div className="mb-4 bg-red-50 border border-red-200 rounded-lg px-4 py-3 shadow-sm">
+           <div className="flex items-center gap-2">
+             <svg className="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+             </svg>
+             <span className="text-sm text-red-700 font-medium">{acceptError}</span>
+           </div>
+         </div>
+       )}
+       
+       {rejectError && (
+         <div className="mb-4 bg-red-50 border border-red-200 rounded-lg px-4 py-3 shadow-sm">
+           <div className="flex items-center gap-2">
+             <svg className="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+             </svg>
+             <span className="text-sm text-red-700 font-medium">{rejectError}</span>
+           </div>
+         </div>
+       )}
+
+       {/* Profile Container */}
       {currentProfile ? (
         <div className="bg-base-300 rounded-xl shadow-lg border border-base-200 p-4">
           {/* Profile Header */}
@@ -493,14 +572,14 @@ const Notifications = ({ onNotificationDismiss, isDropdown = false }) => {
                   Mark as Read
                 </button>
                 <button
-                  onClick={() => handleNotificationClick(currentProfile._id)}
+                  onClick={() => handleRequestReview(currentProfile, "accepted")}
                   className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-green-600/80 text-white text-xs font-medium shadow-sm hover:bg-green-500 hover:ring-2 hover:ring-green-400 transition-all duration-200"
                 >
                   <Check size={12} />
                   Accept
                 </button>
                 <button
-                  onClick={() => handleNotificationClick(currentProfile._id)}
+                  onClick={() => handleRequestReview(currentProfile, "rejected")}
                   className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-red-600/80 text-white text-xs font-medium shadow-sm hover:bg-red-500 hover:ring-2 hover:ring-red-400 transition-all duration-200"
                 >
                   <X size={12} />
