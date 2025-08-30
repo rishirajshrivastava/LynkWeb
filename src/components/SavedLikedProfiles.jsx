@@ -124,10 +124,13 @@ const SavedLikedProfiles = () => {
     
     try {
       setIsSendingReminder(true)
-      // TODO: Implement your reminder API endpoint here
-      // await axios.post(`${BASE_URL}/user/send-reminder/${selectedProfile._id}`, {}, { withCredentials: true })
       
-      console.log('Sending reminder to:', selectedProfile.firstName)
+      // Call the actual reminder API endpoint
+      const response = await axios.post(`${BASE_URL}/request/reminder/${selectedProfile._id}`, {}, {
+        withCredentials: true
+      })
+      
+      console.log('Reminder sent successfully:', response.data.message)
       
       // Update the reminder status locally
       setReminderStatuses(prev => ({
@@ -139,12 +142,46 @@ const SavedLikedProfiles = () => {
       setShowReminderModal(false)
       setSelectedProfile(null)
       
-      // Optionally refresh the data
-      // fetchSavedProfiles()
+      // Show success message (optional)
+      // You can add a toast notification here if you have a toast system
       
     } catch (error) {
       console.error('Error sending reminder:', error)
-      alert('Failed to send reminder. Please try again.')
+      
+      // Handle different types of errors gracefully based on the API
+      let errorMessage = 'Failed to send reminder. Please try again.'
+      
+      if (error.response) {
+        // Server responded with error status
+        if (error.response.status === 400) {
+          // Handle "Reminder is already sent" case
+          if (error.response.data && error.response.data.message === "Reminder is already sent") {
+            errorMessage = 'Reminder has already been sent to this user.'
+            
+            // Update the reminder status locally since it's already sent
+            setReminderStatuses(prev => ({
+              ...prev,
+              [selectedProfile._id]: true
+            }))
+          } else {
+            errorMessage = error.response.data?.message || 'Invalid request. Please try again.'
+          }
+        } else if (error.response.status === 401) {
+          errorMessage = 'You are not authorized to send reminders. Please log in again.'
+        } else if (error.response.status === 404) {
+          errorMessage = 'Connection request not found. You may need to send a connection request first.'
+        } else if (error.response.status === 500) {
+          errorMessage = error.response.data?.message || 'Server error. Please try again later.'
+        } else if (error.response.data && error.response.data.message) {
+          errorMessage = error.response.data.message
+        }
+      } else if (error.request) {
+        // Network error
+        errorMessage = 'Network error. Please check your connection and try again.'
+      }
+      
+      // Show error message to user
+      alert(errorMessage)
     } finally {
       setIsSendingReminder(false)
     }
