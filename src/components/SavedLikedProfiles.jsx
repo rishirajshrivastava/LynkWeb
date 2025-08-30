@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { motion } from 'framer-motion'
 import axios from 'axios'
 import { BASE_URL } from '../utils/constants'
@@ -11,6 +11,7 @@ const SavedLikedProfiles = () => {
   const [selectedProfile, setSelectedProfile] = useState(null)
   const [showReminderModal, setShowReminderModal] = useState(false)
   const [isSendingReminder, setIsSendingReminder] = useState(false)
+
 
   // Fetch saved profiles from API
   const fetchSavedProfiles = async () => {
@@ -46,29 +47,37 @@ const SavedLikedProfiles = () => {
     fetchSpecialLikeInfo()
   }, [])
 
+  // Get profiles in reverse order to show most recent first
+  const filteredProfiles = useMemo(() => {
+    if (!savedProfiles || !Array.isArray(savedProfiles)) {
+      return [];
+    }
+    return [...savedProfiles].reverse();
+  }, [savedProfiles]);
+
   const getStatusColor = (status) => {
     switch (status) {
       case 'accepted':
-        return 'text-success'
+        return 'badge-success'
       case 'pending':
-        return 'text-warning'
+        return 'badge-warning'
       case 'rejected':
-        return 'text-error'
+        return 'badge-error'
       default:
-        return 'text-base-content/70'
+        return 'badge-base-content/70'
     }
   }
 
   const getStatusText = (status) => {
     switch (status) {
       case 'accepted':
-        return 'Connection Accepted! 🎉'
+        return 'Accepted! 🎉'
       case 'pending':
-        return 'Request Pending ⏳'
+        return 'Pending ⏳'
       case 'rejected':
-        return 'Request Declined ❌'
+        return 'Declined ❌'
       default:
-        return 'Unknown Status'
+        return 'Unknown'
     }
   }
 
@@ -103,19 +112,6 @@ const SavedLikedProfiles = () => {
     }
   }
 
-  const formatDate = (dateString) => {
-    if (!dateString) return 'N/A'
-    try {
-      return new Date(dateString).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-      })
-    } catch (error) {
-      return 'Invalid Date'
-    }
-  }
-
   if (isLoading) {
     return (
       <div className="min-h-screen bg-base-200 flex items-center justify-center pb-40">
@@ -145,46 +141,10 @@ const SavedLikedProfiles = () => {
     )
   }
 
+  if (!savedProfiles || savedProfiles.length === 0) {
     return (
-    <div className="min-h-screen bg-base-200 p-4 sm:p-6 pb-40">
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-6">
-          <div className="text-3xl mb-3">✨</div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-base-content mb-2">
-            Saved Liked Profiles
-          </h1>
-          <p className="text-base-content/70 text-sm sm:text-base">
-            Track your special connection requests
-          </p>
-          <div className="mt-3 flex flex-col sm:flex-row items-center justify-center gap-3">
-            <div className="inline-flex items-center gap-2 bg-base-100 px-3 py-1.5 rounded-full border border-base-300">
-            <span className="text-sm text-base-content/70">Profiles saved:</span>
-            <span className="badge badge-primary badge-sm">{savedProfiles.length}/5</span>
-            </div>
-            <button 
-              onClick={() => {
-                setIsLoading(true)
-                fetchSavedProfiles()
-                fetchSpecialLikeInfo()
-              }}
-              className="btn btn-sm btn-outline"
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <>
-                  <span className="loading loading-spinner loading-xs"></span>
-                  Refreshing...
-                </>
-              ) : (
-                '🔄 Refresh'
-              )}
-            </button>
-          </div>
-        </div>
-
-        {/* Profiles Grid */}
-        {savedProfiles.length === 0 ? (
+      <div className="pt-24 pb-20 px-4 flex justify-center">
+        <div className="w-full max-w-6xl bg-base-300 rounded-2xl shadow-xl border border-base-200 p-4 sm:p-6">
           <div className="text-center py-12">
             {/* Feature Cards Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl mx-auto mb-6">
@@ -263,170 +223,126 @@ const SavedLikedProfiles = () => {
               </div>
             </div>
           </div>
-        ) : (
-          <div className="space-y-6">
-            {savedProfiles.map((profile) => (
-              <motion.div
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="pt-24 pb-20 px-4 flex justify-center">
+      {/* Parent container */}
+      <div className="w-full max-w-6xl bg-base-300 rounded-2xl shadow-xl border border-base-200 p-4 sm:p-6">
+        {/* Professional Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+          <div>
+            <h1 className="text-xl sm:text-2xl font-bold text-base-content">Saved Liked Profiles</h1>
+            <p className="text-sm text-base-content/70 mt-1">
+              Track your special connection requests ({savedProfiles.length}/5)
+            </p>
+          </div>
+          
+          {/* Refresh Button */}
+          <button 
+            onClick={() => {
+              setIsLoading(true)
+              fetchSavedProfiles()
+              fetchSpecialLikeInfo()
+            }}
+            className="btn btn-sm btn-outline"
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <>
+                <span className="loading loading-spinner loading-xs"></span>
+                Refreshing...
+              </>
+            ) : (
+              '🔄 Refresh'
+            )}
+          </button>
+        </div>
+
+
+
+        {/* Responsive grid of cards */}
+        {filteredProfiles.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+            {filteredProfiles.map((profile) => (
+              <div
                 key={profile._id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-base-100 rounded-xl shadow-lg border border-base-300 overflow-hidden hover:shadow-xl transition-all duration-300"
+                className="rounded-xl shadow-md overflow-hidden border flex flex-col h-full transition-all duration-200 bg-base-200 border-white border-base-300"
               >
-                <div className="flex flex-col lg:flex-row">
-                  {/* Left Section - Profile Image & Basic Info */}
-                  <div className="lg:w-80 p-6 bg-gradient-to-br from-primary/5 to-secondary/5 border-r border-base-300">
-                    <div className="flex flex-col items-center text-center">
-                                             {/* Profile Image - Fixed to prevent cutting */}
-                       <div className="w-24 h-24 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-full flex items-center justify-center mb-4 shadow-lg overflow-hidden flex-shrink-0">
-                         {profile.photoUrl ? (
-                           <img 
-                             src={profile.photoUrl} 
-                             alt={`${profile.firstName} ${profile.lastName}`}
-                             className="w-full h-full object-cover"
-                             style={{ objectPosition: 'center' }}
-                           />
-                         ) : (
-                           <span className="text-2xl font-bold text-primary">
-                             {profile.firstName?.[0]}{profile.lastName?.[0]}
-                           </span>
-                         )}
-                       </div>
-                      
-                      {/* Name, Age & Gender */}
-                      <h3 className="text-xl font-bold text-base-content mb-1">
-                        {profile.firstName} {profile.lastName}
-                      </h3>
-                      <div className="flex items-center gap-3 mb-3 text-sm text-base-content/70">
-                        <span>{profile.age} years old</span>
-                        {profile.gender && (
-                          <>
-                            <span className="w-1 h-1 bg-base-content/30 rounded-full"></span>
-                            <span>{profile.gender}</span>
-                          </>
-                        )}
-                      </div>
-                      
-                      {/* Status Badge */}
-                      <div className={`badge badge-lg ${getStatusColor(profile.status || 'pending')} mb-4`}>
-                        {getStatusText(profile.status || 'pending')}
-                      </div>
-                      
-                      {/* Action Button */}
-                      <button
-                        onClick={() => handleSendReminder(profile)}
-                        disabled={profile.status === 'accepted'}
-                        className="btn btn-primary btn-sm w-full"
-                      >
-                        💬 Send Reminder
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Right Section - Detailed Information */}
-                  <div className="flex-1 p-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {/* Left Column */}
-                      <div className="space-y-4">
-                        {/* About */}
-                        {profile.about && (
-                          <div>
-                            <h4 className="text-sm font-semibold text-base-content/70 mb-2 uppercase tracking-wide">
-                              About
-                            </h4>
-                            <p className="text-sm text-base-content/80 leading-relaxed">
-                              {profile.about}
-                            </p>
-                          </div>
-                        )}
-
-                        {/* Skills */}
-                        {profile.skills && profile.skills.length > 0 && (
-                          <div>
-                            <h4 className="text-sm font-semibold text-base-content/70 mb-2 uppercase tracking-wide">
-                              Skills
-                            </h4>
-                            <div className="flex flex-wrap gap-2">
-                              {profile.skills.map((skill, index) => (
-                                <span
-                                  key={index}
-                                  className="px-3 py-1 bg-primary/10 text-primary text-xs rounded-full font-medium"
-                                >
-                                  {skill}
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Interests */}
-                        {profile.interests && profile.interests.length > 0 && (
-                          <div>
-                            <h4 className="text-sm font-semibold text-base-content/70 mb-2 uppercase tracking-wide">
-                              Interests
-                            </h4>
-                            <div className="flex flex-wrap gap-2">
-                              {profile.interests.map((interest, index) => (
-                                <span
-                                  key={index}
-                                  className="px-3 py-1 bg-secondary/10 text-secondary text-xs rounded-full font-medium"
-                                >
-                                  {interest}
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Right Column */}
-                      <div className="space-y-4">
-                        {/* Hobbies */}
-                        {profile.hobbies && profile.hobbies.length > 0 && (
-                          <div>
-                            <h4 className="text-sm font-semibold text-base-content/70 mb-2 uppercase tracking-wide">
-                              Hobbies
-                            </h4>
-                            <div className="flex flex-wrap gap-2">
-                              {profile.hobbies.map((hobby, index) => (
-                                <span
-                                  key={index}
-                                  className="px-3 py-1 bg-accent/10 text-accent text-xs rounded-full font-medium"
-                                >
-                                  {hobby}
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Bio */}
-                        {profile.bio && (
-                          <div>
-                            <h4 className="text-sm font-semibold text-base-content/70 mb-2 uppercase tracking-wide">
-                              Bio
-                            </h4>
-                            <p className="text-sm text-base-content/80 leading-relaxed">
-                              {profile.bio}
-                            </p>
-                          </div>
-                        )}
-
-                        {/* Profile Created Date */}
-                        {profile.createdAt && (
-                          <div className="pt-3 border-t border-base-200">
-                            <p className="text-xs text-base-content/50">
-                              Profile created: {formatDate(profile.createdAt)}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
+                {/* Profile photo */}
+                <div className="w-full h-40 sm:h-48 bg-base-300 flex items-center justify-center relative">
+                  {profile.photoUrl ? (
+                    <img
+                      src={profile.photoUrl}
+                      alt={`${profile.firstName} ${profile.lastName}`}
+                      className="w-full h-full object-cover"
+                      style={{ objectPosition: 'center' }}
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.nextSibling.style.display = 'flex';
+                      }}
+                    />
+                  ) : null}
+                  <div className={`w-full h-full bg-primary/20 flex items-center justify-center ${profile.photoUrl ? 'hidden' : 'flex'}`}>
+                    <span className="text-primary font-semibold text-2xl">
+                      {profile.firstName ? profile.firstName.charAt(0).toUpperCase() : 'U'}
+                    </span>
                   </div>
                 </div>
-              </motion.div>
+
+                {/* Details */}
+                <div className="p-4 flex-1 flex flex-col">
+                  <h2 
+                    className="text-base sm:text-lg font-semibold text-base-content break-words leading-tight"
+                    title={`${profile.firstName} ${profile.lastName}`}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="truncate flex-1">
+                        {`${profile.firstName} ${profile.lastName}`}
+                      </span>
+                      {profile.age && (
+                        <span className="text-xs sm:text-sm font-medium text-base-content/70 flex-shrink-0">
+                          {profile.age}
+                        </span>
+                      )}
+                    </div>
+                  </h2>
+                  
+                  {profile.gender && (
+                    <p className="text-xs sm:text-sm text-base-content/70 mt-1">
+                      {profile.gender}
+                    </p>
+                  )}
+
+                  {/* Status Badge */}
+                  <div className="mt-3">
+                    <span className={`badge ${getStatusColor(profile.status || 'pending')} text-xs`}>
+                      {getStatusText(profile.status || 'pending')}
+                    </span>
+                  </div>
+
+                  {/* Send Reminder Button */}
+                  <div className="mt-auto pt-3">
+                    <button
+                      onClick={() => handleSendReminder(profile)}
+                      disabled={profile.status === 'accepted'}
+                      className={`btn btn-sm w-full ${
+                        profile.status === 'accepted' 
+                          ? 'btn-disabled opacity-50' 
+                          : 'btn-primary'
+                      }`}
+                    >
+                      {profile.status === 'accepted' ? '✅ Connected' : '💬 Send Reminder'}
+                    </button>
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
-        )}
+        ) : null}
       </div>
 
       {/* Reminder Confirmation Modal */}
