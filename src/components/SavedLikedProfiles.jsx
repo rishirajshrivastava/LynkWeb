@@ -276,21 +276,21 @@ const SavedLikedProfiles = () => {
                   {/* Left Section - Profile Image & Basic Info */}
                   <div className="lg:w-80 p-6 bg-gradient-to-br from-primary/5 to-secondary/5 border-r border-base-300">
                     <div className="flex flex-col items-center text-center">
-                      {/* Profile Image - Fixed to prevent cutting */}
-                      <div className="w-24 h-24 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-full flex items-center justify-center mb-4 shadow-lg overflow-hidden flex-shrink-0">
-                        {profile.photoUrl ? (
-                          <img 
-                            src={profile.photoUrl} 
-                            alt={`${profile.firstName} ${profile.lastName}`}
-                            className="w-full h-full object-cover rounded-full"
-                            style={{ objectPosition: 'center' }}
-                          />
-                        ) : (
-                          <span className="text-2xl font-bold text-primary">
-                            {profile.firstName?.[0]}{profile.lastName?.[0]}
-                          </span>
-                        )}
-                      </div>
+                                             {/* Profile Image - Fixed to prevent cutting */}
+                       <div className="w-24 h-24 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-full flex items-center justify-center mb-4 shadow-lg overflow-hidden flex-shrink-0">
+                         {profile.photoUrl ? (
+                           <img 
+                             src={profile.photoUrl} 
+                             alt={`${profile.firstName} ${profile.lastName}`}
+                             className="w-full h-full object-cover"
+                             style={{ objectPosition: 'center' }}
+                           />
+                         ) : (
+                           <span className="text-2xl font-bold text-primary">
+                             {profile.firstName?.[0]}{profile.lastName?.[0]}
+                           </span>
+                         )}
+                       </div>
                       
                       {/* Name, Age & Gender */}
                       <h3 className="text-xl font-bold text-base-content mb-1">
@@ -446,7 +446,7 @@ const SavedLikedProfiles = () => {
             {/* Content */}
             <div className="p-4 text-center">
               <p className="text-base-content/80 text-sm mb-4">
-                Send a friendly reminder to <span className="font-semibold">{selectedProfile.firstName}</span> 
+                Send a friendly reminder to <span className="font-semibold">{selectedProfile.firstName + " "}</span> 
                 to review your connection request?
               </p>
               

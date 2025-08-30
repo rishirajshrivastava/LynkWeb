@@ -148,7 +148,8 @@ const Connections = () => {
                     <img
                       src={connection.photoUrl}
                       alt={`${connection.firstName} ${connection.lastName}`}
-                      className="w-full h-full object-contain"
+                      className="w-full h-full object-cover"
+                      style={{ objectPosition: 'center' }}
                       onError={(e) => {
                         e.target.style.display = 'none';
                         e.target.nextSibling.style.display = 'flex';

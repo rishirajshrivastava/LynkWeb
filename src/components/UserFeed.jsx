@@ -26,7 +26,8 @@ const UserFeed = ({ profile, onLike, onDislike, onSparkleLike, sparkleError }) =
             <img
               src={profile.photoUrl}
               alt={fullName || 'User photo'}
-              className="max-w-full max-h-full w-auto h-auto object-contain"
+              className="w-full h-full object-cover"
+              style={{ objectPosition: 'center' }}
               onError={(e) => { e.currentTarget.style.display = 'none' }}
             />
           ) : (

@@ -24,7 +24,8 @@ const ProfilePreview = ({ firstName, lastName, photoUrl, about, skills = [], onB
               <img
                 src={photoUrl}
                 alt={`${firstName} ${lastName}`}
-                className="max-h-full max-w-full object-contain"
+                className="w-full h-full object-cover"
+                style={{ objectPosition: 'center' }}
                 onError={(e) => { e.currentTarget.style.display = 'none' }}
               />
             ) : (

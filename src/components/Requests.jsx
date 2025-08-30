@@ -93,7 +93,8 @@ const Requests = () => {
                         <img
                         src={request.fromUserId.photoUrl}
                         alt={`${request.fromUserId.firstName} ${request.fromUserId.lastName}`}
-                        className="max-h-full max-w-full object-contain rounded-lg"
+                        className="w-full h-full object-cover rounded-lg"
+                        style={{ objectPosition: 'center' }}
                         />
                     ) : (
                         <span className="text-xs text-base-content/50">

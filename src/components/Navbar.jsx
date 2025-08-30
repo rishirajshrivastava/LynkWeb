@@ -230,12 +230,13 @@ const Navbar = () => {
                >
                 {/* Avatar only - no username */}
                 <div className="avatar flex-shrink-0">
-                  <div className="w-8 h-8 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 bg-base-200">
+                  <div className="w-8 h-8 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 bg-base-200 overflow-hidden">
                     {user.photoUrl ? (
                       <img 
                         src={user.photoUrl} 
                         alt="User Avatar" 
-                        className="w-full h-full object-contain rounded-full"
+                        className="w-full h-full object-cover"
+                        style={{ objectPosition: 'center' }}
                         onError={(e) => {
                           e.target.style.display = 'none';
                           e.target.nextSibling.style.display = 'flex';
