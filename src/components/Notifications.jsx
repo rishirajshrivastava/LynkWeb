@@ -123,52 +123,91 @@ const Notifications = ({ onNotificationDismiss, isDropdown = false }) => {
 
   if (notifications.length === 0) {
     return (
-      <div className={`${isDropdown ? 'p-4' : 'p-4 pt-16'} text-center`}>
-        <div className={`${isDropdown ? 'text-4xl' : 'text-5xl'} mb-3 text-primary/60`}>🔔</div>
-        <h2 className={`${isDropdown ? 'text-lg' : 'text-xl'} font-bold text-base-content mb-2`}>
-          {isDropdown ? 'No New Notifications' : 'All Caught Up!'}
-        </h2>
-        <p className={`${isDropdown ? 'text-sm' : 'text-sm'} text-base-content/70 mb-3`}>
-          {isDropdown ? 'You\'re all caught up!' : 'You have no pending reminders or notifications at the moment.'}
-        </p>
-        
-        {!isDropdown && (
-          <>
-            <div className="max-w-sm mx-auto mb-4 p-3 bg-base-200/50 rounded-lg border border-base-300">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-6 h-6 bg-primary/20 rounded-full flex items-center justify-center">
-                  <span className="text-primary text-xs">💡</span>
-                </div>
-                <span className="font-medium text-xs">What happens here?</span>
+      <div className={`${isDropdown ? 'p-4' : 'pt-20 pb-8 px-4'} flex justify-center`}>
+        <div className={`${isDropdown ? 'w-full' : 'w-full max-w-2xl mx-auto'}`}>
+          {/* Sober Empty State Container */}
+          <div className="bg-base-200 rounded-xl shadow-md border border-base-300/50">
+            {/* Header Section - Clean and Simple */}
+            <div className="bg-gradient-to-r from-primary/5 to-secondary/5 px-4 py-4 text-center">
+              <div className="w-12 h-12 mx-auto mb-3 bg-primary/10 rounded-full flex items-center justify-center">
+                <div className="text-2xl">🔔</div>
               </div>
-              <p className="text-xs text-base-content/70 text-left">
-                When you have pending connection requests that need your review, they'll appear here as notifications. 
-                You can review profiles and decide whether to accept or decline connection requests.
+              <h1 className="text-lg sm:text-xl font-bold text-base-content mb-1">
+                You're all caught up! ✨
+              </h1>
+              <p className="text-xs sm:text-sm text-base-content/70 max-w-md mx-auto">
+                Great job! You have no pending reminders or notifications at the moment.
               </p>
             </div>
-            
-            <div className="flex flex-col sm:flex-row gap-2 justify-center">
-              <Link 
-                to="/feed" 
-                className="btn btn-primary btn-xs"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                </svg>
-                Browse Feed
-              </Link>
-              <Link 
-                to="/connections" 
-                className="btn btn-outline btn-xs"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
-                View Connections
-              </Link>
+
+            {/* Content Section - Clean and Organized */}
+            <div className="px-4 py-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+                                 {/* What This Means - Clean */}
+                 <div className="bg-base-100 rounded-lg p-3 border border-base-300/30">
+                   <div className="flex items-center gap-2 mb-2">
+                     <div className="w-6 h-6 bg-success/10 rounded-full flex items-center justify-center">
+                       <svg className="w-3 h-3 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                       </svg>
+                     </div>
+                     <h3 className="text-sm font-semibold text-base-content">What This Means</h3>
+                   </div>
+                   <p className="text-base-content/80 text-xs leading-relaxed">
+                     You're all caught up! No users have sent you reminders to review their connection requests yet.
+                   </p>
+                 </div>
+
+                 {/* What Happens Next - Clean */}
+                 <div className="bg-base-100 rounded-lg p-3 border border-base-300/30">
+                   <div className="flex items-center gap-2 mb-2">
+                     <div className="w-6 h-6 bg-info/10 rounded-full flex items-center justify-center">
+                       <svg className="w-3 h-3 text-info" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                       </svg>
+                     </div>
+                     <h3 className="text-sm font-semibold text-base-content">What Happens Next</h3>
+                   </div>
+                   <p className="text-base-content/80 text-xs leading-relaxed">
+                     When someone super-likes you, saves your profile, and sends a reminder to review their request, it will appear here for you to review.
+                   </p>
+                 </div>
+              </div>
+
+              {/* Action Section - Clean and Simple */}
+              <div className="text-center">
+                <div className="bg-base-100 rounded-lg p-3 border border-base-300/20">
+                  <h3 className="text-sm font-semibold text-base-content mb-1">
+                    While You Wait
+                  </h3>
+                  <p className="text-base-content/70 text-xs mb-3">
+                    Take this time to explore other parts of the platform or discover new connections.
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-2 justify-center">
+                    <Link 
+                      to="/feed"
+                      className="btn btn-primary btn-xs sm:btn-sm"
+                    >
+                      <svg className="w-3 h-3 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                      </svg>
+                      Browse Feed
+                    </Link>
+                    <Link 
+                      to="/connections"
+                      className="btn btn-secondary btn-xs sm:btn-sm"
+                    >
+                      <svg className="w-3 h-3 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                      </svg>
+                      View Connections
+                    </Link>
+                  </div>
+                </div>
+              </div>
             </div>
-          </>
-        )}
+          </div>
+        </div>
       </div>
     );
   }
