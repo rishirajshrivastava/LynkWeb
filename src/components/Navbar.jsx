@@ -168,54 +168,11 @@ const Navbar = () => {
                   onClick={() => setAlertsOpen(!alertsOpen)}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-5 5v-5zM16.5 15V9.75a6 6 0 00-6-6z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                   </svg>
                   {/* Notification badge */}
                   <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
                 </div>
-                {alertsOpen && (
-                  <ul className="menu menu-sm dropdown-content mt-3 w-auto max-w-[calc(100vw-2rem)] p-2 shadow-xl bg-base-100 rounded-box border border-base-300 z-50 max-h-96 overflow-y-auto right-0">
-                    <li className="menu-title text-xs font-semibold text-base-content/70">
-                      <span>Notifications</span>
-                    </li>
-                    <li>
-                      <div className="p-2 hover:bg-base-200 rounded cursor-pointer">
-                        <div className="flex items-center gap-3">
-                          <div className="avatar">
-                            <div className="w-8 h-8 rounded-full bg-secondary/20">
-                              <span className="text-secondary text-sm font-semibold">A</span>
-                            </div>
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-base-content leading-tight">
-                              Anjali sent you a connection request
-                            </p>
-                            <p className="text-xs text-base-content/60 mt-1">2 minutes ago</p>
-                          </div>
-                          <div className="w-2 h-2 bg-secondary rounded-full flex-shrink-0"></div>
-                        </div>
-                      </div>
-                    </li>
-                    <li>
-                      <div className="p-2 hover:bg-base-200 rounded cursor-pointer">
-                        <div className="flex items-center gap-3">
-                          <div className="avatar">
-                            <div className="w-8 h-8 rounded-full bg-primary/20">
-                              <span className="text-primary text-sm font-semibold">R</span>
-                            </div>
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-base-content leading-tight">
-                              Rahul liked your profile
-                            </p>
-                            <p className="text-xs text-base-content/60 mt-1">5 minutes ago</p>
-                          </div>
-                          <div className="w-2 h-2 bg-primary rounded-full flex-shrink-0"></div>
-                        </div>
-                      </div>
-                    </li>
-                  </ul>
-                )}
               </div>
             </div>
           )}
