@@ -9,6 +9,7 @@ import appStore from "./utils/appstore"
 import Feed from "./components/Feed"
 import Requests from "./components/Requests"
 import Connections from "./components/Connections"
+import SavedLikedProfiles from "./components/SavedLikedProfiles"
 
 function App() {
   // Disable right-click context menu
@@ -37,6 +38,7 @@ function App() {
               <Route path="/feed" element={<Feed/>}></Route>
               <Route path="/connections" element={<Connections/>}></Route>
               <Route path="/requestReview" element={<Requests/>}></Route>
+              <Route path="/savedLikedProfiles" element={<SavedLikedProfiles/>}></Route>
             </Route>
           </Routes>
         </BrowserRouter>

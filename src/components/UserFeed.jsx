@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 
-const UserFeed = ({ profile, onLike, onDislike }) => {
+const UserFeed = ({ profile, onLike, onDislike, onSparkleLike, sparkleError }) => {
   if (!profile) return null
 
   const fullName = `${profile.firstName ?? ''} ${profile.lastName ?? ''}`.trim()
@@ -35,10 +35,10 @@ const UserFeed = ({ profile, onLike, onDislike }) => {
                whileHover={{ scale: 1.05 }}
                whileTap={{ scale: 0.95 }}
                onClick={() => onDislike?.(profile)}
-               className="w-16 h-16 rounded-full bg-gradient-to-br from-red-50 to-red-100 shadow-xl border-2 border-red-200 flex items-center justify-center hover:bg-gradient-to-br hover:from-red-100 hover:to-red-200 hover:border-red-300 hover:shadow-red-500/20 transition-all duration-200 group"
+               className="w-14 h-14 rounded-full bg-gradient-to-br from-red-50 to-red-100 shadow-xl border-2 border-red-200 flex items-center justify-center hover:bg-gradient-to-br hover:from-red-100 hover:to-red-200 hover:border-red-300 hover:shadow-red-500/20 transition-all duration-200 group"
                aria-label="Not interested"
              >
-               <svg className="w-7 h-7 text-red-500 group-hover:text-red-600 transition-colors duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+               <svg className="w-6 h-6 text-red-500 group-hover:text-red-600 transition-colors duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                </svg>
              </motion.button>
@@ -48,14 +48,42 @@ const UserFeed = ({ profile, onLike, onDislike }) => {
                whileHover={{ scale: 1.05 }}
                whileTap={{ scale: 0.95 }}
                onClick={() => onLike?.(profile)}
-               className="w-16 h-16 rounded-full bg-gradient-to-br from-pink-400 to-rose-500 shadow-xl flex items-center justify-center hover:bg-gradient-to-br hover:from-pink-500 hover:to-rose-600 hover:shadow-pink-500/30 transition-all duration-200 group"
+               className="w-14 h-14 rounded-full bg-gradient-to-br from-pink-400 to-rose-500 shadow-xl flex items-center justify-center hover:bg-gradient-to-br hover:from-pink-500 hover:to-rose-600 hover:shadow-pink-500/30 transition-all duration-200 group"
                aria-label="Interested"
              >
-               <svg className="w-7 h-7 text-white group-hover:scale-105 transition-transform duration-200" viewBox="0 0 24 24" fill="currentColor">
+               <svg className="w-6 h-6 text-white group-hover:scale-105 transition-transform duration-200" viewBox="0 0 24 24" fill="currentColor">
                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 6 4 4 6.5 4c1.74 0 3.41 1 4.22 2.44C11.09 5 12.76 4 14.5 4 17 4 19 6 19 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
                </svg>
              </motion.button>
+
+             {/* Sparkle Button */}
+             <motion.button
+               whileHover={{ scale: 1.05 }}
+               whileTap={{ scale: 0.95 }}
+               onClick={() => onSparkleLike?.(profile)}
+               className="w-14 h-14 rounded-full bg-gradient-to-br from-slate-700 to-slate-800 shadow-xl border border-slate-600 flex items-center justify-center hover:bg-gradient-to-br hover:from-slate-600 hover:to-slate-700 hover:border-slate-500 hover:shadow-slate-500/20 transition-all duration-200 group"
+               aria-label="Send special like"
+             >
+               <span className="text-xl group-hover:scale-110 transition-transform duration-200 text-amber-300 group-hover:text-amber-200">✨</span>
+             </motion.button>
            </div>
+
+           {/* Error Message Display */}
+           {sparkleError && (
+             <motion.div
+               initial={{ opacity: 0, y: 10 }}
+               animate={{ opacity: 1, y: 0 }}
+               exit={{ opacity: 0, y: -10 }}
+               className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-red-50 border border-red-200 rounded-lg px-4 py-2 shadow-lg z-10"
+             >
+               <div className="flex items-center gap-2">
+                 <svg className="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                 </svg>
+                 <span className="text-sm text-red-700 font-medium">{sparkleError}</span>
+               </div>
+             </motion.div>
+           )}
         </div>
 
         {/* Right: Details Section */}

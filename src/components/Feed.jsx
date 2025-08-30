@@ -13,6 +13,7 @@ const Feed = () => {
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(false)
   const [hasMore, setHasMore] = useState(true)
+  const [sparkleError, setSparkleError] = useState("")
 
   const getFeed = async (pageNum = 1) => {
     setLoading(true)
@@ -122,6 +123,37 @@ const Feed = () => {
     }
   }
 
+  const onSparkleLike = async (profile) => {
+    try {
+      setSparkleError("") // Clear any previous errors
+      const res = await axios.post(
+        `${BASE_URL}/request/send/special-like/${profile._id}`,
+        {},
+        { withCredentials: true }
+      ) 
+      dispatch(removeFromFeed(profile._id))
+        handleNext()
+    } catch (err) {
+      console.log(err?.response?.data?.message)
+      
+      // Handle specific error cases
+      if(err?.response?.data?.message === 'You have reached the maximum limit of 5 special likes') {
+        setSparkleError("You have reached the maximum limit of 5 special likes!")
+        setTimeout(() => {
+          setSparkleError("")
+        }, 2000)
+        return
+      }  else {
+        // Handle other errors
+        setSparkleError("Failed to send special like. Please try again.")
+        setTimeout(() => {
+          setSparkleError("")
+        }, 2000)
+        return
+      }
+    }
+  }
+
   const noMoreProfiles =
     !loading && profiles.length === 0 && !hasMore
 
@@ -139,7 +171,9 @@ const Feed = () => {
           <UserFeed
             profile={profiles[currentIndex]}
             onLike={handleLike}
+            onSparkleLike={onSparkleLike}
             onDislike={handleDislike}
+            sparkleError={sparkleError}
           />
         ) : noMoreProfiles ? (
           <NoMoreUsers />
