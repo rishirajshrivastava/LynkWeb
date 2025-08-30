@@ -11,6 +11,7 @@ const SavedLikedProfiles = () => {
   const [selectedProfile, setSelectedProfile] = useState(null)
   const [showReminderModal, setShowReminderModal] = useState(false)
   const [isSendingReminder, setIsSendingReminder] = useState(false)
+  const [reminderStatuses, setReminderStatuses] = useState({})
 
 
   // Fetch saved profiles from API
@@ -42,10 +43,42 @@ const SavedLikedProfiles = () => {
     }
   }
 
+  // Fetch reminder status for each profile
+  const fetchReminderStatuses = async (profiles) => {
+    try {
+      const statuses = {}
+      
+      // Fetch reminder status for each profile
+      for (const profile of profiles) {
+        try {
+          const response = await axios.get(`${BASE_URL}/reminder/status/${profile._id}`, {
+            withCredentials: true
+          })
+          statuses[profile._id] = response.data.data.reminderSent
+        } catch (error) {
+          console.error(`Error fetching reminder status for ${profile._id}:`, error)
+          // Default to false if there's an error
+          statuses[profile._id] = false
+        }
+      }
+      
+      setReminderStatuses(statuses)
+    } catch (error) {
+      console.error('Error fetching reminder statuses:', error)
+    }
+  }
+
   useEffect(() => {
     fetchSavedProfiles()
     fetchSpecialLikeInfo()
   }, [])
+
+  // Fetch reminder statuses when savedProfiles changes
+  useEffect(() => {
+    if (savedProfiles.length > 0) {
+      fetchReminderStatuses(savedProfiles)
+    }
+  }, [savedProfiles])
 
   // Get profiles in reverse order to show most recent first
   const filteredProfiles = useMemo(() => {
@@ -96,8 +129,13 @@ const SavedLikedProfiles = () => {
       
       console.log('Sending reminder to:', selectedProfile.firstName)
       
-      // For now, just close the modal
-      // You can implement the actual reminder logic when you have the API endpoint
+      // Update the reminder status locally
+      setReminderStatuses(prev => ({
+        ...prev,
+        [selectedProfile._id]: true
+      }))
+      
+      // Close the modal
       setShowReminderModal(false)
       setSelectedProfile(null)
       
@@ -145,9 +183,25 @@ const SavedLikedProfiles = () => {
     return (
       <div className="pt-24 pb-20 px-4 flex justify-center">
         <div className="w-full max-w-6xl bg-base-300 rounded-2xl shadow-xl border border-base-200 p-4 sm:p-6">
-          <div className="text-center py-12">
+          {/* Page Header */}
+          <div className="text-center mb-8">
+            <div className="text-4xl mb-4">✨</div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-base-content mb-3">
+              Saved Liked Profiles
+            </h1>
+            <p className="text-base-content/70 text-sm sm:text-base max-w-2xl mx-auto">
+              Start building meaningful connections by sending special likes to profiles that interest you. 
+              Each special like saves the profile here for easy tracking and management.
+            </p>
+            <div className="mt-4 inline-flex items-center gap-2 bg-base-100 px-4 py-2 rounded-full border border-base-300">
+              <span className="text-sm text-base-content/70">Profiles saved:</span>
+              <span className="badge badge-primary badge-sm">0/5</span>
+            </div>
+          </div>
+
+          <div className="text-center py-8">
             {/* Feature Cards Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl mx-auto mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl mx-auto mb-8">
               {/* Card 1: Special Like */}
               <div className="bg-base-100 p-4 rounded-xl border border-base-300 hover:shadow-lg transition-all duration-300 hover:border-primary/30">
                 <div className="text-3xl mb-3">✨</div>
@@ -178,7 +232,7 @@ const SavedLikedProfiles = () => {
 
             {/* How it works section */}
             <div className="bg-gradient-to-br from-base-100 to-base-200 p-6 rounded-2xl border border-base-300 max-w-4xl mx-auto">
-              <h4 className="text-lg font-bold text-base-content mb-4 text-center">How the Special Like System Works</h4>
+              <h4 className="text-lg font-bold text-base-content mb-4 text-center">🚀 How the Special Like System Works</h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-3">
                   <div className="flex items-start gap-3">
@@ -247,6 +301,8 @@ const SavedLikedProfiles = () => {
               setIsLoading(true)
               fetchSavedProfiles()
               fetchSpecialLikeInfo()
+              // Reset reminder statuses when refreshing
+              setReminderStatuses({})
             }}
             className="btn btn-sm btn-outline"
             disabled={isLoading}
@@ -328,14 +384,21 @@ const SavedLikedProfiles = () => {
                   <div className="mt-auto pt-3">
                     <button
                       onClick={() => handleSendReminder(profile)}
-                      disabled={profile.status === 'accepted'}
+                      disabled={profile.status === 'accepted' || reminderStatuses[profile._id] === true}
                       className={`btn btn-sm w-full ${
-                        profile.status === 'accepted' 
+                        profile.status === 'accepted' || reminderStatuses[profile._id] === true
                           ? 'btn-disabled opacity-50' 
                           : 'btn-primary'
                       }`}
                     >
-                      {profile.status === 'accepted' ? '✅ Connected' : '💬 Send Reminder'}
+                      {profile.status === 'accepted' 
+                        ? '✅ Connected' 
+                        : reminderStatuses[profile._id] === true 
+                          ? '📤 Reminder Sent' 
+                          : reminderStatuses[profile._id] === undefined
+                            ? '⏳ Loading...'
+                            : '💬 Send Reminder'
+                      }
                     </button>
                   </div>
                 </div>
