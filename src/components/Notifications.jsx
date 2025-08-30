@@ -185,16 +185,55 @@ const Notifications = ({ onNotificationDismiss, isDropdown = false }) => {
 
   const handleMarkAsRead = async (notificationId) => {
     try {
-      // Here you can add logic to mark notification as read
-      // For now, just remove it from the list
-      setNotifications(prev => prev.filter(n => n._id !== notificationId));
+      // Call API to mark reminder as reviewed
+      const response = await axios.post(`${BASE_URL}/reminder/review/${notificationId}`, {}, {
+        withCredentials: true
+      });
       
-      // Notify parent component to refresh notifications
-      if (onNotificationDismiss) {
-        onNotificationDismiss();
+      if (response.data.message === "Reminder marked as reviewed successfully") {
+        // Remove the notification from the list
+        setNotifications(prev => prev.filter(n => n._id !== notificationId));
+        
+        // Reset current profile index if needed
+        if (currentProfileIndex >= notifications.length - 1) {
+          setCurrentProfileIndex(Math.max(0, notifications.length - 2));
+        }
+        
+        // Notify parent component to refresh notifications
+        if (onNotificationDismiss) {
+          onNotificationDismiss();
+        }
+        
       }
     } catch (err) {
       console.error("Error marking notification as read:", err);
+      
+      // Handle different error scenarios
+      if (err.response) {
+        // Server responded with error status
+        const errorMessage = err.response.data?.message || "Failed to mark reminder as reviewed";
+        
+        if (err.response.status === 404) {
+          // No matching connection request found
+          console.error("No matching connection request found:", errorMessage);
+          // Optionally remove the notification if it's no longer valid
+          setNotifications(prev => prev.filter(n => n._id !== notificationId));
+        } else if (err.response.status === 500) {
+          // Server error
+          console.error("Server error:", errorMessage);
+        } else {
+          // Other client errors
+          console.error("Client error:", errorMessage);
+        }
+      } else if (err.request) {
+        // Network error
+        console.error("Network error: No response received");
+      } else {
+        // Other errors
+        console.error("Unexpected error:", err.message);
+      }
+      
+      // You can add user-facing error handling here (e.g., toast notifications)
     }
   };
 
