@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { removeUser } from "../utils/userSlice";
 import { removeFeed } from "../utils/feedSlice";
 import {BASE_URL} from '../utils/constants'
@@ -9,6 +9,7 @@ import Notifications from "./Notifications";
 
 const Navbar = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const user = useSelector((store) => store.user);
   const dispatch = useDispatch();
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
@@ -28,6 +29,29 @@ const Navbar = () => {
     if (user) {
       fetchNotifications();
     }
+  }, [user]);
+
+  // Refetch notifications when user navigates to different pages
+  useEffect(() => {
+    if (user) {
+      fetchNotifications();
+    }
+  }, [location.pathname, user]);
+
+  // Listen for notification updates from other components
+  useEffect(() => {
+    const handleNotificationUpdate = () => {
+      if (user) {
+        fetchNotifications();
+      }
+    };
+
+    // Listen for custom event when notifications are updated
+    window.addEventListener('notificationUpdated', handleNotificationUpdate);
+    
+    return () => {
+      window.removeEventListener('notificationUpdated', handleNotificationUpdate);
+    };
   }, [user]);
 
   const fetchNotifications = async () => {

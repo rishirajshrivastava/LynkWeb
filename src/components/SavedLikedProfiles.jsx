@@ -293,6 +293,13 @@ const SavedLikedProfiles = () => {
     )
   }
 
+  // Dispatch event when there are no saved profiles to clear notification dot
+  useEffect(() => {
+    if (!isLoading && (!savedProfiles || savedProfiles.length === 0)) {
+      window.dispatchEvent(new CustomEvent('notificationUpdated'));
+    }
+  }, [isLoading, savedProfiles]);
+
   if (!savedProfiles || savedProfiles.length === 0) {
     return (
       <div className="pt-24 pb-20 px-4 flex justify-center">

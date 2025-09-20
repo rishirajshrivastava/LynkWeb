@@ -84,6 +84,9 @@ const Notifications = ({ onNotificationDismiss, isDropdown = false }) => {
       // For now, just remove it from the list
       setNotifications(prev => prev.filter(n => n._id !== notificationId));
       
+      // Dispatch custom event to notify Navbar
+      window.dispatchEvent(new CustomEvent('notificationUpdated'));
+      
       // Notify parent component to refresh notifications
       if (onNotificationDismiss) {
         onNotificationDismiss();
@@ -119,6 +122,9 @@ const Notifications = ({ onNotificationDismiss, isDropdown = false }) => {
       if (currentProfileIndex >= notifications.length - 1) {
         setCurrentProfileIndex(Math.max(0, notifications.length - 2));
       }
+      
+      // Dispatch custom event to notify Navbar
+      window.dispatchEvent(new CustomEvent('notificationUpdated'));
       
       // Notify parent component to refresh notifications
       if (onNotificationDismiss) {
@@ -293,6 +299,9 @@ const Notifications = ({ onNotificationDismiss, isDropdown = false }) => {
         if (currentProfileIndex >= notifications.length - 1) {
           setCurrentProfileIndex(Math.max(0, notifications.length - 2));
         }
+        
+        // Dispatch custom event to notify Navbar
+        window.dispatchEvent(new CustomEvent('notificationUpdated'));
         
         // Notify parent component to refresh notifications
         if (onNotificationDismiss) {
