@@ -447,7 +447,7 @@ const SavedLikedProfiles = () => {
             {filteredProfiles.map((profile) => (
               <div
                 key={profile._id}
-                className="rounded-xl shadow-md overflow-hidden border flex flex-col h-full transition-all duration-200 bg-base-200 border-white border-base-300"
+                className="rounded-xl shadow-md overflow-visible border flex flex-col h-full transition-all duration-200 bg-base-200 border-white border-base-300"
               >
                 {/* Profile photo */}
                 <div className="w-full h-40 sm:h-48 bg-base-300 flex items-center justify-center relative">
@@ -582,26 +582,37 @@ const SavedLikedProfiles = () => {
 
                   {/* Send Reminder Button */}
                   <div className="mt-auto pt-3">
-                    <button
-                      onClick={() => handleSendReminder(profile)}
-                      disabled={requestStatuses[profile._id] === 'accepted' || reminderStatuses[profile._id] === true || requestStatuses[profile._id] === undefined}
-                      className={`btn btn-sm w-full ${
-                        requestStatuses[profile._id] === 'accepted' || reminderStatuses[profile._id] === true || requestStatuses[profile._id] === undefined
-                          ? 'btn-disabled opacity-50' 
-                          : 'btn-primary'
-                      }`}
-                    >
-                      {requestStatuses[profile._id] === undefined
-                        ? '⏳ Loading...'
-                        : requestStatuses[profile._id] === 'accepted' 
-                          ? '✅ Connected' 
+                    <div className="relative group overflow-visible">
+                      <button
+                        onClick={() => handleSendReminder(profile)}
+                        disabled={requestStatuses[profile._id] === 'accepted' || requestStatuses[profile._id] === 'rejected' || reminderStatuses[profile._id] === true || requestStatuses[profile._id] === undefined}
+                        className={`btn btn-sm w-full ${
+                          requestStatuses[profile._id] === 'accepted' || requestStatuses[profile._id] === 'rejected' || reminderStatuses[profile._id] === true || requestStatuses[profile._id] === undefined
+                            ? 'btn-disabled opacity-50' 
+                            : 'btn-primary'
+                        }`}
+                      >
+                        {requestStatuses[profile._id] === undefined
+                          ? '⏳ Loading...'
                           : reminderStatuses[profile._id] === true 
                             ? '📤 Reminder Sent' 
                             : reminderStatuses[profile._id] === undefined
                               ? '⏳ Loading...'
                               : '💬 Send Reminder'
-                      }
-                    </button>
+                        }
+                      </button>
+                      
+                      {/* Custom Tooltip - Only show for accepted/rejected */}
+                      {(requestStatuses[profile._id] === 'accepted' || requestStatuses[profile._id] === 'rejected') && (
+                        <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none whitespace-nowrap z-[9999] shadow-2xl border border-gray-700">
+                          {requestStatuses[profile._id] === 'accepted' 
+                            ? 'Cannot send reminder - request already accepted'
+                            : 'Cannot send reminder - request already rejected'
+                          }
+                          <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-b-4 border-transparent border-b-gray-900"></div>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>

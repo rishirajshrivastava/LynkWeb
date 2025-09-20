@@ -12,20 +12,26 @@ const Body = () => {
   const location = useLocation();
   const dispatch = useDispatch();
   const userData = useSelector((store) => store?.user)
+  
   const fetchUser = async()=>{
-    if (location.pathname === "/login") return;
-    if(location.pathname === "/signup") return;
+    // Skip authentication check for login and signup pages
+    if (location.pathname === "/login" || location.pathname === "/signup") return;
+    
+    // If user data already exists, no need to fetch again
     if(userData) return;
+    
     try {
       const res = await axios.get(BASE_URL + "/profile/view", {
-      withCredentials: true,
+        withCredentials: true,
       })
       dispatch(addUser(res.data?.user))
     }
     catch(err){
       const status = err?.response?.status || err?.status
-      if(status===401){
-        navigate("/login")
+      if(status === 401 || status === 403){
+        // Clear any existing user data and redirect to login
+        dispatch(addUser(null))
+        navigate("/login", { replace: true })
       }
       console.log("ERR: ", err.message);
     }
