@@ -1,15 +1,19 @@
 import axios from "axios";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { BASE_URL } from "../utils/constants";
 import { useDispatch, useSelector } from "react-redux";
 import { addRequests, removeRequest } from "../utils/requestsSlice";
-import { Check, X } from "lucide-react";
+import { Check, X, CheckCircle, XCircle } from "lucide-react";
 import NoRequests from "./NoRequests";
 import { addConnection } from "../utils/connectionSlice";
 
 const Requests = () => {
   const requests = useSelector((store) => store.requests);
   const dispatch = useDispatch();
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [bulkAction, setBulkAction] = useState(null);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [pendingAction, setPendingAction] = useState(null);
 
   const fetchRequests = async () => {
     try {
@@ -74,14 +78,147 @@ const Requests = () => {
     };
   };
 
+  // Bulk action functions
+  const handleBulkAction = (action) => {
+    if (!sortedRequests || sortedRequests.length === 0) return;
+    
+    setPendingAction(action);
+    setShowConfirmDialog(true);
+  };
+
+  const confirmBulkAction = async () => {
+    if (!pendingAction || !sortedRequests || sortedRequests.length === 0) return;
+    
+    setIsProcessing(true);
+    setBulkAction(pendingAction);
+    setShowConfirmDialog(false);
+    
+    try {
+      const promises = sortedRequests.map(async (request) => {
+        try {
+          // For accept/reject all
+          await axios.post(
+            `${BASE_URL}/request/review/${pendingAction === "acceptAll" ? "accepted" : "rejected"}/${request._id}`,
+            {},
+            { withCredentials: true }
+          );
+          
+          // Remove the request from the requests list
+          dispatch(removeRequest(request._id));
+          
+          // If accepted, add the new connection to the connections list
+          if (pendingAction === "acceptAll") {
+            const newConnection = {
+              _id: request.fromUserId._id,
+              firstName: request.fromUserId.firstName,
+              lastName: request.fromUserId.lastName,
+              age: request.fromUserId.age,
+              gender: request.fromUserId.gender,
+              photoUrl: request.fromUserId.photoUrl,
+              about: request.fromUserId.about,
+              skills: request.fromUserId.skills,
+              createdAt: new Date().toISOString(),
+              _isNew: true
+            };
+            dispatch(addConnection(newConnection));
+          }
+        } catch (error) {
+          console.error(`Error processing ${pendingAction} for request ${request._id}:`, error);
+        }
+      });
+      
+      await Promise.all(promises);
+      
+      // Dispatch custom event to notify Navbar about notification updates
+      window.dispatchEvent(new CustomEvent('notificationUpdated'));
+      
+    } catch (error) {
+      console.error(`Error in bulk ${pendingAction}:`, error);
+    } finally {
+      setIsProcessing(false);
+      setBulkAction(null);
+      setPendingAction(null);
+    }
+  };
+
   return (
     <div className="pt-24 pb-28 px-4 flex justify-center">
       {/* Parent container - More compact */}
-      <div className="w-full max-w-5xl bg-base-300 rounded-2xl shadow-lg border border-base-200 p-4 sm:p-6">
-        <h1 className="text-lg sm:text-xl font-bold text-center mb-4">Pending Requests</h1>
+      <div className="w-full max-w-5xl bg-base-300 rounded-2xl shadow-lg border border-base-200">
+        {/* Sticky Header with title and bulk actions */}
+        <div className="sticky top-16 z-10 bg-base-300 rounded-2xl shadow-lg border border-base-200 p-4 sm:p-6 mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="text-center sm:text-left">
+              <h1 className="text-lg sm:text-xl font-bold text-base-content">Pending Requests</h1>
+              <p className="text-sm text-base-content/70 mt-1">
+                {sortedRequests.length} request{sortedRequests.length !== 1 ? 's' : ''} pending review
+              </p>
+            </div>
+            
+            {/* Bulk Action Buttons */}
+            {sortedRequests.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 justify-center sm:justify-end">
+                <button
+                  onClick={() => handleBulkAction("acceptAll")}
+                  disabled={isProcessing}
+                  className={`btn btn-xs transition-all duration-200 ${
+                    isProcessing && bulkAction === "acceptAll" 
+                      ? 'loading btn-disabled bg-green-500/20' 
+                      : 'bg-green-500/80 hover:bg-green-500 hover:scale-105 text-white border-green-500'
+                  }`}
+                  title="Accept all pending requests"
+                >
+                  {isProcessing && bulkAction === "acceptAll" ? (
+                    <span className="loading loading-spinner loading-xs"></span>
+                  ) : (
+                    <CheckCircle size={12} />
+                  )}
+                  <span className="hidden sm:inline">Accept All</span>
+                  <span className="sm:hidden">Accept All</span>
+                </button>
+                
+                <button
+                  onClick={() => handleBulkAction("rejectAll")}
+                  disabled={isProcessing}
+                  className={`btn btn-xs transition-all duration-200 ${
+                    isProcessing && bulkAction === "rejectAll" 
+                      ? 'loading btn-disabled bg-red-500/20' 
+                      : 'bg-red-500/80 hover:bg-red-500 hover:scale-105 text-white border-red-500'
+                  }`}
+                  title="Reject all pending requests"
+                >
+                  {isProcessing && bulkAction === "rejectAll" ? (
+                    <span className="loading loading-spinner loading-xs"></span>
+                  ) : (
+                    <XCircle size={12} />
+                  )}
+                  <span className="hidden sm:inline">Reject All</span>
+                  <span className="sm:hidden">Reject All</span>
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Processing Overlay */}
+        {isProcessing && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
+            <div className="bg-base-100 rounded-xl shadow-2xl p-6 text-center max-w-sm mx-4">
+              <div className="loading loading-spinner loading-lg text-primary mb-4"></div>
+              <h3 className="text-lg font-semibold text-base-content mb-2">
+                {bulkAction === "markAllRead" && "Marking all as read..."}
+                {bulkAction === "acceptAll" && "Accepting all requests..."}
+                {bulkAction === "rejectAll" && "Rejecting all requests..."}
+              </h3>
+              <p className="text-sm text-base-content/70">
+                Please wait while we process your request...
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Cards stacked vertically - No scroll, compact spacing */}
-        <div className="flex flex-col gap-3 sm:gap-4">
+        <div className="flex flex-col gap-3 sm:gap-4 p-4 sm:p-6">
           {sortedRequests.map((request) => (
             <div
               key={request._id}
@@ -171,6 +308,63 @@ const Requests = () => {
           ))}
         </div>
       </div>
+
+      {/* Confirmation Dialog */}
+      {showConfirmDialog && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-md z-50 p-4">
+          <div className="bg-base-100 rounded-2xl shadow-2xl border border-base-300 max-w-md w-full overflow-hidden">
+            {/* Header */}
+            <div className={`p-4 text-center ${
+              pendingAction === "acceptAll" ? "bg-success/10" :
+              "bg-error/10"
+            }`}>
+              <div className="text-3xl mb-2">
+                {pendingAction === "acceptAll" && "✅"}
+                {pendingAction === "rejectAll" && "❌"}
+              </div>
+              <h3 className="text-lg font-bold text-base-content">
+                {pendingAction === "acceptAll" && "Accept All Requests"}
+                {pendingAction === "rejectAll" && "Reject All Requests"}
+              </h3>
+            </div>
+
+            {/* Content */}
+            <div className="p-6 text-center">
+              <p className="text-base-content/80 text-sm mb-4">
+                {pendingAction === "acceptAll" && `Are you sure you want to accept all ${sortedRequests.length} pending requests? This action cannot be undone.`}
+                {pendingAction === "rejectAll" && `Are you sure you want to reject all ${sortedRequests.length} pending requests? This action cannot be undone.`}
+              </p>
+              
+              <div className="bg-base-200/50 rounded-lg p-3 border border-base-300/30 mb-6">
+                <p className="text-xs text-base-content/70">
+                  {pendingAction === "acceptAll" && "All accepted requests will be added to your connections."}
+                  {pendingAction === "rejectAll" && "All rejected requests will be removed from your pending list."}
+                </p>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-3 justify-center">
+                <button
+                  onClick={() => setShowConfirmDialog(false)}
+                  className="btn btn-outline btn-sm flex-1"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmBulkAction}
+                  className={`btn btn-sm flex-1 ${
+                    pendingAction === "acceptAll" ? "bg-green-500/80 hover:bg-green-500 text-white border-green-500" :
+                    "bg-red-500/80 hover:bg-red-500 text-white border-red-500"
+                  }`}
+                >
+                  {pendingAction === "acceptAll" && "Accept All"}
+                  {pendingAction === "rejectAll" && "Reject All"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { BASE_URL } from "../utils/constants";
-import { Check, X } from "lucide-react";
+import { Check, X, CheckCircle, XCircle, Eye } from "lucide-react";
 
 // Custom scrollbar styles
 const scrollbarStyles = `
@@ -28,6 +28,10 @@ const Notifications = ({ onNotificationDismiss, isDropdown = false }) => {
   const [currentProfileIndex, setCurrentProfileIndex] = useState(0);
   const [acceptError, setAcceptError] = useState(null);
   const [rejectError, setRejectError] = useState(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [bulkAction, setBulkAction] = useState(null);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [pendingAction, setPendingAction] = useState(null);
 
   useEffect(() => {
     fetchNotifications();
@@ -143,8 +147,69 @@ const Notifications = ({ onNotificationDismiss, isDropdown = false }) => {
         // Auto-clear error after 3 seconds
         setTimeout(() => setRejectError(null), 3000);
         }
+    }
+  };
+
+  // Bulk action functions
+  const handleBulkAction = (action) => {
+    if (!sortedNotifications || sortedNotifications.length === 0) return;
+    
+    setPendingAction(action);
+    setShowConfirmDialog(true);
+  };
+
+  const confirmBulkAction = async () => {
+    if (!pendingAction || !sortedNotifications || sortedNotifications.length === 0) return;
+    
+    setIsProcessing(true);
+    setBulkAction(pendingAction);
+    setShowConfirmDialog(false);
+    
+    try {
+      const promises = sortedNotifications.map(async (notification) => {
+        try {
+          if (pendingAction === "markAllRead") {
+            // For mark all read, we'll call the reminder review endpoint
+            await axios.post(`${BASE_URL}/reminder/review/${notification._id}`, {}, {
+              withCredentials: true
+            });
+          } else if (pendingAction === "acceptAll") {
+            // For accept all, we'll call the request review endpoint
+            await axios.post(`${BASE_URL}/request/review/accepted/${notification._id}?reminderReviewed=true`, {}, {
+              withCredentials: true
+            });
+          } else if (pendingAction === "rejectAll") {
+            // For reject all, we'll call the request review endpoint
+            await axios.post(`${BASE_URL}/request/review/rejected/${notification._id}?reminderReviewed=true`, {}, {
+              withCredentials: true
+            });
+          }
+        } catch (error) {
+          console.error(`Error processing ${pendingAction} for notification ${notification._id}:`, error);
+        }
+      });
+      
+      await Promise.all(promises);
+      
+      // Clear all notifications from the list
+      setNotifications([]);
+      
+      // Dispatch custom event to notify Navbar about notification updates
+      window.dispatchEvent(new CustomEvent('notificationUpdated'));
+      
+      // Notify parent component to refresh notifications
+      if (onNotificationDismiss) {
+        onNotificationDismiss();
       }
-    };
+      
+    } catch (error) {
+      console.error(`Error in bulk ${pendingAction}:`, error);
+    } finally {
+      setIsProcessing(false);
+      setBulkAction(null);
+      setPendingAction(null);
+    }
+  };
 
   if (loading) {
     return (
@@ -452,9 +517,69 @@ const Notifications = ({ onNotificationDismiss, isDropdown = false }) => {
          <div className="text-center mb-4">
            <div className="bg-base-200/50 rounded-lg p-3 border border-base-300">
              <h2 className="text-lg font-semibold mb-1">Pending Reminders</h2>
-             <p className="text-sm text-base-content/70">
+             <p className="text-sm text-base-content/70 mb-3">
                You have <span className="font-bold text-primary">{notifications.length}</span> pending reminder{notifications.length !== 1 ? 's' : ''} to review
              </p>
+             
+             {/* Bulk Action Buttons */}
+             <div className="flex flex-wrap gap-1.5 justify-center">
+               <button
+                 onClick={() => handleBulkAction("markAllRead")}
+                 disabled={isProcessing}
+                 className={`btn btn-xs btn-outline btn-info transition-all duration-200 ${
+                   isProcessing && bulkAction === "markAllRead" 
+                     ? 'loading btn-disabled' 
+                     : 'hover:bg-info/10 hover:border-info/50'
+                 }`}
+                 title="Mark all notifications as read"
+               >
+                 {isProcessing && bulkAction === "markAllRead" ? (
+                   <span className="loading loading-spinner loading-xs"></span>
+                 ) : (
+                   <Eye size={12} />
+                 )}
+                 <span className="hidden sm:inline">Mark All Read</span>
+                 <span className="sm:hidden">Read All</span>
+               </button>
+               
+               <button
+                 onClick={() => handleBulkAction("acceptAll")}
+                 disabled={isProcessing}
+                 className={`btn btn-xs transition-all duration-200 ${
+                   isProcessing && bulkAction === "acceptAll" 
+                     ? 'loading btn-disabled bg-green-500/20' 
+                     : 'bg-green-500/80 hover:bg-green-500 hover:scale-105 text-white border-green-500'
+                 }`}
+                 title="Accept all connection requests"
+               >
+                 {isProcessing && bulkAction === "acceptAll" ? (
+                   <span className="loading loading-spinner loading-xs"></span>
+                 ) : (
+                   <CheckCircle size={12} />
+                 )}
+                 <span className="hidden sm:inline">Accept All</span>
+                 <span className="sm:hidden">Accept All</span>
+               </button>
+               
+               <button
+                 onClick={() => handleBulkAction("rejectAll")}
+                 disabled={isProcessing}
+                 className={`btn btn-xs transition-all duration-200 ${
+                   isProcessing && bulkAction === "rejectAll" 
+                     ? 'loading btn-disabled bg-red-500/20' 
+                     : 'bg-red-500/80 hover:bg-red-500 hover:scale-105 text-white border-red-500'
+                 }`}
+                 title="Reject all connection requests"
+               >
+                 {isProcessing && bulkAction === "rejectAll" ? (
+                   <span className="loading loading-spinner loading-xs"></span>
+                 ) : (
+                   <XCircle size={12} />
+                 )}
+                 <span className="hidden sm:inline">Reject All</span>
+                 <span className="sm:hidden">Reject All</span>
+               </button>
+             </div>
            </div>
          </div>
        )}
@@ -630,6 +755,87 @@ const Notifications = ({ onNotificationDismiss, isDropdown = false }) => {
       ) : (
         <div className="text-center">
           <p className="text-base-content/70">No profiles to display</p>
+        </div>
+      )}
+
+      {/* Processing Overlay */}
+      {isProcessing && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="bg-base-100 rounded-xl shadow-2xl p-6 text-center max-w-sm mx-4">
+            <div className="loading loading-spinner loading-lg text-primary mb-4"></div>
+            <h3 className="text-lg font-semibold text-base-content mb-2">
+              {bulkAction === "markAllRead" && "Marking all as read..."}
+              {bulkAction === "acceptAll" && "Accepting all requests..."}
+              {bulkAction === "rejectAll" && "Rejecting all requests..."}
+            </h3>
+            <p className="text-sm text-base-content/70">
+              Please wait while we process your request...
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Confirmation Dialog */}
+      {showConfirmDialog && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-md z-50 p-4">
+          <div className="bg-base-100 rounded-2xl shadow-2xl border border-base-300 max-w-md w-full overflow-hidden">
+            {/* Header */}
+            <div className={`p-4 text-center ${
+              pendingAction === "acceptAll" ? "bg-green-500/10" :
+              pendingAction === "rejectAll" ? "bg-red-500/10" :
+              "bg-info/10"
+            }`}>
+              <div className="text-3xl mb-2">
+                {pendingAction === "acceptAll" && "✅"}
+                {pendingAction === "rejectAll" && "❌"}
+                {pendingAction === "markAllRead" && "👁️"}
+              </div>
+              <h3 className="text-lg font-bold text-base-content">
+                {pendingAction === "acceptAll" && "Accept All Requests"}
+                {pendingAction === "rejectAll" && "Reject All Requests"}
+                {pendingAction === "markAllRead" && "Mark All as Read"}
+              </h3>
+            </div>
+
+            {/* Content */}
+            <div className="p-6 text-center">
+              <p className="text-base-content/80 text-sm mb-4">
+                {pendingAction === "acceptAll" && `Are you sure you want to accept all ${sortedNotifications.length} connection requests? This action cannot be undone.`}
+                {pendingAction === "rejectAll" && `Are you sure you want to reject all ${sortedNotifications.length} connection requests? This action cannot be undone.`}
+                {pendingAction === "markAllRead" && `Are you sure you want to mark all ${sortedNotifications.length} notifications as read?`}
+              </p>
+              
+              <div className="bg-base-200/50 rounded-lg p-3 border border-base-300/30 mb-6">
+                <p className="text-xs text-base-content/70">
+                  {pendingAction === "acceptAll" && "All accepted requests will be added to your connections."}
+                  {pendingAction === "rejectAll" && "All rejected requests will be removed from your notifications."}
+                  {pendingAction === "markAllRead" && "This will mark all notifications as reviewed."}
+                </p>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-3 justify-center">
+                <button
+                  onClick={() => setShowConfirmDialog(false)}
+                  className="btn btn-outline btn-sm flex-1"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmBulkAction}
+                  className={`btn btn-sm flex-1 ${
+                    pendingAction === "acceptAll" ? "bg-green-500/80 hover:bg-green-500 text-white border-green-500" :
+                    pendingAction === "rejectAll" ? "bg-red-500/80 hover:bg-red-500 text-white border-red-500" :
+                    "btn-info"
+                  }`}
+                >
+                  {pendingAction === "acceptAll" && "Accept All"}
+                  {pendingAction === "rejectAll" && "Reject All"}
+                  {pendingAction === "markAllRead" && "Mark All Read"}
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>
