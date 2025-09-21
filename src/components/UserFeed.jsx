@@ -222,7 +222,7 @@ const UserFeed = ({ profile, onLike, onDislike, onSparkleLike, sparkleError }) =
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     <p className="text-xs text-blue-700">
-                      <strong>Limit:</strong> Maximum 5 profiles can be saved in total
+                      <strong>Limit:</strong> Maximum 3 profiles can be saved in total
                     </p>
                   </div>
                 </div>
