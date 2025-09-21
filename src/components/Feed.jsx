@@ -14,6 +14,7 @@ const Feed = () => {
   const [loading, setLoading] = useState(false)
   const [hasMore, setHasMore] = useState(true)
   const [sparkleError, setSparkleError] = useState("")
+  const [showLikeLimitPopup, setShowLikeLimitPopup] = useState(false)
 
   const getFeed = async (pageNum = 1) => {
     setLoading(true)
@@ -80,6 +81,8 @@ const Feed = () => {
   }
 
   const handleLike = async (profile) => {
+    let shouldProceed = true
+    
     try {
       await axios.post(
         `${BASE_URL}/request/send/interested/${profile._id}`,
@@ -90,6 +93,13 @@ const Feed = () => {
     } catch (err) {
       console.log("Error while sending like", err)
       
+      // Handle daily like limit error
+      if (err.response?.data?.message?.includes("You have reached the maximum like limit per day")) {
+        setShowLikeLimitPopup(true)
+        shouldProceed = false
+        return // Don't proceed to handleNext() or remove from feed
+      }
+      
       // Handle "Connection request already exists" error
       if (err.response?.data?.error?.includes("Connection request already exists") || 
           err.response?.data?.message?.includes("Connection request already exists")) {
@@ -97,7 +107,10 @@ const Feed = () => {
         dispatch(removeFromFeed(profile._id))
       }
     } finally {
-      handleNext()
+      // Only call handleNext if we should proceed (not a like limit error)
+      if (shouldProceed) {
+        handleNext()
+      }
     }
   }
 
@@ -183,6 +196,55 @@ const Feed = () => {
           <div className="text-center text-gray-400 py-6 sm:py-10">Loading more...</div>
         )}
       </div>
+
+      {/* Like Limit Popup */}
+      {showLikeLimitPopup && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-sm w-full mx-4 transform transition-all duration-300 scale-100">
+            <div className="p-4 sm:p-5">
+              {/* Icon */}
+              <div className="flex justify-center mb-3">
+                <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                  <svg className="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                  </svg>
+                </div>
+              </div>
+
+              {/* Title */}
+              <h3 className="text-lg font-bold text-gray-900 text-center mb-2">
+                Daily Like Limit Reached
+              </h3>
+
+              {/* Message */}
+              <p className="text-sm text-gray-600 text-center mb-4 leading-relaxed">
+                You've reached the maximum number of likes you can send per day. 
+                Upgrade to premium to send unlimited likes!
+              </p>
+
+              {/* Buttons */}
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setShowLikeLimitPopup(false)}
+                  className="flex-1 px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-300 text-sm"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    // TODO: Implement premium purchase logic
+                    console.log("Buy Premium clicked")
+                    setShowLikeLimitPopup(false)
+                  }}
+                  className="flex-1 px-3 py-2 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-pink-300 shadow-lg hover:shadow-xl transform hover:scale-105 text-sm"
+                >
+                  Buy Premium
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
