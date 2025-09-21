@@ -2,6 +2,7 @@ import axios from "axios"
 import { BASE_URL } from "../utils/constants"
 import { useEffect, useState, useMemo } from "react"
 import { useDispatch, useSelector } from "react-redux"
+import { useNavigate } from "react-router-dom"
 import { addFeed, removeFromFeed } from "../utils/feedSlice"
 import UserFeed from "./UserFeed"
 import NoMoreUsers from "./NoMoreUsers"
@@ -9,12 +10,14 @@ import NoMoreUsers from "./NoMoreUsers"
 const Feed = () => {
   const feed = useSelector((store) => store.feed)
   const dispatch = useDispatch()
+  const navigate = useNavigate()
   const [currentIndex, setCurrentIndex] = useState(0)
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(false)
   const [hasMore, setHasMore] = useState(true)
   const [sparkleError, setSparkleError] = useState("")
   const [showLikeLimitPopup, setShowLikeLimitPopup] = useState(false)
+  const [showSpecialLikeLimitPopup, setShowSpecialLikeLimitPopup] = useState(false)
 
   const getFeed = async (pageNum = 1) => {
     setLoading(true)
@@ -150,11 +153,8 @@ const Feed = () => {
       console.log(err?.response?.data?.message)
       
       // Handle specific error cases
-      if(err?.response?.data?.message === 'You have reached the maximum limit of 5 special likes') {
-        setSparkleError("You have reached the maximum limit of 5 special likes!")
-        setTimeout(() => {
-          setSparkleError("")
-        }, 2000)
+      if(err?.response?.data?.message === 'You have reached the maximum limit of 3 special likes') {
+        setShowSpecialLikeLimitPopup(true)
         return
       }  else {
         // Handle other errors
@@ -239,6 +239,66 @@ const Feed = () => {
                   className="flex-1 px-3 py-2 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-pink-300 shadow-lg hover:shadow-xl transform hover:scale-105 text-sm"
                 >
                   Buy Premium
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Special Like Limit Popup */}
+      {showSpecialLikeLimitPopup && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-sm w-full mx-4 transform transition-all duration-300 scale-100">
+            <div className="p-4 sm:p-5">
+              {/* Icon */}
+              <div className="flex justify-center mb-3">
+                <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                  <svg className="w-6 h-6 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                  </svg>
+                </div>
+              </div>
+
+              {/* Title */}
+              <h3 className="text-lg font-bold text-gray-900 text-center mb-2">
+                Special Like Limit Reached
+              </h3>
+
+              {/* Message */}
+              <p className="text-sm text-gray-600 text-center mb-4 leading-relaxed">
+                You've reached the maximum number of special likes you can send. 
+                Upgrade to premium to save more profiles and connect with more people!
+              </p>
+
+              {/* Buttons */}
+              <div className="space-y-2">
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setShowSpecialLikeLimitPopup(false)}
+                    className="flex-1 px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-300 text-sm"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => {
+                      // TODO: Implement premium purchase logic
+                      console.log("Buy Premium clicked")
+                      setShowSpecialLikeLimitPopup(false)
+                    }}
+                    className="flex-1 px-3 py-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-purple-300 shadow-lg hover:shadow-xl transform hover:scale-105 text-sm"
+                  >
+                    Buy Premium
+                  </button>
+                </div>
+                <button
+                  onClick={() => {
+                    setShowSpecialLikeLimitPopup(false)
+                    navigate('/savedLikedProfiles')
+                  }}
+                  className="w-full px-3 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300 shadow-lg hover:shadow-xl transform hover:scale-105 text-sm"
+                >
+                  📋 View Saved Profiles
                 </button>
               </div>
             </div>

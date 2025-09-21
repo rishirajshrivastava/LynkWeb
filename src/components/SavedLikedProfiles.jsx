@@ -405,7 +405,7 @@ const SavedLikedProfiles = () => {
           <div>
             <h1 className="text-xl sm:text-2xl font-bold text-base-content">Saved Liked Profiles</h1>
             <p className="text-sm text-base-content/70 mt-1">
-              Track your special connection requests ({savedProfiles.length}/5)
+              Track your special connection requests ({savedProfiles.length}/3)
               {Object.keys(requestStatuses).length === 0 && savedProfiles.length > 0 && (
                 <span className="ml-2 inline-flex items-center gap-1 text-xs text-base-content/50 bg-base-content/10 px-2 py-1 rounded-full">
                   <span className="loading loading-spinner loading-xs"></span>
