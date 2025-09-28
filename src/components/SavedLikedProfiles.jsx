@@ -309,7 +309,7 @@ const SavedLikedProfiles = () => {
             </p>
             <div className="mt-4 inline-flex items-center gap-2 bg-base-100 px-4 py-2 rounded-full border border-base-300">
               <span className="text-sm text-base-content/70">Profiles saved:</span>
-              <span className="badge badge-primary badge-sm">0/5</span>
+              <span className="badge badge-primary badge-sm">0/3</span>
             </div>
           </div>
 

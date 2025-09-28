@@ -3,9 +3,12 @@ import { useEffect, useState, useMemo } from "react";
 import { BASE_URL } from "../utils/constants";
 import { useDispatch, useSelector } from "react-redux";
 import { addConnections } from "../utils/connectionSlice";
+import { useNavigate } from "react-router-dom";
+import Chat from "./Chat";
 import NoConnections from "./NoConnections";
 
 const Connections = () => {
+  const navigate = useNavigate();
   const connections = useSelector((store) => store.connections);
   const dispatch = useDispatch();
   const [searchQuery, setSearchQuery] = useState("");
@@ -241,6 +244,27 @@ const Connections = () => {
                          )}
                       </p>
                     )}
+
+                   {/* Compact Chat Button */}
+                   <div className="mt-3 pt-2 border-t border-base-300/20">
+                     <button
+                       onClick={() => {
+                         navigate(`/chat/${connection._id}`, {
+                           state: {
+                             photoUrl: connection.photoUrl,
+                             firstName: connection.firstName,
+                             lastName: connection.lastName
+                           }
+                         });
+                       }}
+                       className="w-full flex items-center justify-center gap-1.5 px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white text-xs font-medium rounded-md transition-all duration-200 hover:shadow-sm"
+                     >
+                       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                       </svg>
+                       <span className="text-xs">Message</span>
+                     </button>
+                   </div>
                  </div>
               </div>
             ))}

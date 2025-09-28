@@ -15,8 +15,28 @@ const Body = () => {
   const [isAuthChecked, setIsAuthChecked] = useState(false)
   
   const fetchUser = async()=>{
+    // Handle login/signup pages
     if (location.pathname === "/login" || location.pathname === "/signup") {
-      setIsAuthChecked(true)
+      // If user is already logged in, redirect to feed
+      if (userData) {
+        navigate("/feed", { replace: true });
+        return;
+      }
+      
+      // Check if user is logged in via API
+      try {
+        const res = await axios.get(BASE_URL + "/profile/view", {
+          withCredentials: true,
+        })
+        dispatch(addUser(res.data?.user))
+        // If successful, redirect to feed
+        navigate("/feed", { replace: true });
+      } catch(err) {
+        // User is not logged in, stay on login/signup page
+        console.log("User not logged in, staying on login page");
+      } finally {
+        setIsAuthChecked(true)
+      }
       return;
     }
     
