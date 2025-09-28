@@ -145,7 +145,7 @@ const Navbar = () => {
                   Lynk
                 </span>
                 <span className="ml-2 flex items-center gap-1">
-                  <span className="text-lg sm:text-xl">💕</span>
+                  <span className="text-lg sm:text-xl"></span>
                   <span className="text-lg sm:text-xl">🔗</span>
                 </span>
               </div>
