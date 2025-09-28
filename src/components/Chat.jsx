@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { useParams, useLocation } from 'react-router-dom'
 import { createSocketConnection } from '../utils/socket';
 import { useSelector } from 'react-redux';
@@ -10,9 +10,15 @@ const Chat = () => {
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]); // ✅ store all chat messages
   const [socket, setSocket] = useState(null);
+  const messagesEndRef = useRef(null);
   
   // Get target user info from location state
   const targetUser = location.state || null;
+
+  // Auto-scroll to bottom function
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
 
 
   useEffect(() => {
@@ -56,16 +62,17 @@ const Chat = () => {
     // ✅ Add message locally so it shows immediately
     setMessages(prev => [...prev, newMsg]);
 
-    // Clear input
+    // Clear input and scroll to bottom
     setMessage('');
+    setTimeout(() => scrollToBottom(), 100);
   };
 
   return (
-    <div className="pt-16 pb-16 min-h-screen flex flex-col">
-      <div className="max-w-4xl mx-auto w-full flex flex-col flex-1 bg-base-100 shadow-lg">
+    <div className="pt-16 pb-16 h-screen flex flex-col">
+      <div className="max-w-4xl mx-auto w-full h-full flex flex-col bg-base-100 shadow-lg">
 
         {/* Chat Header */}
-        <div className="bg-base-100 border-b border-base-300 px-4 py-2 flex items-center gap-3 shadow-sm">
+        <div className="bg-base-100 border-b border-base-300 px-4 py-2 flex items-center gap-3 shadow-sm flex-shrink-0">
           <div className="flex items-center gap-2 flex-1">
             <div className="w-8 h-8 rounded-full overflow-hidden">
               <img
@@ -85,8 +92,8 @@ const Chat = () => {
           </div>
         </div>
 
-        {/* Messages Area */}
-        <div className="flex-1 overflow-y-auto bg-base-200 p-3">
+        {/* Messages Area - Scrollable */}
+        <div className="flex-1 overflow-y-auto bg-base-200 p-3 min-h-0">
           <div className="space-y-2">
             {messages.map((msg, idx) => {
               const isCurrentUser = msg.userId === user._id;
@@ -127,26 +134,27 @@ const Chat = () => {
               </div>
               );
             })}
+            <div ref={messagesEndRef} />
           </div>
         </div>
 
-        {/* Message Input */}
-        <div className="bg-base-100 border-t border-base-300 p-3">
+        {/* Message Input - Fixed at bottom */}
+        <div className="bg-base-100 border-t border-base-300 p-3 flex-shrink-0">
           <div className="flex items-center gap-2">
             <div className="flex-1 relative">
-                <input
-                  type="text"
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      sendMessage();
-                    }
-                  }}
-                  placeholder="Type a message..."
-                  className="w-full px-3 py-2 pr-10 bg-base-200 border border-base-300 rounded-full focus:outline-none text-sm text-base-content placeholder-base-content/50"
-                />
+              <input
+                type="text"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    sendMessage();
+                  }
+                }}
+                placeholder="Type a message..."
+                className="w-full px-3 py-2 pr-10 bg-base-200 border border-base-300 rounded-full focus:outline-none text-sm text-base-content placeholder-base-content/50"
+              />
             </div>
             <button
               disabled={!message.trim()}
