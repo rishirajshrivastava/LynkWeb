@@ -205,21 +205,6 @@ const Chat = () => {
               </div>
             </div>
           )}
-
-          {/* Scroll to Bottom Button */}
-          {showScrollButton && unreadCount === 0 && (
-            <div className="absolute bottom-4 right-4">
-              <button
-                onClick={scrollToBottom}
-                className="bg-base-300 hover:bg-base-200 text-base-content p-3 rounded-full shadow-lg transition-all duration-200 hover:scale-105"
-                title="Scroll to bottom"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                </svg>
-              </button>
-            </div>
-          )}
         </div>
 
         {/* Message Input - Fixed at bottom */}
