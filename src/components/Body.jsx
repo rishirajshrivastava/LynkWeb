@@ -5,20 +5,25 @@ import axios from "axios"
 import {BASE_URL} from '../utils/constants'
 import { useDispatch, useSelector } from "react-redux"
 import { addUser } from "../utils/userSlice"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 
 const Body = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
   const userData = useSelector((store) => store?.user)
+  const [isAuthChecked, setIsAuthChecked] = useState(false)
   
   const fetchUser = async()=>{
-    // Skip authentication check for login and signup pages
-    if (location.pathname === "/login" || location.pathname === "/signup") return;
+    if (location.pathname === "/login" || location.pathname === "/signup") {
+      setIsAuthChecked(true)
+      return;
+    }
     
-    // If user data already exists, no need to fetch again
-    if(userData) return;
+    if(userData) {
+      setIsAuthChecked(true)
+      return;
+    }
     
     try {
       const res = await axios.get(BASE_URL + "/profile/view", {
@@ -34,11 +39,24 @@ const Body = () => {
         navigate("/login", { replace: true })
       }
       console.log("ERR: ", err.message);
+    } finally {
+      setIsAuthChecked(true)
     }
   }
   useEffect(()=>{
     fetchUser();
   },[location.pathname])
+
+  // Handle root path redirect - only after auth check is complete
+  useEffect(() => {
+    if (location.pathname === "/" && isAuthChecked) {
+      if (userData) {
+        navigate("/feed", { replace: true });
+      } else {
+        navigate("/login", { replace: true });
+      }
+    }
+  }, [location.pathname, userData, isAuthChecked, navigate])
 
   return (
     <div>
