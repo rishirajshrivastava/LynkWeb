@@ -2,6 +2,8 @@ import React, { useEffect, useState, useRef } from 'react'
 import { useParams, useLocation } from 'react-router-dom'
 import { createSocketConnection } from '../utils/socket';
 import { useSelector } from 'react-redux';
+import axios from 'axios'
+import { BASE_URL } from '../utils/constants'
 
 const Chat = () => {
   const { TargetUserId: targetUserId } = useParams();
@@ -12,6 +14,7 @@ const Chat = () => {
   const [socket, setSocket] = useState(null);
   const [unreadCount, setUnreadCount] = useState(0);
   const [showScrollButton, setShowScrollButton] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const messagesEndRef = useRef(null);
   const messagesContainerRef = useRef(null);
   
@@ -52,6 +55,36 @@ const Chat = () => {
     const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
     return scrollHeight - scrollTop - clientHeight < 50;
   };
+
+  // Initial load: fetch existing chat history
+  useEffect(() => {
+    const fetchChatHistory = async () => {
+      if (!user || !targetUserId) {
+        // Keep loader visible until required data is available
+        return;
+      }
+      try {
+        setIsLoading(true);
+        const res = await axios.get(`${BASE_URL}/chat/${targetUserId}`, { withCredentials: true });
+        const apiMessages = res?.data?.chat?.messages || [];
+        const mapped = apiMessages?.map((m) => {
+          const senderId = m?.sender?._id || m?.sender || '';
+          const firstName = m?.sender?.firstName || (senderId === user?._id ? user?.firstName : targetUser?.firstName) || 'User';
+          const text = m?.content ?? m?.text ?? m?.message ?? '';
+          const ts = m?.createdAt ? new Date(m.createdAt) : new Date();
+          return { firstName, newMessage: text, userId: senderId, timestamp: ts };
+        });
+        setMessages(mapped);
+        // Scroll after messages render
+        setTimeout(() => scrollToBottomSilent(), 100);
+      } catch (_err) {
+        // Keep UI usable on failure
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchChatHistory();
+  }, [user, targetUserId]);
 
 
   useEffect(() => {
@@ -146,48 +179,76 @@ const Chat = () => {
           className="flex-1 overflow-y-auto bg-base-200 p-3 min-h-0 relative"
           onScroll={handleScroll}
         >
-          <div className="space-y-2">
-            {messages.map((msg, idx) => {
-              const isCurrentUser = msg.userId === user._id;
-              const imageUrl = isCurrentUser
-                ? (user?.photoUrl || "https://img.daisyui.com/images/profile/demo/kenobee@192.webp")
-                : (targetUser?.photoUrl || "https://img.daisyui.com/images/profile/demo/others@192.webp");
-              
-              const formatTime = (timestamp) => {
-                if (!timestamp) return '';
-                const date = new Date(timestamp);
-                return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-              };
+          {/* Loader */}
+          {isLoading && (
+            <div className="h-full flex items-center justify-center">
+              <div className="flex items-center gap-3 text-base-content/70">
+                <span className="loading loading-spinner loading-md"></span>
+                <span className="text-sm">Loading messages…</span>
+              </div>
+            </div>
+          )}
 
-              return (
-              <div
-                key={idx}
-                className={`chat ${isCurrentUser ? "chat-end" : "chat-start"}`}
-              >
-                <div className="chat-image avatar">
-                  <div className="w-8 rounded-full">
-                    <img
-                      alt={msg.firstName || "User"}
-                      src={imageUrl}
-                      onError={(e) => {
-                        e.target.src = isCurrentUser
-                          ? "https://img.daisyui.com/images/profile/demo/kenobee@192.webp"
-                          : "https://img.daisyui.com/images/profile/demo/others@192.webp";
-                      }}
-                    />
+          {/* Empty state (only after loading completes) */}
+          {!isLoading && messages.length === 0 && (
+            <div className="h-full flex items-center justify-center">
+              <div className="text-center text-base-content/70">
+                <div className="mb-2 mx-auto w-10 h-10 rounded-full bg-base-100 flex items-center justify-center shadow">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8s-9-3.582-9-8 4.03-8 9-8 9 3.582 9 8z"/>
+                  </svg>
+                </div>
+                <p className="text-sm">No messages yet</p>
+                <p className="text-xs">Start the conversation by sending a message.</p>
+              </div>
+            </div>
+          )}
+
+          {/* Messages */}
+          {!isLoading && messages.length > 0 && (
+            <div className="space-y-2">
+              {messages.map((msg, idx) => {
+                const isCurrentUser = msg.userId === user._id;
+                const imageUrl = isCurrentUser
+                  ? (user?.photoUrl || "https://img.daisyui.com/images/profile/demo/kenobee@192.webp")
+                  : (targetUser?.photoUrl || "https://img.daisyui.com/images/profile/demo/others@192.webp");
+                
+                const formatTime = (timestamp) => {
+                  if (!timestamp) return '';
+                  const date = new Date(timestamp);
+                  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                };
+
+                return (
+                <div
+                  key={idx}
+                  className={`chat ${isCurrentUser ? "chat-end" : "chat-start"}`}
+                >
+                  <div className="chat-image avatar">
+                    <div className="w-8 rounded-full">
+                      <img
+                        alt={msg.firstName || "User"}
+                        src={imageUrl}
+                        onError={(e) => {
+                          e.target.src = isCurrentUser
+                            ? "https://img.daisyui.com/images/profile/demo/kenobee@192.webp"
+                            : "https://img.daisyui.com/images/profile/demo/others@192.webp";
+                        }}
+                      />
+                    </div>
+                  </div>
+                  <div className="chat-bubble px-3 py-2 text-sm">
+                    {msg.newMessage}
+                  </div>
+                  <div className="chat-footer opacity-50 text-xs">
+                    {formatTime(msg.timestamp)}
                   </div>
                 </div>
-                <div className="chat-bubble px-3 py-2 text-sm">
-                  {msg.newMessage}
-                </div>
-                <div className="chat-footer opacity-50 text-xs">
-                  {formatTime(msg.timestamp)}
-                </div>
-              </div>
-              );
-            })}
-            <div ref={messagesEndRef} />
-          </div>
+                );
+              })}
+              <div ref={messagesEndRef} />
+            </div>
+          )}
 
           {/* Unread Messages Notification */}
           {unreadCount > 0 && (
