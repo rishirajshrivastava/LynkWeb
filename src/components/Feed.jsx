@@ -18,6 +18,7 @@ const Feed = () => {
   const [sparkleError, setSparkleError] = useState("")
   const [showLikeLimitPopup, setShowLikeLimitPopup] = useState(false)
   const [showSpecialLikeLimitPopup, setShowSpecialLikeLimitPopup] = useState(false)
+  const [hasProcessedUsers, setHasProcessedUsers] = useState(false) // Track if any users have been processed
 
   const getFeed = async (pageNum = 1) => {
     setLoading(true)
@@ -67,17 +68,28 @@ const Feed = () => {
     }
   }, [profiles.length, currentIndex])
 
+  // Auto-fetch next page when profiles become empty (but not on initial load)
+  useEffect(() => {
+    if (profiles.length === 0 && hasMore && !loading && hasProcessedUsers) {
+      const nextPage = page + 1
+      setPage(nextPage)
+      getFeed(nextPage).then(() => {
+        setCurrentIndex(0)
+      })
+    }
+  }, [profiles.length, hasMore, loading, page, hasProcessedUsers])
+
   const handleNext = () => {
     const nextIndex = currentIndex + 1
 
     if (nextIndex < profiles.length) {
       setCurrentIndex(nextIndex)
-    } else if (hasMore && !loading) {
-      // Fetch next page
+    } else if (hasMore && !loading && profiles.length === 0) {
+      // Only fetch next page when there are no users left in the store
       const nextPage = page + 1
       setPage(nextPage)
       getFeed(nextPage).then(() => {
-        setCurrentIndex(nextIndex)
+        setCurrentIndex(0) // Reset to first user of new batch
       })
     }
     // No loop back - let it naturally show NoMoreUsers when no more data
@@ -93,6 +105,7 @@ const Feed = () => {
         { withCredentials: true }
       )
       dispatch(removeFromFeed(profile._id))
+      setHasProcessedUsers(true) // Mark that we've processed at least one user
     } catch (err) {
       console.log("Error while sending like", err)
       
@@ -108,6 +121,7 @@ const Feed = () => {
           err.response?.data?.message?.includes("Connection request already exists")) {
         // Remove user from store and show next card
         dispatch(removeFromFeed(profile._id))
+      setHasProcessedUsers(true) // Mark that we've processed at least one user
       }
     } finally {
       // Only call handleNext if we should proceed (not a like limit error)
@@ -125,6 +139,7 @@ const Feed = () => {
         { withCredentials: true }
       )
       dispatch(removeFromFeed(profile._id))
+      setHasProcessedUsers(true) // Mark that we've processed at least one user
     } catch (err) {
       console.log("Error while sending dislike", err)
       
@@ -133,9 +148,10 @@ const Feed = () => {
           err.response?.data?.message?.includes("Connection request already exists")) {
         // Remove user from store and show next card
         dispatch(removeFromFeed(profile._id))
+      setHasProcessedUsers(true) // Mark that we've processed at least one user
       }
     } finally {
-      handleNext()
+      handleNext() 
     }
   }
 
@@ -148,7 +164,8 @@ const Feed = () => {
         { withCredentials: true }
       ) 
       dispatch(removeFromFeed(profile._id))
-        handleNext()
+      setHasProcessedUsers(true) // Mark that we've processed at least one user
+      handleNext()
     } catch (err) {
       console.log(err?.response?.data?.message)
       
