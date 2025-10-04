@@ -21,6 +21,46 @@ const Chat = () => {
   // Get target user info from location state
   const targetUser = location.state || null;
 
+  // Helper function to generate name initials
+  const getInitials = (firstName, lastName) => {
+    if (!firstName && !lastName) return 'U';
+    const firstInitial = firstName ? firstName.charAt(0).toUpperCase() : '';
+    const lastInitial = lastName ? lastName.charAt(0).toUpperCase() : '';
+    return firstInitial + lastInitial;
+  };
+
+  // Helper function to get user display info
+  const getUserDisplayInfo = (userData) => {
+    // Handle photoUrl - it could be a string, array, or null/undefined
+    let hasPhoto = false;
+    let photoUrl = null;
+    
+    if (userData?.photoUrl) {
+      if (Array.isArray(userData.photoUrl)) {
+        // If it's an array, check if it has any valid photo URLs
+        const validPhotos = userData.photoUrl.filter(url => 
+          typeof url === 'string' && url.trim() !== ''
+        );
+        hasPhoto = validPhotos.length > 0;
+        photoUrl = validPhotos[0]; // Use the first valid photo
+      } else if (typeof userData.photoUrl === 'string' && userData.photoUrl.trim() !== '') {
+        hasPhoto = true;
+        photoUrl = userData.photoUrl;
+      }
+    }
+    
+    const firstName = userData?.firstName || '';
+    const lastName = userData?.lastName || '';
+    const initials = getInitials(firstName, lastName);
+    
+    return {
+      hasPhoto,
+      photoUrl,
+      initials,
+      fullName: `${firstName} ${lastName}`.trim() || 'User'
+    };
+  };
+
   // Auto-scroll to bottom function (for manual use)
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -155,19 +195,28 @@ const Chat = () => {
         {/* Chat Header */}
         <div className="bg-base-100 border-b border-base-300 px-4 py-2 flex items-center gap-3 shadow-sm flex-shrink-0">
           <div className="flex items-center gap-2 flex-1">
-            <div className="w-8 h-8 rounded-full overflow-hidden">
-              <img
-                alt={targetUser ? `${targetUser.firstName} ${targetUser.lastName}` : "User"}
-                src={targetUser?.photoUrl || "https://img.daisyui.com/images/profile/demo/kenobee@192.webp"}
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  e.target.src = "https://img.daisyui.com/images/profile/demo/kenobee@192.webp";
-                }}
-              />
+            <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center bg-primary text-primary-content font-semibold text-sm">
+              {(() => {
+                const targetUserInfo = getUserDisplayInfo(targetUser);
+                return targetUserInfo.hasPhoto ? (
+                  <img
+                    alt={targetUserInfo.fullName}
+                    src={targetUserInfo.photoUrl}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.nextSibling.style.display = 'flex';
+                    }}
+                  />
+                ) : null;
+              })()}
+              <div className={`w-full h-full flex items-center justify-center ${targetUser && getUserDisplayInfo(targetUser).hasPhoto ? 'hidden' : 'flex'}`}>
+                {targetUser ? getUserDisplayInfo(targetUser).initials : 'U'}
+              </div>
             </div>
             <div>
               <h2 className="font-semibold text-base-content text-base">
-                {targetUser ? `${targetUser.firstName} ${targetUser.lastName}` : "Chat"}
+                {targetUser ? getUserDisplayInfo(targetUser).fullName : "Chat"}
               </h2>
             </div>
           </div>
@@ -209,9 +258,8 @@ const Chat = () => {
             <div className="space-y-2">
               {messages.map((msg, idx) => {
                 const isCurrentUser = msg.userId === user._id;
-                const imageUrl = isCurrentUser
-                  ? (user?.photoUrl || "https://img.daisyui.com/images/profile/demo/kenobee@192.webp")
-                  : (targetUser?.photoUrl || "https://img.daisyui.com/images/profile/demo/others@192.webp");
+                const userData = isCurrentUser ? user : targetUser;
+                const userInfo = getUserDisplayInfo(userData);
                 
                 const formatTime = (timestamp) => {
                   if (!timestamp) return '';
@@ -225,16 +273,21 @@ const Chat = () => {
                   className={`chat ${isCurrentUser ? "chat-end" : "chat-start"}`}
                 >
                   <div className="chat-image avatar">
-                    <div className="w-8 rounded-full">
-                      <img
-                        alt={msg.firstName || "User"}
-                        src={imageUrl}
-                        onError={(e) => {
-                          e.target.src = isCurrentUser
-                            ? "https://img.daisyui.com/images/profile/demo/kenobee@192.webp"
-                            : "https://img.daisyui.com/images/profile/demo/others@192.webp";
-                        }}
-                      />
+                    <div className="w-8 rounded-full overflow-hidden flex items-center justify-center bg-primary text-primary-content font-semibold text-sm">
+                      {userInfo.hasPhoto ? (
+                        <img
+                          alt={userInfo.fullName}
+                          src={userInfo.photoUrl}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                            e.target.nextSibling.style.display = 'flex';
+                          }}
+                        />
+                      ) : null}
+                      <div className={`w-full h-full flex items-center justify-center ${userInfo.hasPhoto ? 'hidden' : 'flex'}`}>
+                        {userInfo.initials}
+                      </div>
                     </div>
                   </div>
                   <div className="chat-bubble px-3 py-2 text-sm">
