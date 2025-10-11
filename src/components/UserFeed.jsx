@@ -9,6 +9,267 @@ const UserFeed = ({ profile, onLike, onDislike, onSparkleLike, sparkleError }) =
 
   const fullName = `${profile.firstName ?? ''} ${profile.lastName ?? ''}`.trim()
 
+  // Collect all available sections for balanced distribution
+  const getAvailableSections = () => {
+    const sections = []
+    
+    // About section
+    if (profile.about && profile.about.trim()) {
+      sections.push({
+        id: 'about',
+        component: (
+          <div key="about" className="bg-base-200/30 rounded-xl p-3 border border-base-300/20">
+            <h3 className="text-sm font-semibold text-base-content mb-2 flex items-center gap-2">
+              <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+              About
+            </h3>
+            <p className="text-base-content/80 leading-relaxed text-sm break-words whitespace-pre-wrap">
+              {profile.about}
+            </p>
+          </div>
+        )
+      })
+    }
+
+    // Location & Lifestyle section
+    if (profile.location?.city || profile.occupation || profile.education) {
+      sections.push({
+        id: 'location',
+        component: (
+          <div key="location" className="bg-base-200/30 rounded-xl p-3 border border-base-300/20">
+            <h3 className="text-sm font-semibold text-base-content mb-3 flex items-center gap-2">
+              <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              Location & Lifestyle
+            </h3>
+            <div className="space-y-2">
+              {profile.location?.city && (
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-base-content/60 w-16">Location:</span>
+                  <span className="text-sm text-base-content/80">{profile.location.city}{profile.location.state && `, ${profile.location.state}`}</span>
+                </div>
+              )}
+              {profile.occupation && (
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-base-content/60 w-16">Works as:</span>
+                  <span className="text-sm text-base-content/80">{profile.occupation}</span>
+                </div>
+              )}
+              {profile.education && (
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-base-content/60 w-16">Education:</span>
+                  <span className="text-sm text-base-content/80">{profile.education}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        )
+      })
+    }
+
+    // Lifestyle Preferences section
+    if (profile.smoking || profile.drinking || profile.exercise || profile.diet) {
+      sections.push({
+        id: 'lifestyle',
+        component: (
+          <div key="lifestyle" className="bg-base-200/30 rounded-xl p-3 border border-base-300/20">
+            <h3 className="text-sm font-semibold text-base-content mb-3 flex items-center gap-2">
+              <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              </svg>
+              Lifestyle
+            </h3>
+            <div className="grid grid-cols-2 gap-2">
+              {profile.smoking && (
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-base-content/60">Smoking:</span>
+                  <span className="text-sm text-base-content/80 font-medium">{profile.smoking}</span>
+                </div>
+              )}
+              {profile.drinking && (
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-base-content/60">Drinking:</span>
+                  <span className="text-sm text-base-content/80 font-medium">{profile.drinking}</span>
+                </div>
+              )}
+              {profile.exercise && (
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-base-content/60">Exercise:</span>
+                  <span className="text-sm text-base-content/80 font-medium">{profile.exercise}</span>
+                </div>
+              )}
+              {profile.diet && (
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-base-content/60">Diet:</span>
+                  <span className="text-sm text-base-content/80 font-medium">{profile.diet}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        )
+      })
+    }
+
+    // Family & Relationships section
+    if (profile.hasKids || profile.wantsKids) {
+      sections.push({
+        id: 'family',
+        component: (
+          <div key="family" className="bg-base-200/30 rounded-xl p-3 border border-base-300/20">
+            <h3 className="text-sm font-semibold text-base-content mb-3 flex items-center gap-2">
+              <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              </svg>
+              Family & Relationships
+            </h3>
+            <div className="space-y-2">
+              {profile.hasKids && (
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-base-content/60">Has kids:</span>
+                  <span className="text-sm text-base-content/80 font-medium">{profile.hasKids}</span>
+                </div>
+              )}
+              {profile.wantsKids && (
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-base-content/60">Wants kids:</span>
+                  <span className="text-sm text-base-content/80 font-medium">{profile.wantsKids}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        )
+      })
+    }
+
+    // Interests & Hobbies section
+    if ((profile.interests && profile.interests.length > 0) || (profile.hobbies && profile.hobbies.length > 0)) {
+      sections.push({
+        id: 'interests',
+        component: (
+          <div key="interests" className="bg-base-200/30 rounded-xl p-3 border border-base-300/20">
+            <h3 className="text-sm font-semibold text-base-content mb-3 flex items-center gap-2">
+              <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+              </svg>
+              Interests & Hobbies
+            </h3>
+            <div className="space-y-3">
+              {profile.interests && profile.interests.length > 0 && (
+                <div>
+                  <span className="text-xs text-base-content/60 block mb-2">Interests:</span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {profile.interests.map((interest, idx) => (
+                      <span
+                        key={idx}
+                        className="px-2 py-1 text-xs bg-primary/10 text-primary rounded-full border border-primary/20"
+                      >
+                        {interest}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {profile.hobbies && profile.hobbies.length > 0 && (
+                <div>
+                  <span className="text-xs text-base-content/60 block mb-2">Hobbies:</span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {profile.hobbies.map((hobby, idx) => (
+                      <span
+                        key={idx}
+                        className="px-2 py-1 text-xs bg-secondary/10 text-secondary rounded-full border border-secondary/20"
+                      >
+                        {hobby}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )
+      })
+    }
+
+    // Skills section
+    if (profile.skills && profile.skills.length > 0) {
+      sections.push({
+        id: 'skills',
+        component: (
+          <div key="skills" className="bg-base-200/30 rounded-xl p-3 border border-base-300/20">
+            <h3 className="text-sm font-semibold text-base-content mb-3 flex items-center gap-2">
+              <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+              </svg>
+              Skills
+            </h3>
+            <div className="flex flex-wrap gap-1.5">
+              {profile.skills.map((skill, idx) => (
+                <span
+                  key={idx}
+                  className="px-2 py-1 text-xs bg-accent/10 text-accent rounded-full border border-accent/20"
+                >
+                  {skill}
+                </span>
+              ))}
+            </div>
+          </div>
+        )
+      })
+    }
+
+    // Languages section
+    if (profile.languages && profile.languages.length > 0) {
+      sections.push({
+        id: 'languages',
+        component: (
+          <div key="languages" className="bg-base-200/30 rounded-xl p-3 border border-base-300/20">
+            <h3 className="text-sm font-semibold text-base-content mb-3 flex items-center gap-2">
+              <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+              </svg>
+              Languages
+            </h3>
+            <div className="flex flex-wrap gap-1.5">
+              {profile.languages.map((language, idx) => (
+                <span
+                  key={idx}
+                  className="px-2 py-1 text-xs bg-info/10 text-info rounded-full border border-info/20"
+                >
+                  {language}
+                </span>
+              ))}
+            </div>
+          </div>
+        )
+      })
+    }
+
+    return sections
+  }
+
+  // Distribute sections evenly between columns
+  const distributeSections = () => {
+    const sections = getAvailableSections()
+    const leftColumn = []
+    const rightColumn = []
+    
+    sections.forEach((section, index) => {
+      if (index % 2 === 0) {
+        leftColumn.push(section.component)
+      } else {
+        rightColumn.push(section.component)
+      }
+    })
+    
+    return { leftColumn, rightColumn }
+  }
+
+  const { leftColumn, rightColumn } = distributeSections()
+
   const handleSparkleClick = () => {
     setShowSparkleDialog(true)
   }
@@ -36,8 +297,8 @@ const UserFeed = ({ profile, onLike, onDislike, onSparkleLike, sparkleError }) =
 
   return (
     <div className="rounded-2xl shadow-lg bg-base-100 border border-base-300/30 max-w-4xl mx-auto w-full">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Left: Image Section */}
+      <div className="grid grid-cols-1 gap-6">
+        {/* Top: Image Section */}
         <div className="relative bg-base-200 lg:h-[400px] h-64 flex items-center justify-center">
           {profile.photoUrl && profile.photoUrl.length > 0 ? (
             <>
@@ -150,66 +411,53 @@ const UserFeed = ({ profile, onLike, onDislike, onSparkleLike, sparkleError }) =
            )}
         </div>
 
-        {/* Right: Details Section */}
-        <div className="p-3 text-base-content lg:pl-0 flex flex-col h-full">
-          {/* Header Info - Fixed at top */}
-          <div className="space-y-2 mb-4">
+        {/* Bottom: Details Section - Split into two columns */}
+        <div className="p-4 text-base-content">
+          {/* Header Info - Always at top */}
+          <div className="space-y-3 mb-6">
             <div>
-              <h2 className="text-lg font-semibold text-base-content mb-1 break-words leading-tight">{fullName || 'Someone new'}</h2>
+              <h2 className="text-xl font-bold text-base-content mb-2 break-words leading-tight">{fullName || 'Someone new'}</h2>
               
-              {/* Meta Info */}
-              <div className="flex flex-wrap items-center gap-1.5 text-xs text-base-content/70 mb-2">
+              {/* Basic Info Tags */}
+              <div className="flex flex-wrap items-center gap-2 text-xs mb-3">
                 {profile.age && (
-                  <span className="px-2 py-1 bg-base-200 rounded text-base-content/80 text-xs whitespace-nowrap">
-                    {profile.age} years old
+                  <span className="px-3 py-1.5 bg-primary/10 text-primary rounded-full font-medium">
+                    🎂 {profile.age} years old
                   </span>
                 )}
                 {profile.gender && (
-                  <span className="px-2 py-1 bg-base-200 rounded text-base-content/80 text-xs whitespace-nowrap">
-                    {profile.gender}
+                  <span className="px-3 py-1.5 bg-secondary/10 text-secondary rounded-full font-medium">
+                    {profile.gender === 'Male' ? '👨‍💼' : profile.gender === 'Female' ? '👩‍💼' : '🧑‍💼'} {profile.gender}
+                  </span>
+                )}
+                {profile.height && (
+                  <span className="px-3 py-1.5 bg-accent/10 text-accent rounded-full font-medium">
+                    📐 {profile.height}
+                  </span>
+                )}
+                {profile.weight && (
+                  <span className="px-3 py-1.5 bg-info/10 text-info rounded-full font-medium">
+                    🏋️ {profile.weight}
                   </span>
                 )}
               </div>
             </div>
           </div>
 
-          {/* Content Area - Flexible space distribution */}
-          <div className="flex-1 flex flex-col space-y-3">
-            {/* About Section */}
-            {profile.about && profile.about.trim() && (
-              <div className="flex-1 flex flex-col">
-                <h3 className="text-xs font-medium text-base-content mb-2">About</h3>
-                <div className="bg-base-200/50 rounded-lg p-2 border border-base-300/30 flex-1">
-                  <p className="text-base-content/80 leading-relaxed text-xs break-words whitespace-pre-wrap h-full">
-                    {profile.about}
-                  </p>
-                </div>
-              </div>
-            )}
+          {/* Dynamic Content Distribution */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Left Column */}
+            <div className="space-y-4">
+              {leftColumn}
+            </div>
 
-            {/* Skills Section */}
-            {(() => {
-              const validSkills = (profile.skills ?? []).filter(skill => skill && skill.trim());
-              return validSkills.length > 0 ? (
-                <div className="flex-1 flex flex-col">
-                  <h3 className="text-xs font-medium text-base-content mb-2">Skills & Interests</h3>
-                  <div className="flex flex-wrap gap-1.5 flex-1 items-start content-start">
-                    {validSkills.map((skill, idx) => (
-                      <span
-                        key={idx}
-                        className="px-2 py-1 text-xs bg-base-200 text-base-content/80 rounded border border-base-300/50 flex-shrink-0"
-                        title={skill}
-                      >
-                        {skill}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              ) : null;
-            })()}
-                     </div>
-         </div>
-       </div>
+            {/* Right Column */}
+            <div className="space-y-4">
+              {rightColumn}
+            </div>
+          </div>
+        </div>
+      </div>
 
        {/* Special Like Confirmation Dialog */}
        {showSparkleDialog && (

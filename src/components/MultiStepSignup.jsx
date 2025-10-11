@@ -71,6 +71,7 @@ const MultiStepSignup = () => {
   const [calculatedAge, setCalculatedAge] = useState(null);
   const [errorStep, setErrorStep] = useState(null); // Track which step has the error
   const [showErrorFlash, setShowErrorFlash] = useState(false); // Track error flash visibility
+  const [hobbiesValid, setHobbiesValid] = useState(true); // Track hobbies validation state
   const navigate = useNavigate();
 
   const totalSteps = 6;
@@ -168,12 +169,22 @@ const MultiStepSignup = () => {
           ? [...(prev[fieldName] || []), value]
           : (prev[fieldName] || []).filter(item => item !== value)
       }));
+    } else if (Array.isArray(value)) {
+      // Handle array inputs (for hobbies, languages, interests)
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
     } else {
       setFormData(prev => ({
         ...prev,
         [name]: value
       }));
     }
+  };
+
+  const handleHobbiesValidationChange = (isValid) => {
+    setHobbiesValid(isValid);
   };
 
   const validateStep = (step) => {
@@ -491,7 +502,7 @@ const MultiStepSignup = () => {
       case 5:
         return <RelationshipDatingStep formData={formData} handleInputChange={handleInputChange} />;
       case 6:
-        return <ProfileContentStep formData={formData} handleInputChange={handleInputChange} />;
+        return <ProfileContentStep formData={formData} handleInputChange={handleInputChange} onHobbiesValidationChange={handleHobbiesValidationChange} />;
       default:
         return null;
     }
@@ -571,7 +582,7 @@ const MultiStepSignup = () => {
                   <button
                     type="button"
                     onClick={handleSignup}
-                    disabled={loading}
+                    disabled={loading || !hobbiesValid}
                     className="btn btn-secondary disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {loading ? "Creating..." : "Sign Up Now"}
@@ -581,7 +592,7 @@ const MultiStepSignup = () => {
                 <button
                   type="submit"
                   className="btn btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
-                  disabled={loading}
+                  disabled={loading || (currentStep === totalSteps && !hobbiesValid)}
                 >
                   {loading ? "Creating account..." : currentStep === totalSteps ? "Create Account" : "Next"}
                 </button>

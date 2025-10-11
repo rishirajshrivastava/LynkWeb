@@ -228,7 +228,7 @@ const Requests = () => {
               <div className="w-full sm:w-1/4 h-32 sm:h-36 flex items-center justify-center bg-base-300">
                     {request.fromUserId.photoUrl ? (
                         <img
-                        src={request.fromUserId.photoUrl}
+                        src={request.fromUserId.photoUrl[0]}
                         alt={`${request.fromUserId.firstName} ${request.fromUserId.lastName}`}
                         className="w-full h-full object-cover rounded-lg"
                         style={{ objectPosition: 'center' }}
