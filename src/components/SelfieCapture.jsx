@@ -18,12 +18,11 @@ const SelfieCapture = () => {
   const [cameraPermission, setCameraPermission] = useState(null)
   const [isCapturing, setIsCapturing] = useState(false)
   const [cameraActive, setCameraActive] = useState(false)
+  const [cameraStarted, setCameraStarted] = useState(false)
 
-  // Initialize camera on component mount
+  // Cleanup camera stream on unmount
   useEffect(() => {
-    initializeCamera()
     return () => {
-      // Cleanup camera stream on unmount
       console.log("Component unmounting, cleaning up camera...")
       if (stream) {
         stream.getTracks().forEach(track => {
@@ -36,7 +35,7 @@ const SelfieCapture = () => {
         videoRef.current.srcObject = null
       }
     }
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [stream])
 
   // Handle video element updates when stream changes
   useEffect(() => {
@@ -50,11 +49,12 @@ const SelfieCapture = () => {
     }
   }, [stream, cameraActive])
 
-  const initializeCamera = async () => {
+  const startCamera = async () => {
     try {
-      console.log("Initializing camera...")
+      console.log("Starting camera...")
       setError("")
       setCameraPermission("requesting")
+      setCameraStarted(true)
       
       // Ensure any existing stream is stopped first
       if (stream) {
@@ -92,6 +92,7 @@ const SelfieCapture = () => {
       console.log("Camera error:", err)
       setCameraPermission("denied")
       setCameraActive(false)
+      setCameraStarted(false)
       if (err.name === 'NotAllowedError') {
         setError("Camera permission denied. Please allow camera access to take a selfie.")
       } else if (err.name === 'NotFoundError') {
@@ -183,7 +184,7 @@ const SelfieCapture = () => {
     // Wait a moment then restart camera
     setTimeout(() => {
       console.log("Restarting camera...")
-      initializeCamera()
+      startCamera()
     }, 200)
   }
 
@@ -250,10 +251,11 @@ const SelfieCapture = () => {
   const retryCamera = () => {
     setCameraPermission(null)
     setCameraActive(false)
+    setCameraStarted(false)
     setError("")
     stopCamera()
     setTimeout(() => {
-      initializeCamera()
+      startCamera()
     }, 100)
   }
 
@@ -312,6 +314,31 @@ const SelfieCapture = () => {
 
             {/* Camera Area */}
             <div className="mb-4">
+              {!cameraStarted && (
+                <div className="aspect-video bg-base-200 rounded-xl border-2 border-base-300 flex items-center justify-center">
+                  <div className="text-center p-6">
+                    <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-lg font-semibold text-base-content mb-2">
+                      📸 Ready to Take Your Selfie?
+                    </h3>
+                    <p className="text-sm text-base-content/70 mb-4">
+                      Click the button below to start your camera and take a selfie for verification
+                    </p>
+                    <button
+                      onClick={startCamera}
+                      className="btn btn-primary"
+                    >
+                      Start Camera
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {cameraPermission === "granted" && !capturedImage && cameraActive && (
                 <div className="relative">
                   <div className="aspect-video bg-black rounded-xl overflow-hidden border-2 border-base-300">

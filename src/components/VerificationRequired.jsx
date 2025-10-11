@@ -30,82 +30,50 @@ const VerificationRequired = ({ verificationInProgress = false }) => {
         <div className="card-body text-center p-4 sm:p-6 lg:p-8">
           {/* Icon */}
           <div className="flex justify-center mb-3 sm:mb-4">
-            <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center ${
-              verificationInProgress ? 'bg-primary/10' : 'bg-warning/10'
-            }`}>
-              {verificationInProgress ? (
-                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              ) : (
-                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                </svg>
-              )}
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center bg-primary/10">
+              <svg className="w-5 h-5 sm:w-6 sm:h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
             </div>
           </div>
 
           {/* Title */}
           <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-base-content mb-2 sm:mb-3">
-            {verificationInProgress ? "Verification In Progress" : "Verification Required"}
+            Verification In Progress
           </h2>
 
           {/* Message */}
           <div className="text-base-content/70 mb-3 sm:mb-4 space-y-1 sm:space-y-2">
-            {verificationInProgress ? (
-              <>
-                <p className="text-xs sm:text-sm leading-relaxed">
-                  Your account verification is currently being reviewed by our team.
-                </p>
-                <p className="text-xs sm:text-sm leading-relaxed">
-                  This process usually takes 24-48 hours. You'll be notified once your verification is complete.
-                </p>
-                <p className="text-xs sm:text-sm leading-relaxed">
-                  You can check back later or contact support if you have any questions.
-                </p>
-                <p className="text-xs sm:text-sm leading-relaxed font-medium text-primary">
-                  Please wait while we review your information.
-                </p>
-              </>
-            ) : (
-              <>
-                <p className="text-xs sm:text-sm leading-relaxed">
-                  You need to complete account verification before you can view profiles, send likes, or use other features.
-                </p>
-                <p className="text-xs sm:text-sm leading-relaxed">
-                  Verification helps us ensure a safe and authentic community for everyone.
-                </p>
-                <p className="text-xs sm:text-sm leading-relaxed font-medium text-warning">
-                  Please complete your verification to continue.
-                </p>
-              </>
-            )}
+            <p className="text-xs sm:text-sm leading-relaxed">
+              Your account verification is currently being reviewed by our team.
+            </p>
+            <p className="text-xs sm:text-sm leading-relaxed">
+              This process usually takes up to 24 hours. You'll be notified once your verification is complete.
+            </p>
+            <p className="text-xs sm:text-sm leading-relaxed">
+              We verify all users to create a safe, authentic community for everyone.
+            </p>
+            <p className="text-xs sm:text-sm leading-relaxed">
+              You can check back later or contact support if you have any questions.
+            </p>
+            <p className="text-xs sm:text-sm leading-relaxed font-medium text-primary">
+              Please wait while we review your information.
+            </p>
           </div>
+
 
           {/* Action Buttons */}
           <div className="space-y-2">
-            {!verificationInProgress ? (
-              <button
-                onClick={() => {
-                  // TODO: Implement verification process
-                  console.log("Start verification process")
-                }}
-                className="btn btn-primary w-full rounded-lg text-sm py-2"
-              >
-                Start Verification
-              </button>
-            ) : (
-              <div className="w-full p-3 bg-primary/10 border border-primary/20 rounded-lg">
-                <div className="flex items-center justify-center gap-2">
-                  <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span className="text-xs sm:text-sm text-primary font-medium">
-                    Verification Under Review
-                  </span>
-                </div>
+            <div className="w-full p-3 bg-primary/10 border border-primary/20 rounded-lg">
+              <div className="flex items-center justify-center gap-2">
+                <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span className="text-xs sm:text-sm text-primary font-medium">
+                  Verification Under Review
+                </span>
               </div>
-            )}
+            </div>
             
             <button
               onClick={() => setShowLogoutConfirm(true)}
