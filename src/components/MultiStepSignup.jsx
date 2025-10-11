@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import { BASE_URL } from '../utils/constants';
@@ -69,9 +69,75 @@ const MultiStepSignup = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showAgeConfirmation, setShowAgeConfirmation] = useState(false);
   const [calculatedAge, setCalculatedAge] = useState(null);
+  const [errorStep, setErrorStep] = useState(null); // Track which step has the error
+  const [showErrorFlash, setShowErrorFlash] = useState(false); // Track error flash visibility
   const navigate = useNavigate();
 
   const totalSteps = 6;
+
+  // Clear error when navigating away from the error step
+  useEffect(() => {
+    if (errorStep && currentStep !== errorStep) {
+      setError("");
+      setErrorDetails("");
+      setErrorStep(null);
+      setShowErrorFlash(false);
+    }
+  }, [currentStep, errorStep]);
+
+  // Show error flash when error occurs
+  useEffect(() => {
+    if (error) {
+      setShowErrorFlash(true);
+      // Auto-hide flash after 5 seconds
+      const timer = setTimeout(() => {
+        setShowErrorFlash(false);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
+
+  // Map error types to specific steps
+  const getErrorStep = (errorMessage) => {
+    if (errorMessage.includes('email') || errorMessage.includes('Email')) {
+      return 1; // Basic Info Step (email field)
+    }
+    if (errorMessage.includes('phone') || errorMessage.includes('Phone')) {
+      return 3; // Personal Details Step (phone field)
+    }
+    // Default to step 1 for most errors
+    return 1;
+  };
+
+  // Check if all required fields are filled for quick signup
+  const isFormComplete = () => {
+    return (
+      formData.firstName.trim() &&
+      formData.email.trim() &&
+      formData.password &&
+      formData.password.length >= 6 &&
+      formData.password === formData.confirmPassword &&
+      formData.gender &&
+      formData.dateOfBirth &&
+      formData.interestedIn.length > 0 &&
+      formData.height &&
+      formData.weight &&
+      formData.phoneNumber &&
+      formData.location.city &&
+      formData.location.state &&
+      formData.location.country &&
+      formData.occupation &&
+      formData.education &&
+      formData.smoking &&
+      formData.drinking &&
+      formData.exercise &&
+      formData.diet &&
+      formData.relationshipStatus &&
+      formData.lookingFor.length > 0 &&
+      formData.hasKids &&
+      formData.wantsKids
+    );
+  };
 
   const calculateAge = (dateOfBirth) => {
     if (!dateOfBirth) return null;
@@ -261,6 +327,12 @@ const MultiStepSignup = () => {
         setShowAgeConfirmation(true);
       } else {
         setCurrentStep(prev => Math.min(prev + 1, totalSteps));
+        // Only scroll to top if the next step is empty (step 6 is optional)
+        const nextStepNum = Math.min(currentStep + 1, totalSteps);
+        if (nextStepNum === 6) {
+          // Step 6 is optional, so don't scroll to top
+          return;
+        }
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     }
@@ -269,7 +341,11 @@ const MultiStepSignup = () => {
   const confirmAgeAndProceed = () => {
     setShowAgeConfirmation(false);
     setCurrentStep(prev => Math.min(prev + 1, totalSteps));
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Only scroll to top if the next step is not empty (step 6 is optional)
+    const nextStepNum = Math.min(currentStep + 1, totalSteps);
+    if (nextStepNum !== 6) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   const cancelAgeConfirmation = () => {
@@ -279,7 +355,7 @@ const MultiStepSignup = () => {
 
   const prevStep = () => {
     setCurrentStep(prev => Math.max(prev - 1, 1));
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Don't scroll to top when going to previous step
   };
 
   const handleSignup = async () => {
@@ -362,17 +438,31 @@ const MultiStepSignup = () => {
             
             setError(`${fieldDisplayName} already exists`);
             setErrorDetails(`The ${fieldDisplayName.toLowerCase()} is already registered. Please use a different ${fieldDisplayName.toLowerCase()} or sign in.`);
+            
+            // Redirect to the appropriate step based on the error
+            const stepToRedirect = getErrorStep(fieldDisplayName);
+            setErrorStep(stepToRedirect);
+            setCurrentStep(stepToRedirect);
           } else {
             setError("Duplicate entry found");
             setErrorDetails("This information already exists in our system. Please use different details.");
+            setErrorStep(1);
+            setCurrentStep(1);
           }
         } else {
           setError(errorMessage);
           setErrorDetails(err.response.data.details || "");
+          
+          // Redirect to appropriate step based on error message
+          const stepToRedirect = getErrorStep(errorMessage);
+          setErrorStep(stepToRedirect);
+          setCurrentStep(stepToRedirect);
         }
       } else {
         setError("Something went wrong. Please try again.");
         setErrorDetails("");
+        setErrorStep(1);
+        setCurrentStep(1);
       }
     } finally {
       setLoading(false);
@@ -382,7 +472,16 @@ const MultiStepSignup = () => {
   const renderStepContent = () => {
     switch (currentStep) {
       case 1:
-        return <BasicInfoStep formData={formData} handleInputChange={handleInputChange} showPassword={showPassword} setShowPassword={setShowPassword} showConfirmPassword={showConfirmPassword} setShowConfirmPassword={setShowConfirmPassword} />;
+        return <BasicInfoStep 
+          formData={formData} 
+          handleInputChange={handleInputChange} 
+          showPassword={showPassword} 
+          setShowPassword={setShowPassword} 
+          showConfirmPassword={showConfirmPassword} 
+          setShowConfirmPassword={setShowConfirmPassword}
+          error={error}
+          errorDetails={errorDetails}
+        />;
       case 2:
         return <PhysicalAttributesStep formData={formData} handleInputChange={handleInputChange} />;
       case 3:
@@ -402,6 +501,31 @@ const MultiStepSignup = () => {
     <div className="flex justify-center items-center min-h-screen bg-base-200 px-3 sm:px-4 pt-20 pb-24">
       <div className="card bg-base-100 w-full max-w-2xl shadow-xl rounded-2xl">
         <div className="card-body p-5 sm:p-6">
+          
+          {/* Error Flash Notification */}
+          {showErrorFlash && error && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg animate-pulse">
+              <div className="flex items-center space-x-2">
+                <svg className="w-5 h-5 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+                <div className="flex-1">
+                  <span className="text-red-700 text-sm font-medium">{error}</span>
+                  {errorDetails && (
+                    <div className="text-red-600 text-xs mt-1">{errorDetails}</div>
+                  )}
+                </div>
+                <button
+                  onClick={() => setShowErrorFlash(false)}
+                  className="text-red-400 hover:text-red-600 transition-colors"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          )}
           {/* Header */}
           <div className="text-center mb-6">
             <span className="text-3xl font-extrabold text-primary">Lynk 💕🔗</span>
@@ -431,7 +555,7 @@ const MultiStepSignup = () => {
             {renderStepContent()}
 
             {/* Navigation Buttons */}
-            <div className="flex justify-between mt-8">
+            <div className="flex justify-between items-center mt-8">
               <button
                 type="button"
                 onClick={prevStep}
@@ -441,18 +565,32 @@ const MultiStepSignup = () => {
                 Previous
               </button>
               
-              <button
-                type="submit"
-                className="btn btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={loading}
-              >
-                {loading ? "Creating account..." : currentStep === totalSteps ? "Create Account" : "Next"}
-              </button>
+              <div className="flex gap-2">
+                {/* Quick Signup Button - Show when form is complete and not on last step */}
+                {isFormComplete() && currentStep < totalSteps && (
+                  <button
+                    type="button"
+                    onClick={handleSignup}
+                    disabled={loading}
+                    className="btn btn-secondary disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {loading ? "Creating..." : "Sign Up Now"}
+                  </button>
+                )}
+                
+                <button
+                  type="submit"
+                  className="btn btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={loading}
+                >
+                  {loading ? "Creating account..." : currentStep === totalSteps ? "Create Account" : "Next"}
+                </button>
+              </div>
             </div>
           </form>
 
-          {/* Error Message */}
-          {error && !loading && (
+          {/* Error Message - Only show for steps other than step 1 */}
+          {error && !loading && currentStep !== 1 && (
             <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
               <div className="space-y-2">
                 <div className="flex items-center space-x-2">

@@ -154,7 +154,7 @@ const Navbar = () => {
         </div>
 
         {/* Center navigation links (desktop) */}
-        {user && (
+        {user && user.verificationStatus?.isVerified && (
           <div className="hidden sm:flex items-center gap-1 lg:gap-2">
             <Link 
               to={"/feed"} 
@@ -194,9 +194,9 @@ const Navbar = () => {
 
         {/* Right Side */}
         <div className="flex items-center gap-1 sm:gap-2 lg:gap-3 mr-1 sm:mr-2 lg:mr-4">
-          {/* Elegant dark theme toggle - hidden on smaller screens when navbar space is limited */}
+          {/* Theme toggle - always visible */}
           <button
-            className="hidden md:flex btn btn-ghost btn-sm normal-case px-2 sm:px-3 lg:px-3 py-2 hover:bg-primary/10 hover:text-primary border border-transparent hover:border-primary/20 rounded-lg transition-all duration-200 items-center gap-1 sm:gap-2"
+            className="btn btn-ghost btn-sm normal-case px-2 sm:px-3 lg:px-3 py-2 hover:bg-primary/10 hover:text-primary border border-transparent hover:border-primary/20 rounded-lg transition-all duration-200 items-center gap-1 sm:gap-2"
             aria-label="Toggle dark mode"
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
             title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
@@ -213,7 +213,7 @@ const Navbar = () => {
           </button>
           
           {/* Theme toggle for small screens when user is logged out */}
-          {!user && (
+          {false && (
             <button
               className="md:hidden btn btn-ghost btn-sm normal-case px-2 py-2 hover:bg-primary/10 hover:text-primary border border-transparent hover:border-primary/20 rounded-lg transition-all duration-200"
               aria-label="Toggle dark mode"
@@ -233,7 +233,7 @@ const Navbar = () => {
           )}
           
           {/* Alerts Icon - Always visible on navbar like theme icon */}
-          {user && (
+          {user && user.verificationStatus?.isVerified && (
             <Link
               to="/notifications"
               className="btn btn-ghost btn-sm normal-case px-2 sm:px-3 py-2 hover:bg-secondary/10 hover:text-secondary border border-transparent hover:border-secondary/20 rounded-lg transition-all duration-200 relative"
@@ -250,7 +250,7 @@ const Navbar = () => {
           )}
           
             {/* User Profile Dropdown */}
-           {user && (
+           {user && user.verificationStatus?.isVerified && (
              <div className="dropdown dropdown-end">
                <div
                  tabIndex={0}
@@ -351,7 +351,7 @@ const Navbar = () => {
       </div>
 
       {/* Mobile slide-down menu */}
-      {user && (
+      {user && user.verificationStatus?.isVerified && (
         <div className={`mobile-menu-container sm:hidden fixed top-16 left-0 z-50 transition-all duration-300 ease-in-out ${mobileOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2 pointer-events-none"}`}>
           <div className="ml-1 sm:ml-2">
             <div className="w-56 xs:w-64 sm:w-72 rounded-xl shadow-2xl border border-base-300/50 bg-base-100 overflow-hidden max-h-[calc(100vh-5rem)] overflow-y-auto">

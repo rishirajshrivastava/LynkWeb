@@ -24,7 +24,7 @@ const UserFeed = ({ profile, onLike, onDislike, onSparkleLike, sparkleError }) =
         <div className="relative bg-base-200 lg:h-[400px] h-64 flex items-center justify-center">
           {profile.photoUrl ? (
             <img
-              src={profile.photoUrl}
+              src={profile.photoUrl[0]}
               alt={fullName || 'User photo'}
               className="w-full h-full object-cover"
               style={{ objectPosition: 'center' }}

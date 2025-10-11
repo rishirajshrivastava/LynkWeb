@@ -25,6 +25,32 @@ const Login = () => {
     }
   }, [location, navigate]);
 
+  const checkVerificationStatus = async () => {
+    try {
+      const res = await axios.get(
+        BASE_URL + "/user-verification-status",
+        { withCredentials: true }
+      );
+      return res.data;
+    } catch (err) {
+      console.log("Error checking verification status:", err);
+      return null;
+    }
+  };
+
+  const checkSelfieStatus = async () => {
+    try {
+      const res = await axios.get(
+        BASE_URL + "/user-selfie-status",
+        { withCredentials: true }
+      );
+      return res.data;
+    } catch (err) {
+      console.log("Error checking selfie status:", err);
+      return null;
+    }
+  };
+
   const handleLogin = async () => {
     try {
       setError("");
@@ -35,7 +61,34 @@ const Login = () => {
         { withCredentials: true }
       );
       dispatch(addUser(res.data.user));
-      navigate("/feed");
+      
+      // Check verification status after successful login
+      const verificationStatus = await checkVerificationStatus();
+      
+      if (verificationStatus) {
+        if (verificationStatus.isVerified) {
+          navigate("/feed");
+        } else {
+          // Store verification status in Redux for later use
+          dispatch(addUser({ ...res.data.user, verificationStatus }));
+          
+          // Check if user has photos uploaded
+          if (!res.data.user.photoUrl || res.data.user.photoUrl.length === 0) {
+            navigate("/photo-upload"); // Redirect to photo upload
+          } else {
+            // Check if user has taken selfie
+            const selfieStatus = await checkSelfieStatus();
+            if (!selfieStatus?.selfieStatus) {
+              navigate("/selfie-capture"); // Redirect to selfie capture
+            } else {
+              navigate("/verification-required"); // Redirect to verification required
+            }
+          }
+        }
+      } else {
+        // If we can't check verification status, redirect to photo upload
+        navigate("/photo-upload");
+      }
     } catch (err) {
       console.log("An error occured while logging in: ", err.response?.data?.Error);
       if (err.response?.data?.Error === "Invalid credentials") {
