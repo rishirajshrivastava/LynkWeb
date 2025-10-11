@@ -3,6 +3,7 @@ import { useState } from 'react'
 
 const UserFeed = ({ profile, onLike, onDislike, onSparkleLike, sparkleError }) => {
   const [showSparkleDialog, setShowSparkleDialog] = useState(false)
+  const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0)
   
   if (!profile) return null
 
@@ -17,19 +18,69 @@ const UserFeed = ({ profile, onLike, onDislike, onSparkleLike, sparkleError }) =
     onSparkleLike?.(profile)
   }
 
+  const handlePreviousPhoto = () => {
+    if (profile.photoUrl && profile.photoUrl.length > 1) {
+      setCurrentPhotoIndex(prev => 
+        prev === 0 ? profile.photoUrl.length - 1 : prev - 1
+      )
+    }
+  }
+
+  const handleNextPhoto = () => {
+    if (profile.photoUrl && profile.photoUrl.length > 1) {
+      setCurrentPhotoIndex(prev => 
+        prev === profile.photoUrl.length - 1 ? 0 : prev + 1
+      )
+    }
+  }
+
   return (
     <div className="rounded-2xl shadow-lg bg-base-100 border border-base-300/30 max-w-4xl mx-auto w-full">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Left: Image Section */}
         <div className="relative bg-base-200 lg:h-[400px] h-64 flex items-center justify-center">
-          {profile.photoUrl ? (
-            <img
-              src={profile.photoUrl[0]}
-              alt={fullName || 'User photo'}
-              className="w-full h-full object-cover"
-              style={{ objectPosition: 'center' }}
-              onError={(e) => { e.currentTarget.style.display = 'none' }}
-            />
+          {profile.photoUrl && profile.photoUrl.length > 0 ? (
+            <>
+              <img
+                src={profile.photoUrl[currentPhotoIndex]}
+                alt={fullName || 'User photo'}
+                className="w-full h-full object-cover"
+                style={{ objectPosition: 'center' }}
+                onError={(e) => { e.currentTarget.style.display = 'none' }}
+              />
+              
+              {/* Photo Navigation Arrows */}
+              {profile.photoUrl.length > 1 && (
+                <>
+                  {/* Previous Arrow */}
+                  <button
+                    onClick={handlePreviousPhoto}
+                    className="absolute left-2 top-1/2 transform -translate-y-1/2 w-8 h-8 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center text-white transition-all duration-200 z-10"
+                    aria-label="Previous photo"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                    </svg>
+                  </button>
+                  
+                  {/* Next Arrow */}
+                  <button
+                    onClick={handleNextPhoto}
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 w-8 h-8 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center text-white transition-all duration-200 z-10"
+                    aria-label="Next photo"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                  
+                  {/* Photo Counter */}
+                  <div className="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded-full">
+                    {currentPhotoIndex + 1} / {profile.photoUrl.length}
+                  </div>
+                </>
+              )}
+            </>
           ) : (
             <div className="w-full h-full flex flex-col items-center justify-center text-base-content/40">
               <div className="w-16 h-16 bg-base-300 rounded-full flex items-center justify-center mb-3">

@@ -12,7 +12,27 @@ const Connections = () => {
   const connections = useSelector((store) => store.connections);
   const dispatch = useDispatch();
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentPhotoIndex, setCurrentPhotoIndex] = useState({});
 
+  const handlePreviousPhoto = (connectionId) => {
+    const connection = connections.find(conn => conn._id === connectionId);
+    if (connection && connection.photoUrl && connection.photoUrl.length > 1) {
+      setCurrentPhotoIndex(prev => ({
+        ...prev,
+        [connectionId]: prev[connectionId] === 0 ? connection.photoUrl.length - 1 : (prev[connectionId] || 0) - 1
+      }));
+    }
+  };
+
+  const handleNextPhoto = (connectionId) => {
+    const connection = connections.find(conn => conn._id === connectionId);
+    if (connection && connection.photoUrl && connection.photoUrl.length > 1) {
+      setCurrentPhotoIndex(prev => ({
+        ...prev,
+        [connectionId]: (prev[connectionId] || 0) === connection.photoUrl.length - 1 ? 0 : (prev[connectionId] || 0) + 1
+      }));
+    }
+  };
 
   const fetchConnections = async () => {
     try {
@@ -147,17 +167,57 @@ const Connections = () => {
                                  {/* Profile photo */}
                  <div className="w-full h-40 sm:h-48 bg-base-300 flex items-center justify-center relative">
                    
-                  {connection.photoUrl ? (
-                    <img
-                      src={connection.photoUrl}
-                      alt={`${connection.firstName} ${connection.lastName}`}
-                      className="w-full h-full object-cover"
-                      style={{ objectPosition: 'center' }}
-                      onError={(e) => {
-                        e.target.style.display = 'none';
-                        e.target.nextSibling.style.display = 'flex';
-                      }}
-                    />
+                  {connection.photoUrl && connection.photoUrl.length > 0 ? (
+                    <>
+                      <img
+                        src={connection.photoUrl[currentPhotoIndex[connection._id] || 0]}
+                        alt={`${connection.firstName} ${connection.lastName}`}
+                        className="w-full h-full object-cover"
+                        style={{ objectPosition: 'center' }}
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                          e.target.nextSibling.style.display = 'flex';
+                        }}
+                      />
+                      
+                      {/* Photo Navigation Arrows */}
+                      {connection.photoUrl.length > 1 && (
+                        <>
+                          {/* Previous Arrow */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handlePreviousPhoto(connection._id);
+                            }}
+                            className="absolute left-2 top-1/2 transform -translate-y-1/2 w-6 h-6 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center text-white transition-all duration-200 z-10"
+                            aria-label="Previous photo"
+                          >
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                            </svg>
+                          </button>
+                          
+                          {/* Next Arrow */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleNextPhoto(connection._id);
+                            }}
+                            className="absolute right-2 top-1/2 transform -translate-y-1/2 w-6 h-6 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center text-white transition-all duration-200 z-10"
+                            aria-label="Next photo"
+                          >
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                          </button>
+                          
+                          {/* Photo Counter */}
+                          <div className="absolute top-2 right-2 bg-black/50 text-white text-xs px-1.5 py-0.5 rounded-full">
+                            {(currentPhotoIndex[connection._id] || 0) + 1} / {connection.photoUrl.length}
+                          </div>
+                        </>
+                      )}
+                    </>
                   ) : null}
                   <div className={`w-full h-full bg-primary/20 flex items-center justify-center ${connection.photoUrl ? 'hidden' : 'flex'}`}>
                     <span className="text-primary font-semibold text-2xl">

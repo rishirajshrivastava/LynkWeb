@@ -262,7 +262,7 @@ const Navbar = () => {
                   <div className="w-8 h-8 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 bg-base-200 overflow-hidden">
                     {user.photoUrl ? (
                       <img 
-                        src={user.photoUrl} 
+                        src={user.photoUrl[0]} 
                         alt="User Avatar" 
                         className="w-full h-full object-cover"
                         style={{ objectPosition: 'center' }}
