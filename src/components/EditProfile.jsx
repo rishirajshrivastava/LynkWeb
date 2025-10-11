@@ -195,7 +195,9 @@ const EditProfile = ({ setMode, setIsPreview, defaultPreview = false }) => {
 
       const updated = res?.data?.data ?? res?.data?.user ?? res?.data
       if (updated) {
-        dispatch(addUser(updated))
+        // Merge the updated data with existing user data to preserve fields like verificationStatus
+        const mergedUser = { ...user, ...updated }
+        dispatch(addUser(mergedUser))
         // exit preview if open and go back to view mode
         setPreview(false)
         if (setMode) setMode("view")

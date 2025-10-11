@@ -158,7 +158,9 @@ const Navbar = () => {
           <div className="hidden sm:flex items-center gap-1 lg:gap-2">
             <Link 
               to={"/feed"} 
-              className="btn btn-ghost btn-sm normal-case text-base-content hover:bg-primary/10 hover:text-primary border border-transparent hover:border-primary/20 rounded-lg px-2 sm:px-3 lg:px-4 py-2 transition-all duration-200"
+              className={`btn btn-ghost btn-sm normal-case text-base-content hover:bg-primary/10 hover:text-primary border border-transparent hover:border-primary/20 rounded-lg px-2 sm:px-3 lg:px-4 py-2 transition-all duration-200 ${
+                location.pathname === "/feed" ? "bg-primary/10 text-primary border-primary/20" : ""
+              }`}
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 sm:mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
@@ -169,7 +171,9 @@ const Navbar = () => {
             </Link>
             <Link 
               to={"/connections"} 
-              className="btn btn-ghost btn-sm normal-case text-base-content hover:bg-primary/10 hover:text-primary border border-transparent hover:border-primary/20 rounded-lg px-2 sm:px-3 lg:px-4 py-2 transition-all duration-200"
+              className={`btn btn-ghost btn-sm normal-case text-base-content hover:bg-primary/10 hover:text-primary border border-transparent hover:border-primary/20 rounded-lg px-2 sm:px-3 lg:px-4 py-2 transition-all duration-200 ${
+                location.pathname === "/connections" ? "bg-primary/10 text-primary border-primary/20" : ""
+              }`}
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 sm:mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -179,7 +183,9 @@ const Navbar = () => {
             </Link>
             <Link 
               to={"/requestReview"} 
-              className="btn btn-ghost btn-sm normal-case text-base-content hover:bg-secondary/10 hover:text-secondary border border-transparent hover:border-secondary/20 rounded-lg px-2 sm:px-3 lg:px-4 py-2 transition-all duration-200"
+              className={`btn btn-ghost btn-sm normal-case text-base-content hover:bg-secondary/10 hover:text-secondary border border-transparent hover:border-secondary/20 rounded-lg px-2 sm:px-3 lg:px-4 py-2 transition-all duration-200 ${
+                location.pathname === "/requestReview" ? "bg-secondary/10 text-secondary border-secondary/20" : ""
+              }`}
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 sm:mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -236,7 +242,9 @@ const Navbar = () => {
           {user && user.verificationStatus?.isVerified && (
             <Link
               to="/notifications"
-              className="btn btn-ghost btn-sm normal-case px-2 sm:px-3 py-2 hover:bg-secondary/10 hover:text-secondary border border-transparent hover:border-secondary/20 rounded-lg transition-all duration-200 relative"
+              className={`btn btn-ghost btn-sm normal-case px-2 sm:px-3 py-2 hover:bg-secondary/10 hover:text-secondary border border-transparent hover:border-secondary/20 rounded-lg transition-all duration-200 relative ${
+                location.pathname === "/notifications" ? "bg-secondary/10 text-secondary border-secondary/20" : ""
+              }`}
               title="Notifications"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -317,7 +325,11 @@ const Navbar = () => {
                  </li>
 
                  <li>
-                  <Link to={"/savedLikedProfiles"} className="justify-between" onClick={() => document.activeElement && document.activeElement.blur()}>
+                  <Link 
+                    to={"/savedLikedProfiles"} 
+                    className={`justify-between ${location.pathname === "/savedLikedProfiles" ? "active" : ""}`} 
+                    onClick={() => document.activeElement && document.activeElement.blur()}
+                  >
                     <div className="flex items-center gap-2">
                       <span>Saved Profiles</span>
                       <span>✨</span>
@@ -328,7 +340,11 @@ const Navbar = () => {
 
                 
                 <li>
-                  <Link to={"/profile"} className="justify-between" onClick={() => document.activeElement && document.activeElement.blur()}>
+                  <Link 
+                    to={"/profile"} 
+                    className={`justify-between ${location.pathname === "/profile" ? "active" : ""}`} 
+                    onClick={() => document.activeElement && document.activeElement.blur()}
+                  >
                     My Profile
                   </Link>
                 </li>
@@ -356,19 +372,25 @@ const Navbar = () => {
           <div className="ml-1 sm:ml-2">
             <div className="w-56 xs:w-64 sm:w-72 rounded-xl shadow-2xl border border-base-300/50 bg-base-100 overflow-hidden max-h-[calc(100vh-5rem)] overflow-y-auto">
               <nav className="flex flex-col bg-base-100">
-                <Link onClick={() => setMobileOpen(false)} to={"/feed"} className="px-2.5 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm hover:bg-primary/10 hover:text-primary border-l-4 border-l-transparent hover:border-l-primary transition-all bg-base-100/95 flex items-center">
+                <Link onClick={() => setMobileOpen(false)} to={"/feed"} className={`px-2.5 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm hover:bg-primary/10 hover:text-primary border-l-4 border-l-transparent hover:border-l-primary transition-all bg-base-100/95 flex items-center ${
+                  location.pathname === "/feed" ? "bg-primary/10 text-primary border-l-primary" : ""
+                }`}>
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-2 sm:mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                   </svg>
                   <span className="truncate">Feed</span>
                 </Link>
-                <Link onClick={() => setMobileOpen(false)} to={"/connections"} className="px-2.5 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm hover:bg-primary/10 hover:text-primary border-l-4 border-l-transparent hover:border-l-primary transition-all bg-base-100/95 flex items-center">
+                <Link onClick={() => setMobileOpen(false)} to={"/connections"} className={`px-2.5 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm hover:bg-primary/10 hover:text-primary border-l-4 border-l-transparent hover:border-l-primary transition-all bg-base-100/95 flex items-center ${
+                  location.pathname === "/connections" ? "bg-primary/10 text-primary border-l-primary" : ""
+                }`}>
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-2 sm:mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                   </svg>
                   <span className="truncate">My Connections</span>
                 </Link>
-                <Link onClick={() => setMobileOpen(false)} to={"/requestReview"} className="px-2.5 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm hover:bg-secondary/10 hover:text-secondary border-l-4 border-l-transparent hover:border-l-secondary transition-all bg-base-100/95 flex items-center">
+                <Link onClick={() => setMobileOpen(false)} to={"/requestReview"} className={`px-2.5 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm hover:bg-secondary/10 hover:text-secondary border-l-4 border-l-transparent hover:border-l-secondary transition-all bg-base-100/95 flex items-center ${
+                  location.pathname === "/requestReview" ? "bg-secondary/10 text-secondary border-l-secondary" : ""
+                }`}>
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-2 sm:mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
