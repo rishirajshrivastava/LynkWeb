@@ -1,5 +1,5 @@
 import { useSelector, useDispatch } from "react-redux"
-import { useState, useMemo, useEffect } from "react"
+import { useState, useMemo, useEffect, useRef } from "react"
 import ProfilePreview from "./ProfilePreview"
 import axios from "axios"
 import { BASE_URL } from "../utils/constants"
@@ -43,6 +43,15 @@ const EditProfile = ({ setMode, setIsPreview, defaultPreview = false }) => {
   const [wantKids, setWantKids] = useState(user?.wantKids || "no")
   const [hobbiesInput, setHobbiesInput] = useState((user?.hobbies || []).join(", "))
   const [languagesInput, setLanguagesInput] = useState((user?.languages || []).join(", "))
+  
+  // Photo editing states
+  const [photos, setPhotos] = useState(user?.photoUrl || [])
+  const [newPhotos, setNewPhotos] = useState([])
+  const [previewUrls, setPreviewUrls] = useState([])
+  const [photosToDelete, setPhotosToDelete] = useState([]) // Track photos marked for deletion
+  const [photoUploading, setPhotoUploading] = useState(false)
+  const [photoError, setPhotoError] = useState("")
+  const fileInputRef = useRef(null)
 
 
   const hobbies = useMemo(() =>
@@ -66,6 +75,13 @@ const EditProfile = ({ setMode, setIsPreview, defaultPreview = false }) => {
     if (setIsPreview) setIsPreview(preview)
   }, [preview])
 
+  // Cleanup preview URLs on unmount
+  useEffect(() => {
+    return () => {
+      previewUrls.forEach(url => URL.revokeObjectURL(url))
+    }
+  }, [previewUrls])
+
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState("")
   const [discardOpen, setDiscardOpen] = useState(false)
@@ -88,11 +104,15 @@ const EditProfile = ({ setMode, setIsPreview, defaultPreview = false }) => {
     hasKids: user?.hasKids || "no",
     wantKids: user?.wantKids || "no",
     hobbies: (user?.hobbies || []).join(", "),
-    languages: (user?.languages || []).join(", ")
+    languages: (user?.languages || []).join(", "),
+    photos: user?.photoUrl || []
   }), [user])
 
   // Check if there are any changes
   const hasChanges = useMemo(() => {
+    const photosChanged = JSON.stringify(photos) !== JSON.stringify(originalValues.photos) || 
+                         newPhotos.length > 0 || 
+                         photosToDelete.length > 0
     return (
       firstName !== originalValues.firstName ||
       lastName !== originalValues.lastName ||
@@ -108,12 +128,13 @@ const EditProfile = ({ setMode, setIsPreview, defaultPreview = false }) => {
       hasKids !== originalValues.hasKids ||
       wantKids !== originalValues.wantKids ||
       hobbiesInput !== originalValues.hobbies ||
-      languagesInput !== originalValues.languages
+      languagesInput !== originalValues.languages ||
+      photosChanged
     )
   }, [
     firstName, lastName, about, weight, occupation, education,
     smoking, drinking, exercise, diet, relationshipStatus,
-    hasKids, wantKids, hobbiesInput, languagesInput, originalValues
+    hasKids, wantKids, hobbiesInput, languagesInput, photos, newPhotos, photosToDelete, originalValues
   ])
 
   // Validation function
@@ -160,6 +181,193 @@ const EditProfile = ({ setMode, setIsPreview, defaultPreview = false }) => {
     }
   }
 
+  // Photo handling functions
+  const handlePhotoSelect = (event) => {
+    const files = Array.from(event.target.files)
+    setPhotoError("")
+
+    // Check total count including existing photos
+    const totalPhotos = photos.length + newPhotos.length + files.length
+    if (totalPhotos > 6) {
+      setPhotoError(`Maximum 6 photos allowed. You currently have ${photos.length + newPhotos.length} photos.`)
+      return
+    }
+
+    // Validate file types and sizes
+    const validFiles = []
+    const invalidFiles = []
+
+    files.forEach(file => {
+      if (!file.type.startsWith('image/')) {
+        invalidFiles.push(`${file.name} is not an image`)
+      } else if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        invalidFiles.push(`${file.name} is too large (max 5MB)`)
+      } else {
+        validFiles.push(file)
+      }
+    })
+
+    if (invalidFiles.length > 0) {
+      setPhotoError(invalidFiles.join(', '))
+    }
+
+    if (validFiles.length > 0) {
+      setNewPhotos(prev => [...prev, ...validFiles])
+      
+      // Create preview URLs for new files
+      const newUrls = validFiles.map(file => URL.createObjectURL(file))
+      setPreviewUrls(prev => [...prev, ...newUrls])
+    }
+
+    // Clear the input so the same files can be selected again if needed
+    event.target.value = ''
+  }
+
+  const removePhoto = (index, isNewPhoto = false) => {
+    if (isNewPhoto) {
+      // Remove from new photos (just local state)
+      const newFiles = newPhotos.filter((_, i) => i !== index)
+      const newUrls = previewUrls.filter((_, i) => i !== index)
+      setNewPhotos(newFiles)
+      setPreviewUrls(newUrls)
+    } else {
+      // Prevent removing the last photo if there are no new photos
+      const remainingPhotos = photos.filter((_, i) => i !== index)
+      if (remainingPhotos.length === 0 && newPhotos.length === 0) {
+        setPhotoError("You must have at least one photo in your profile.")
+        return
+      }
+      
+      // Mark photo for deletion (don't delete immediately)
+      const photoToRemove = photos[index]
+      setPhotosToDelete(prev => [...prev, photoToRemove])
+      
+      // Remove from display (but keep in photosToDelete for actual deletion later)
+      setPhotos(prev => prev.filter((_, i) => i !== index))
+    }
+    setPhotoError("")
+  }
+
+  const undoPhotoDeletion = (photoUrl) => {
+    // Remove from photosToDelete list
+    setPhotosToDelete(prev => prev.filter(url => url !== photoUrl))
+    
+    // Add back to photos display
+    setPhotos(prev => [...prev, photoUrl])
+  }
+
+  const deletePhoto = async (photoUrl) => {
+    try {
+      await axios.delete(`${BASE_URL}/user/delete-photo`, {
+        withCredentials: true,
+        data: { photoUrl }
+      })
+      return true
+    } catch (err) {
+      console.log("Error deleting photo:", err)
+      return false
+    }
+  }
+
+  const refreshUserData = async () => {
+    try {
+      const response = await axios.get(`${BASE_URL}/profile`, {
+        withCredentials: true,
+      })
+      const userData = response.data?.data ?? response.data?.user ?? response.data
+      if (userData) {
+        dispatch(addUser(userData))
+        return userData
+      }
+    } catch (err) {
+      console.log("Error refreshing user data:", err)
+    }
+    return null
+  }
+
+  const processPhotoChanges = async () => {
+    setPhotoUploading(true)
+    setPhotoError("")
+
+    try {
+      // First, delete photos marked for deletion
+      for (const photoUrl of photosToDelete) {
+        const deleteSuccess = await deletePhoto(photoUrl)
+        if (!deleteSuccess) {
+          setPhotoError("Failed to delete some photos. Please try again.")
+          return false
+        }
+      }
+
+      // Clear photos to delete list
+      setPhotosToDelete([])
+
+      // Check if we need to delete more photos to make room for new ones
+      const currentPhotoCount = photos.length
+      const newPhotoCount = newPhotos.length
+      const totalAfterUpload = currentPhotoCount + newPhotoCount
+
+      if (totalAfterUpload > 6) {
+        // Calculate how many more photos we need to delete
+        const additionalPhotosToDelete = totalAfterUpload - 6
+        
+        // Delete the oldest remaining photos to make room
+        const photosToRemove = photos.slice(0, additionalPhotosToDelete)
+        
+        // Delete photos from S3 and database
+        for (const photoUrl of photosToRemove) {
+          const deleteSuccess = await deletePhoto(photoUrl)
+          if (!deleteSuccess) {
+            setPhotoError("Failed to delete some existing photos. Please try again.")
+            return false
+          }
+        }
+        
+        // Update local state to remove deleted photos
+        setPhotos(prev => prev.slice(additionalPhotosToDelete))
+      }
+
+      // Upload new photos if any
+      if (newPhotos.length > 0) {
+        const photoFormData = new FormData()
+        newPhotos.forEach(file => {
+          photoFormData.append('photos', file)
+        })
+
+        const photoResponse = await axios.post(
+          `${BASE_URL}/user/upload-photos`,
+          photoFormData,
+          {
+            withCredentials: true,
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          }
+        )
+
+        // Update local state with new photos
+        const newPhotoUrls = photoResponse.data.results?.map(result => result.photoUrl) || []
+        const updatedPhotos = [...photos, ...newPhotoUrls]
+        setPhotos(updatedPhotos)
+
+        // Clean up preview URLs
+        previewUrls.forEach(url => URL.revokeObjectURL(url))
+        setPreviewUrls([])
+        setNewPhotos([])
+        
+        return updatedPhotos
+      }
+
+      return photos
+    } catch (err) {
+      console.log("Photo processing error:", err)
+      setPhotoError(err.response?.data?.message || "Failed to process photo changes. Please try again.")
+      return false
+    } finally {
+      setPhotoUploading(false)
+    }
+  }
+
   const handleEditProfile = async () => {
     try {
       setSubmitting(true)
@@ -170,7 +378,26 @@ const EditProfile = ({ setMode, setIsPreview, defaultPreview = false }) => {
         setSubmitting(false)
         return
       }
+
+      // Validate photos - must have at least one photo after all changes
+      const finalPhotoCount = photos.length + newPhotos.length - photosToDelete.length
+      if (finalPhotoCount <= 0) {
+        setError("You must have at least one photo in your profile.")
+        setSubmitting(false)
+        return
+      }
       
+      // Process all photo changes (deletions and uploads)
+      const photoResult = await processPhotoChanges()
+      if (!photoResult) {
+        setSubmitting(false)
+        return // Error already set in processPhotoChanges
+      }
+      
+      // Get the final photo state
+      const finalPhotos = Array.isArray(photoResult) ? photoResult : photos
+
+      // Update profile with other fields
       const payload = {
         firstName,
         lastName,
@@ -195,12 +422,26 @@ const EditProfile = ({ setMode, setIsPreview, defaultPreview = false }) => {
 
       const updated = res?.data?.data ?? res?.data?.user ?? res?.data
       if (updated) {
-        // Merge the updated data with existing user data to preserve fields like verificationStatus
-        const mergedUser = { ...user, ...updated }
-        dispatch(addUser(mergedUser))
-        // exit preview if open and go back to view mode
-        setPreview(false)
-        if (setMode) setMode("view")
+        // Refresh user data from backend to ensure we have the latest state
+        const refreshedUser = await refreshUserData()
+        
+        if (refreshedUser) {
+          // Use the refreshed data which includes the latest photo URLs
+          dispatch(addUser(refreshedUser))
+          setPhotos(refreshedUser.photoUrl || finalPhotos)
+        } else {
+          // Fallback to our processed data if refresh fails
+          const mergedUser = { ...user, ...updated, photoUrl: finalPhotos }
+          dispatch(addUser(mergedUser))
+          setPhotos(finalPhotos)
+        }
+        
+        // Small delay to ensure Redux state is updated before navigation
+        setTimeout(() => {
+          // exit preview if open and go back to view mode
+          setPreview(false)
+          if (setMode) setMode("view")
+        }, 100)
       }
     } catch (err) {
       console.log("Error updating profile", err)
@@ -223,10 +464,10 @@ const EditProfile = ({ setMode, setIsPreview, defaultPreview = false }) => {
           <div className="text-center space-y-4 xl:pt-6">
             {/* Profile Photo */}
             <div className="mb-3 relative">
-              {user.photoUrl && user.photoUrl.length > 0 ? (
+              {photos.length > 0 ? (
                 <div className="relative">
                   <img
-                    src={Array.isArray(user.photoUrl) ? user.photoUrl[0] : user.photoUrl}
+                    src={Array.isArray(photos) ? photos[0] : photos}
                     alt={`${firstName} ${lastName}`}
                     className="w-32 h-32 object-cover rounded-full shadow-lg border-4 border-base-100 bg-base-200"
                     style={{ objectPosition: 'center' }}
@@ -542,6 +783,150 @@ const EditProfile = ({ setMode, setIsPreview, defaultPreview = false }) => {
             </div>
           </div>
 
+          {/* Photo Management */}
+          <div className="bg-base-200/30 rounded-xl p-4 border border-base-300/20">
+            <h3 className="text-sm font-semibold text-base-content mb-3 flex items-center gap-2">
+              <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              Photos ({photos.length + newPhotos.length}/6)
+            </h3>
+            
+            {/* Photo Upload Area */}
+            <div className="mb-4">
+              <div
+                className={`border-2 border-dashed rounded-xl p-4 text-center transition-all duration-200 ${
+                  photos.length + newPhotos.length >= 6 
+                    ? 'border-gray-300 cursor-not-allowed opacity-50' 
+                    : 'border-primary/30 cursor-pointer hover:border-primary/60 hover:bg-primary/5'
+                }`}
+                onClick={() => photos.length + newPhotos.length < 6 && fileInputRef.current?.click()}
+              >
+                <div className="flex flex-col items-center">
+                  <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center mb-2">
+                    <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                  </div>
+                  <h4 className="text-sm font-medium text-base-content mb-1">
+                    {photos.length + newPhotos.length >= 6 
+                      ? 'Maximum Photos Reached' 
+                      : 'Add Photos'
+                    }
+                  </h4>
+                  <p className="text-xs text-base-content/70">
+                    {photos.length + newPhotos.length >= 6 
+                      ? 'You have reached the maximum of 6 photos'
+                      : 'PNG, JPG up to 5MB each'
+                    }
+                  </p>
+                </div>
+              </div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                multiple
+                accept="image/*"
+                onChange={handlePhotoSelect}
+                className="hidden"
+              />
+            </div>
+
+            {/* Photo Grid */}
+            {(photos.length > 0 || newPhotos.length > 0) && (
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
+                {/* Existing Photos */}
+                {photos.map((photo, index) => (
+                  <div key={`existing-${index}`} className="relative group">
+                    <div className={`aspect-square overflow-hidden rounded-xl border-2 transition-all duration-200 ${
+                      photosToDelete.includes(photo) 
+                        ? 'border-red-500 opacity-50' 
+                        : 'border-base-300'
+                    }`}>
+                      <img
+                        src={photo}
+                        alt={`Photo ${index + 1}`}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                      />
+                    </div>
+                    {photosToDelete.includes(photo) ? (
+                      <button
+                        onClick={() => undoPhotoDeletion(photo)}
+                        className="absolute -top-2 -right-2 w-6 h-6 bg-green-500 text-white rounded-full flex items-center justify-center text-sm hover:bg-green-600 transition-colors shadow-lg"
+                        title="Undo deletion"
+                      >
+                        ↶
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => removePhoto(index, false)}
+                        className={`absolute -top-2 -right-2 w-6 h-6 rounded-full flex items-center justify-center text-sm transition-colors shadow-lg ${
+                          photos.length === 1 && newPhotos.length === 0
+                            ? 'bg-gray-400 text-white cursor-not-allowed'
+                            : 'bg-red-500 text-white hover:bg-red-600'
+                        }`}
+                        disabled={photos.length === 1 && newPhotos.length === 0}
+                      >
+                        ×
+                      </button>
+                    )}
+                    <div className="absolute bottom-1 left-1 right-1">
+                      <div className={`text-white text-xs px-2 py-1 rounded backdrop-blur-sm text-center ${
+                        photosToDelete.includes(photo) 
+                          ? 'bg-red-500/80' 
+                          : 'bg-black/50'
+                      }`}>
+                        {photosToDelete.includes(photo) ? 'Will Delete' : index + 1}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                
+                {/* New Photos */}
+                {previewUrls.map((url, index) => (
+                  <div key={`new-${index}`} className="relative group">
+                    <div className="aspect-square overflow-hidden rounded-xl border-2 border-primary/50">
+                      <img
+                        src={url}
+                        alt={`New Photo ${index + 1}`}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                      />
+                    </div>
+                    <button
+                      onClick={() => removePhoto(index, true)}
+                      className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-sm hover:bg-red-600 transition-colors shadow-lg"
+                    >
+                      ×
+                    </button>
+                    <div className="absolute bottom-1 left-1 right-1">
+                      <div className="bg-primary/80 text-white text-xs px-2 py-1 rounded backdrop-blur-sm text-center">
+                        New
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Photo Error */}
+            {photoError && (
+              <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-sm text-red-700">{photoError}</p>
+              </div>
+            )}
+
+            {/* Photo Uploading Indicator */}
+            {photoUploading && (
+              <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                  <p className="text-sm text-blue-700">Uploading photos...</p>
+                </div>
+              </div>
+            )}
+          </div>
+
                 </div>
               </div>
 
@@ -550,16 +935,16 @@ const EditProfile = ({ setMode, setIsPreview, defaultPreview = false }) => {
                 <div className="flex flex-col sm:flex-row justify-center gap-2">
                   <button 
                     onClick={handleSaveClick} 
-                    className={`btn btn-primary btn-sm w-full sm:w-auto ${submitting || !hasChanges ? 'btn-disabled' : ''}`} 
-                    disabled={submitting || !hasChanges}
+                    className={`btn btn-primary btn-sm w-full sm:w-auto ${submitting || photoUploading || !hasChanges ? 'btn-disabled' : ''}`} 
+                    disabled={submitting || photoUploading || !hasChanges}
                   >
-                    {submitting ? (
+                    {submitting || photoUploading ? (
                       <>
                         <svg className="animate-spin -ml-1 mr-2 h-3 w-3" fill="none" viewBox="0 0 24 24">
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
-                        <span className="text-sm">Updating...</span>
+                        <span className="text-sm">{photoUploading ? 'Uploading Photos...' : 'Updating...'}</span>
                       </>
                     ) : !hasChanges ? (
                       <>
