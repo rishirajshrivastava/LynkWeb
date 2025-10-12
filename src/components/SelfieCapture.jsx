@@ -348,6 +348,9 @@ const SelfieCapture = () => {
                       autoPlay
                       playsInline
                       muted
+                      disablePictureInPicture
+                      controlsList="nodownload nofullscreen noremoteplayback"
+                      style={{ pointerEvents: 'none' }}
                       className="w-full h-full object-cover"
                     />
                     {isCapturing && (
