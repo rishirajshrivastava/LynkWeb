@@ -36,7 +36,7 @@ const UserFeed = ({ profile, onLike, onDislike, onSparkleLike, sparkleError }) =
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-base-100 to-base-200 px-4 pt-16 pb-20">
+    <div className="bg-gradient-to-b from-base-100 to-base-200 px-4 pt-16 pb-8">
       <div className="w-full max-w-7xl mx-auto">
         {/* Profile Card */}
         <div className="bg-base-100 rounded-3xl shadow-xl overflow-hidden border border-base-300/50">
