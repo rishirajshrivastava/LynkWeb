@@ -14,6 +14,7 @@ const PhotoUpload = () => {
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
 
   const handleFileSelect = (event) => {
     const files = Array.from(event.target.files)
@@ -120,6 +121,18 @@ const PhotoUpload = () => {
     setPreviewUrls(newUrls)
     setError("")
   }
+
+  const handleLogout = async () => {
+    try {
+      await axios.post(BASE_URL + "/logout", {}, { withCredentials: true });
+    } catch (err) {
+      console.log("Logout error:", err);
+    } finally {
+      dispatch(addUser(null));
+      setShowLogoutConfirm(false);
+      navigate("/login", { replace: true });
+    }
+  };
 
   return (
     <div className="min-h-screen bg-base-200 px-4 sm:px-6 lg:px-8 pt-16 pb-8 sm:pt-20 sm:pb-12">
@@ -343,9 +356,45 @@ const PhotoUpload = () => {
               </div>
             </div>
           </div>
+
+          {/* Logout Button */}
+          <div className="mt-4">
+            <button
+              onClick={() => setShowLogoutConfirm(true)}
+              className="btn btn-ghost w-full text-base-content/70 text-xs btn-sm"
+            >
+              Logout
+            </button>
+          </div>
           </div>
         </div>
       </div>
+
+      {/* Logout Confirmation Modal */}
+      {showLogoutConfirm && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-md z-50 pointer-events-auto p-2 sm:p-4">
+          <div className="bg-base-200 text-base-content rounded-xl shadow-xl w-full max-w-xs sm:max-w-sm p-3 sm:p-5 text-center animate-fade-in">
+            <h2 className="text-sm sm:text-base font-semibold mb-2 sm:mb-3">Confirm Logout</h2>
+            <p className="text-xs sm:text-sm opacity-80 mb-3 sm:mb-4">
+              Are you sure you want to log out?
+            </p>
+            <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-3">
+              <button
+                onClick={handleLogout}
+                className="px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg bg-gradient-to-r from-red-500 to-red-600 text-white font-medium shadow-sm hover:from-red-600 hover:to-red-700 transition-all text-xs sm:text-sm"
+              >
+                Yes, Log out
+              </button>
+              <button
+                onClick={() => setShowLogoutConfirm(false)}
+                className="px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border border-gray-500 text-gray-300 hover:bg-gray-700 transition-all text-xs sm:text-sm"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
