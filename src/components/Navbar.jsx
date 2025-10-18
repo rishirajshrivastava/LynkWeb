@@ -26,14 +26,14 @@ const Navbar = () => {
 
   // Fetch notifications
   useEffect(() => {
-    if (user) {
+    if (user && user.verificationStatus?.isVerified) {
       fetchNotifications();
     }
   }, [user]);
 
   // Refetch notifications when user navigates to different pages
   useEffect(() => {
-    if (user) {
+    if (user && user.verificationStatus?.isVerified) {
       fetchNotifications();
     }
   }, [location.pathname, user]);
@@ -41,7 +41,7 @@ const Navbar = () => {
   // Listen for notification updates from other components
   useEffect(() => {
     const handleNotificationUpdate = () => {
-      if (user) {
+      if (user && user.verificationStatus?.isVerified) {
         fetchNotifications();
       }
     };

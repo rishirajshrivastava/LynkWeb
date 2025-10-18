@@ -43,8 +43,11 @@ const Body = () => {
   };
 
   const handleUnverifiedUserFlow = async (user, verificationStatus) => {
-    // Check if user has photos uploaded
-    if (!user.photoUrl || user.photoUrl.length === 0) {
+    // Check email verification first
+    if (!verificationStatus?.emailVerified) {
+      navigate("/email-verification", { replace: true });
+    } else if (!user.photoUrl || user.photoUrl.length === 0) {
+      // Check if user has photos uploaded
       navigate("/photo-upload", { replace: true });
     } else {
       // Check if user has taken selfie
@@ -225,7 +228,8 @@ const Body = () => {
       const isProtectedRoute = protectedRoutes.some(route => location.pathname.startsWith(route));
       
       if (isProtectedRoute && location.pathname !== "/verification-required" && 
-          location.pathname !== "/photo-upload" && location.pathname !== "/selfie-capture") {
+          location.pathname !== "/photo-upload" && location.pathname !== "/selfie-capture" &&
+          location.pathname !== "/email-verification") {
         // Use the same flow for unverified users
         handleUnverifiedUserFlow(userData, verificationStatus);
       }
@@ -235,14 +239,16 @@ const Body = () => {
   // Handle page refresh for verified users - redirect to feed if on verification, photo upload, or selfie capture page
   useEffect(() => {
     if (isAuthChecked && userData && verificationStatus?.isVerified && 
-        (location.pathname === "/verification-required" || location.pathname === "/photo-upload" || location.pathname === "/selfie-capture")) {
+        (location.pathname === "/verification-required" || location.pathname === "/photo-upload" || 
+         location.pathname === "/selfie-capture" || location.pathname === "/email-verification")) {
       navigate("/feed", { replace: true });
     }
   }, [isAuthChecked, userData, verificationStatus, location.pathname, navigate])
 
   // Show verification required component if user is not verified and trying to access protected routes
   if (isAuthChecked && userData && verificationStatus && !verificationStatus.isVerified && 
-      location.pathname !== "/verification-required" && location.pathname !== "/photo-upload" && location.pathname !== "/selfie-capture") {
+      location.pathname !== "/verification-required" && location.pathname !== "/photo-upload" && 
+      location.pathname !== "/selfie-capture" && location.pathname !== "/email-verification") {
     const protectedRoutes = ["/feed", "/profile", "/connections", "/requestReview", "/savedLikedProfiles", "/notifications"];
     const isProtectedRoute = protectedRoutes.some(route => location.pathname.startsWith(route));
     
@@ -254,8 +260,8 @@ const Body = () => {
   }
 
   // Show loading spinner while auth is being checked or verification status is being loaded
-  // Exception: Don't show loader for verification-required page as it handles its own loading
-  if ((!isAuthChecked || (userData && !verificationStatus)) && location.pathname !== "/verification-required") {
+  // Exception: Don't show loader for verification-required and email-verification pages as they handle their own loading
+  if ((!isAuthChecked || (userData && !verificationStatus)) && location.pathname !== "/verification-required" && location.pathname !== "/email-verification") {
     console.log("Showing loader - isAuthChecked:", isAuthChecked, "userData:", !!userData, "verificationStatus:", !!verificationStatus)
     return (
       <div className="flex justify-center items-center h-screen bg-base-200">

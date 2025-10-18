@@ -72,22 +72,27 @@ const Login = () => {
           // Store verification status in Redux for later use
           dispatch(addUser({ ...res.data.user, verificationStatus }));
           
-          // Check if user has photos uploaded
-          if (!res.data.user.photoUrl || res.data.user.photoUrl.length === 0) {
-            navigate("/photo-upload"); // Redirect to photo upload
+          // Check email verification first
+          if (!verificationStatus.emailVerified) {
+            navigate("/email-verification"); // Redirect to email verification
           } else {
-            // Check if user has taken selfie
-            const selfieStatus = await checkSelfieStatus();
-            if (!selfieStatus?.selfieStatus) {
-              navigate("/selfie-capture"); // Redirect to selfie capture
+            // Check if user has photos uploaded
+            if (!res.data.user.photoUrl || res.data.user.photoUrl.length === 0) {
+              navigate("/photo-upload"); // Redirect to photo upload
             } else {
-              navigate("/verification-required"); // Redirect to verification required
+              // Check if user has taken selfie
+              const selfieStatus = await checkSelfieStatus();
+              if (!selfieStatus?.selfieStatus) {
+                navigate("/selfie-capture"); // Redirect to selfie capture
+              } else {
+                navigate("/verification-required"); // Redirect to verification required
+              }
             }
           }
         }
       } else {
-        // If we can't check verification status, redirect to photo upload
-        navigate("/photo-upload");
+        // If we can't check verification status, redirect to email verification
+        navigate("/email-verification");
       }
     } catch (err) {
       console.log("An error occured while logging in: ", err.response?.data?.Error);

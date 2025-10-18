@@ -15,6 +15,7 @@ import Chat from "./components/Chat"
 import VerificationRequired from "./components/VerificationRequired"
 import PhotoUpload from "./components/PhotoUpload"
 import SelfieCapture from "./components/SelfieCapture"
+import EmailVerification from "./components/EmailVerification"
 import axios from "axios"
 import { BASE_URL } from "./utils/constants"
 
@@ -98,6 +99,7 @@ function App() {
             <Route path="/" element={<Body/>}>
               <Route path="/login" element={<Login/>}></Route>
               <Route path="/signup" element={<Signup/>}></Route>
+              <Route path="/email-verification" element={<EmailVerification/>}></Route>
               <Route path="/photo-upload" element={<PhotoUpload/>}></Route>
               <Route path="/selfie-capture" element={<SelfieCapture/>}></Route>
               <Route path="/verification-required" element={<VerificationRequiredWrapper/>}></Route>
