@@ -3,9 +3,10 @@ import { useEffect, useState } from "react";
 import { BASE_URL } from "../utils/constants";
 import { useDispatch, useSelector } from "react-redux";
 import { addRequests, removeRequest } from "../utils/requestsSlice";
-import { Check, X, CheckCircle, XCircle } from "lucide-react";
+import { Check, X, CheckCircle, XCircle, Eye } from "lucide-react";
 import NoRequests from "./NoRequests";
 import { addConnection } from "../utils/connectionSlice";
+import RequestProfileView from "./RequestProfileView";
 
 const Requests = () => {
   const requests = useSelector((store) => store.requests);
@@ -14,6 +15,9 @@ const Requests = () => {
   const [bulkAction, setBulkAction] = useState(null);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [pendingAction, setPendingAction] = useState(null);
+  const [viewingProfile, setViewingProfile] = useState(null);
+  const [photoIndices, setPhotoIndices] = useState({});
+  const [currentRequestIndex, setCurrentRequestIndex] = useState(0);
 
   const fetchRequests = async () => {
     try {
@@ -52,6 +56,9 @@ const Requests = () => {
             { withCredentials: true }
         );
         
+        // Get the current index of the request being processed
+        const currentIndex = sortedRequests.findIndex(r => r._id === request._id);
+        
         // Remove the request from the requests list
         dispatch(removeRequest(request._id));
         
@@ -72,10 +79,71 @@ const Requests = () => {
           };
           dispatch(addConnection(newConnection));
         }
+
+        // Auto-scroll to the next request after a short delay
+        setTimeout(() => {
+          const updatedRequests = sortedRequests.filter(r => r._id !== request._id);
+          const nextIndex = currentIndex;
+          if (nextIndex < updatedRequests.length) {
+            const nextRequestElement = document.querySelector(`[data-request-id="${updatedRequests[nextIndex]._id}"]`);
+            if (nextRequestElement) {
+              nextRequestElement.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'center' 
+              });
+            }
+          }
+        }, 100);
       } catch (error) {
         console.error("Error reviewing request:", error);
       }
     };
+  };
+
+  const handleViewProfile = (request) => {
+    const requestIndex = sortedRequests.findIndex(r => r._id === request._id);
+    setCurrentRequestIndex(requestIndex);
+    setViewingProfile(request);
+  };
+
+  const handleBackToRequests = () => {
+    setViewingProfile(null);
+    
+    // Scroll to the next request after a short delay to ensure DOM is updated
+    setTimeout(() => {
+      const nextIndex = currentRequestIndex;
+      if (nextIndex < sortedRequests.length) {
+        const nextRequestElement = document.querySelector(`[data-request-id="${sortedRequests[nextIndex]._id}"]`);
+        if (nextRequestElement) {
+          nextRequestElement.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'center' 
+          });
+        }
+      }
+    }, 100);
+  };
+
+  const handlePreviousPhoto = (requestId) => {
+    setPhotoIndices(prev => {
+      const currentIndex = prev[requestId] || 0;
+      const request = requests.find(r => r._id === requestId);
+      if (!request || !request.fromUserId.photoUrl) return prev;
+      
+      const newIndex = currentIndex === 0 ? request.fromUserId.photoUrl.length - 1 : currentIndex - 1;
+      return { ...prev, [requestId]: newIndex };
+    });
+  };
+
+  const handleNextPhoto = (requestId) => {
+    setPhotoIndices(prev => {
+      const currentIndex = prev[requestId] || 0;
+      const request = requests.find(r => r._id === requestId);
+      if (!request || !request.fromUserId.photoUrl) return prev;
+      
+      const newIndex = currentIndex === request.fromUserId.photoUrl.length - 1 ? 0 : currentIndex + 1;
+      return { ...prev, [requestId]: newIndex };
+    });
   };
 
   // Bulk action functions
@@ -141,62 +209,29 @@ const Requests = () => {
     }
   };
 
+  // If viewing a profile, show the profile view
+  if (viewingProfile) {
+    return (
+      <RequestProfileView 
+        request={viewingProfile}
+        onBack={handleBackToRequests}
+        onAccept={handleRequestReview(viewingProfile, "accepted")}
+        onReject={handleRequestReview(viewingProfile, "rejected")}
+      />
+    );
+  }
+
   return (
     <div className="pt-24 pb-28 px-4 flex justify-center">
       {/* Parent container - More compact */}
       <div className="w-full max-w-5xl bg-base-300 rounded-2xl shadow-lg border border-base-200">
         {/* Sticky Header with title and bulk actions */}
         <div className="sticky top-16 z-10 bg-base-300 rounded-2xl shadow-lg border border-base-200 p-4 sm:p-6 mb-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="text-center sm:text-left">
-              <h1 className="text-lg sm:text-xl font-bold text-base-content">Pending Requests</h1>
-              <p className="text-sm text-base-content/70 mt-1">
-                {sortedRequests.length} request{sortedRequests.length !== 1 ? 's' : ''} pending review
-              </p>
-            </div>
-            
-            {/* Bulk Action Buttons */}
-            {sortedRequests.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 justify-center sm:justify-end">
-                <button
-                  onClick={() => handleBulkAction("acceptAll")}
-                  disabled={isProcessing}
-                  className={`btn btn-xs transition-all duration-200 ${
-                    isProcessing && bulkAction === "acceptAll" 
-                      ? 'loading btn-disabled bg-green-500/20' 
-                      : 'bg-green-500/80 hover:bg-green-500 hover:scale-105 text-white border-green-500'
-                  }`}
-                  title="Accept all pending requests"
-                >
-                  {isProcessing && bulkAction === "acceptAll" ? (
-                    <span className="loading loading-spinner loading-xs"></span>
-                  ) : (
-                    <CheckCircle size={12} />
-                  )}
-                  <span className="hidden sm:inline">Accept All</span>
-                  <span className="sm:hidden">Accept All</span>
-                </button>
-                
-                <button
-                  onClick={() => handleBulkAction("rejectAll")}
-                  disabled={isProcessing}
-                  className={`btn btn-xs transition-all duration-200 ${
-                    isProcessing && bulkAction === "rejectAll" 
-                      ? 'loading btn-disabled bg-red-500/20' 
-                      : 'bg-red-500/80 hover:bg-red-500 hover:scale-105 text-white border-red-500'
-                  }`}
-                  title="Reject all pending requests"
-                >
-                  {isProcessing && bulkAction === "rejectAll" ? (
-                    <span className="loading loading-spinner loading-xs"></span>
-                  ) : (
-                    <XCircle size={12} />
-                  )}
-                  <span className="hidden sm:inline">Reject All</span>
-                  <span className="sm:hidden">Reject All</span>
-                </button>
-              </div>
-            )}
+          <div className="flex flex-col items-center justify-center text-center">
+            <h1 className="text-lg sm:text-xl font-bold text-base-content">Pending Requests</h1>
+            <p className="text-sm text-base-content/70 mt-1">
+              {sortedRequests.length} request{sortedRequests.length !== 1 ? 's' : ''} pending review
+            </p>
           </div>
         </div>
 
@@ -222,23 +257,53 @@ const Requests = () => {
           {sortedRequests.map((request) => (
             <div
               key={request._id}
+              data-request-id={request._id}
               className="w-full bg-base-200 rounded-xl shadow-md border border-base-300 flex flex-col sm:flex-row overflow-hidden"
             >
-              {/* Profile photo - More compact */}
-              <div className="w-full sm:w-1/4 h-32 sm:h-36 flex items-center justify-center bg-base-300">
-                    {request.fromUserId.photoUrl ? (
-                        <img
-                        src={request.fromUserId.photoUrl[0]}
-                        alt={`${request.fromUserId.firstName} ${request.fromUserId.lastName}`}
-                        className="w-full h-full object-cover rounded-lg"
-                        style={{ objectPosition: 'center' }}
-                        />
-                    ) : (
-                        <span className="text-xs text-base-content/50">
-                        No photo
-                        </span>
+              {/* Profile photos - More compact with navigation */}
+              <div className="w-full sm:w-1/4 h-32 sm:h-36 flex items-center justify-center bg-base-300 relative">
+                {request.fromUserId.photoUrl && request.fromUserId.photoUrl.length > 0 ? (
+                  <div className="relative w-full h-full">
+                    <img
+                      src={request.fromUserId.photoUrl[photoIndices[request._id] || 0]}
+                      alt={`${request.fromUserId.firstName} ${request.fromUserId.lastName}`}
+                      className="w-full h-full object-cover rounded-lg"
+                      style={{ objectPosition: 'center' }}
+                    />
+                    
+                    {/* Photo Navigation Controls */}
+                    {request.fromUserId.photoUrl.length > 1 && (
+                      <>
+                        <button
+                          onClick={() => handlePreviousPhoto(request._id)}
+                          className="absolute left-1 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-1 transition-colors z-10"
+                        >
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                          </svg>
+                        </button>
+                        <button
+                          onClick={() => handleNextPhoto(request._id)}
+                          className="absolute right-1 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-1 transition-colors z-10"
+                        >
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </button>
+                        
+                        {/* Photo Counter */}
+                        <div className="absolute bottom-1 right-1 bg-black/50 text-white text-xs px-1.5 py-0.5 rounded">
+                          {(photoIndices[request._id] || 0) + 1}/{request.fromUserId.photoUrl.length}
+                        </div>
+                      </>
                     )}
-                </div>
+                  </div>
+                ) : (
+                  <span className="text-xs text-base-content/50">
+                    No photo
+                  </span>
+                )}
+              </div>
 
               {/* Details + Buttons - More compact */}
               <div className="w-full sm:w-3/4 p-3 sm:p-4 flex flex-col justify-between">
@@ -290,6 +355,12 @@ const Requests = () => {
 
                                  {/* Action Buttons - More compact */}
                  <div className="mt-3 flex gap-2 justify-end">
+                   <button
+                     onClick={() => handleViewProfile(request)}
+                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-600/80 text-white text-xs font-medium shadow-sm hover:bg-blue-500 hover:ring-2 hover:ring-blue-400 transition-all duration-200"
+                   >
+                     <Eye size={14} /> View Profile
+                   </button>
                    <button
                      onClick={handleRequestReview(request, "accepted")}
                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-green-600/80 text-white text-xs font-medium shadow-sm hover:bg-green-500 hover:ring-2 hover:ring-green-400 transition-all duration-200"
