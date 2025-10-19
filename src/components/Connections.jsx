@@ -6,6 +6,8 @@ import { addConnections } from "../utils/connectionSlice";
 import { useNavigate } from "react-router-dom";
 import Chat from "./Chat";
 import NoConnections from "./NoConnections";
+import ConnectionProfileView from "./ConnectionProfileView";
+import { Eye } from "lucide-react";
 
 const Connections = () => {
   const navigate = useNavigate();
@@ -13,6 +15,7 @@ const Connections = () => {
   const dispatch = useDispatch();
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState({});
+  const [viewingProfile, setViewingProfile] = useState(null);
 
   const handlePreviousPhoto = (connectionId) => {
     const connection = connections.find(conn => conn._id === connectionId);
@@ -32,6 +35,14 @@ const Connections = () => {
         [connectionId]: (prev[connectionId] || 0) === connection.photoUrl.length - 1 ? 0 : (prev[connectionId] || 0) + 1
       }));
     }
+  };
+
+  const handleViewProfile = (connection) => {
+    setViewingProfile(connection);
+  };
+
+  const handleBackToConnections = () => {
+    setViewingProfile(null);
   };
 
   const fetchConnections = async () => {
@@ -90,6 +101,16 @@ const Connections = () => {
 
   if (connections.length === 0) {
     return <NoConnections />;
+  }
+
+  // If viewing a profile, show the profile view
+  if (viewingProfile) {
+    return (
+      <ConnectionProfileView 
+        connection={viewingProfile}
+        onBack={handleBackToConnections}
+      />
+    );
   }
 
   return (
@@ -305,8 +326,18 @@ const Connections = () => {
                       </p>
                     )}
 
-                   {/* Compact Chat Button */}
-                   <div className="mt-3 pt-2 border-t border-base-300/20">
+                   {/* Action Buttons */}
+                   <div className="mt-3 pt-2 border-t border-base-300/20 space-y-2">
+                     {/* View Profile Button */}
+                     <button
+                       onClick={() => handleViewProfile(connection)}
+                       className="w-full flex items-center justify-center gap-1.5 px-3 py-2 bg-green-500 hover:bg-green-600 text-white text-xs font-medium rounded-md transition-all duration-200 hover:shadow-sm"
+                     >
+                       <Eye size={14} />
+                       <span className="text-xs">View Profile</span>
+                     </button>
+                     
+                     {/* Message Button */}
                      <button
                        onClick={() => {
                          navigate(`/chat/${connection._id}`, {

@@ -1,37 +1,26 @@
 import { motion } from 'framer-motion'
 import { useState } from 'react'
-import { Check, X, ArrowLeft } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 
-const RequestProfileView = ({ request, onBack, onAccept, onReject }) => {
+const ConnectionProfileView = ({ connection, onBack }) => {
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0)
   
-  if (!request || !request.fromUserId) return null
+  if (!connection) return null
 
-  const profile = request.fromUserId
-  const fullName = `${profile.firstName ?? ''} ${profile.lastName ?? ''}`.trim()
-
-  const handleAccept = async () => {
-    await onAccept()
-    onBack() // Automatically go back after accepting
-  }
-
-  const handleReject = async () => {
-    await onReject()
-    onBack() // Automatically go back after rejecting
-  }
+  const fullName = `${connection.firstName ?? ''} ${connection.lastName ?? ''}`.trim()
 
   const handlePreviousPhoto = () => {
-    if (profile.photoUrl && profile.photoUrl.length > 1) {
+    if (connection.photoUrl && connection.photoUrl.length > 1) {
       setCurrentPhotoIndex(prev => 
-        prev === 0 ? profile.photoUrl.length - 1 : prev - 1
+        prev === 0 ? connection.photoUrl.length - 1 : prev - 1
       )
     }
   }
 
   const handleNextPhoto = () => {
-    if (profile.photoUrl && profile.photoUrl.length > 1) {
+    if (connection.photoUrl && connection.photoUrl.length > 1) {
       setCurrentPhotoIndex(prev => 
-        prev === profile.photoUrl.length - 1 ? 0 : prev + 1
+        prev === connection.photoUrl.length - 1 ? 0 : prev + 1
       )
     }
   }
@@ -46,7 +35,7 @@ const RequestProfileView = ({ request, onBack, onAccept, onReject }) => {
             className="flex items-center gap-2 px-4 py-2 bg-base-200 hover:bg-base-300 rounded-lg border border-base-300 transition-colors duration-200"
           >
             <ArrowLeft size={16} />
-            <span className="text-sm font-medium">Back to Request</span>
+            <span className="text-sm font-medium">Back to Connections</span>
           </button>
         </div>
 
@@ -59,10 +48,10 @@ const RequestProfileView = ({ request, onBack, onAccept, onReject }) => {
               <div className="text-center space-y-4 xl:pt-6">
                 {/* Profile Photo */}
                 <div className="mb-4 relative">
-                  {profile.photoUrl && profile.photoUrl.length > 0 ? (
+                  {connection.photoUrl && connection.photoUrl.length > 0 ? (
                     <div className="relative">
                       <img
-                        src={profile.photoUrl[currentPhotoIndex]}
+                        src={connection.photoUrl[currentPhotoIndex]}
                         alt={fullName || 'User photo'}
                         className="w-56 h-48 object-cover rounded-xl shadow-lg border-4 border-base-100 bg-base-200"
                         style={{ objectPosition: 'center' }}
@@ -70,7 +59,7 @@ const RequestProfileView = ({ request, onBack, onAccept, onReject }) => {
                       />
                       
                       {/* Photo Navigation Controls */}
-                      {profile.photoUrl.length > 1 && (
+                      {connection.photoUrl.length > 1 && (
                         <>
                           <button
                             onClick={handlePreviousPhoto}
@@ -91,7 +80,7 @@ const RequestProfileView = ({ request, onBack, onAccept, onReject }) => {
                           
                           {/* Photo Counter */}
                           <div className="absolute -bottom-3 -right-3 bg-base-100 rounded-full px-3 py-1.5 text-xs font-medium border border-base-300 shadow-lg">
-                            {currentPhotoIndex + 1}/{profile.photoUrl.length}
+                            {currentPhotoIndex + 1}/{connection.photoUrl.length}
                           </div>
                         </>
                       )}
@@ -111,41 +100,16 @@ const RequestProfileView = ({ request, onBack, onAccept, onReject }) => {
                 </h1>
                 
                 <div className="flex items-center gap-2 flex-wrap justify-center">
-                  {profile.age && (
+                  {connection.age && (
                     <span className="px-3 py-1.5 bg-primary/10 text-primary text-xs font-medium rounded-full border border-primary/20">
-                      {profile.age} years old
+                      {connection.age} years old
                     </span>
                   )}
-                  {profile.gender && (
+                  {connection.gender && (
                     <span className="px-3 py-1.5 bg-secondary/10 text-secondary text-xs font-medium rounded-full border border-secondary/20">
-                      {profile.gender}
+                      {connection.gender}
                     </span>
                   )}
-                </div>
-
-                {/* Action Buttons */}
-                <div className="flex items-center justify-center gap-4 mt-6">
-                  {/* Reject Button */}
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={handleReject}
-                    className="w-12 h-12 rounded-full bg-gradient-to-br from-red-50 to-red-100 shadow-lg border-2 border-red-200 flex items-center justify-center hover:bg-gradient-to-br hover:from-red-100 hover:to-red-200 hover:border-red-300 hover:shadow-red-500/20 transition-all duration-200 group"
-                    aria-label="Reject request"
-                  >
-                    <X className="w-5 h-5 text-red-500 group-hover:text-red-600 transition-colors duration-200" />
-                  </motion.button>
-
-                  {/* Accept Button */}
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={handleAccept}
-                    className="w-12 h-12 rounded-full bg-gradient-to-br from-green-400 to-green-500 shadow-lg flex items-center justify-center hover:bg-gradient-to-br hover:from-green-500 hover:to-green-600 hover:shadow-green-500/30 transition-all duration-200 group"
-                    aria-label="Accept request"
-                  >
-                    <Check className="w-5 h-5 text-white group-hover:scale-105 transition-transform duration-200" />
-                  </motion.button>
                 </div>
               </div>
             </div>
@@ -162,36 +126,36 @@ const RequestProfileView = ({ request, onBack, onAccept, onReject }) => {
                     About & Basic Info
                   </h3>
                   <div className="space-y-3">
-                    {profile.about && (
+                    {connection.about && (
                       <div>
                         <p className="text-base-content/80 leading-relaxed text-sm break-words whitespace-pre-wrap">
-                          {profile.about}
+                          {connection.about}
                         </p>
                       </div>
                     )}
                     <div className="grid grid-cols-2 gap-3">
-                      {profile.height && (
+                      {connection.height && (
                         <div className="flex items-center gap-2">
                           <span className="text-xs text-base-content/60">Height:</span>
-                          <span className="text-sm text-base-content/80">{profile.height}</span>
+                          <span className="text-sm text-base-content/80">{connection.height}</span>
                         </div>
                       )}
-                      {profile.weight && (
+                      {connection.weight && (
                         <div className="flex items-center gap-2">
                           <span className="text-xs text-base-content/60">Weight:</span>
-                          <span className="text-sm text-base-content/80">{profile.weight}</span>
+                          <span className="text-sm text-base-content/80">{connection.weight}</span>
                         </div>
                       )}
-                      {profile.location?.city && (
+                      {connection.location?.city && (
                         <div className="flex items-center gap-2">
                           <span className="text-xs text-base-content/60">Location:</span>
-                          <span className="text-sm text-base-content/80">{profile.location.city}{profile.location.state && `, ${profile.location.state}`}</span>
+                          <span className="text-sm text-base-content/80">{connection.location.city}{connection.location.state && `, ${connection.location.state}`}</span>
                         </div>
                       )}
-                      {profile.occupation && (
+                      {connection.occupation && (
                         <div className="flex items-center gap-2">
                           <span className="text-xs text-base-content/60">Works as:</span>
-                          <span className="text-sm text-base-content/80">{profile.occupation}</span>
+                          <span className="text-sm text-base-content/80">{connection.occupation}</span>
                         </div>
                       )}
                     </div>
@@ -208,22 +172,22 @@ const RequestProfileView = ({ request, onBack, onAccept, onReject }) => {
                   </h3>
                   <div className="space-y-3">
                     <div className="grid grid-cols-2 gap-3">
-                      {profile.education && (
+                      {connection.education && (
                         <div className="flex items-center gap-2">
                           <span className="text-xs text-base-content/60">Education:</span>
-                          <span className="text-sm text-base-content/80 capitalize">{profile.education}</span>
+                          <span className="text-sm text-base-content/80 capitalize">{connection.education}</span>
                         </div>
                       )}
-                      {profile.hasKids && (
+                      {connection.hasKids && (
                         <div className="flex items-center gap-2">
                           <span className="text-xs text-base-content/60">Has kids:</span>
-                          <span className="text-sm text-base-content/80 font-medium capitalize">{profile.hasKids}</span>
+                          <span className="text-sm text-base-content/80 font-medium capitalize">{connection.hasKids}</span>
                         </div>
                       )}
-                      {profile.wantsKids && (
+                      {connection.wantsKids && (
                         <div className="flex items-center gap-2">
                           <span className="text-xs text-base-content/60">Wants kids:</span>
-                          <span className="text-sm text-base-content/80 font-medium capitalize">{profile.wantsKids}</span>
+                          <span className="text-sm text-base-content/80 font-medium capitalize">{connection.wantsKids}</span>
                         </div>
                       )}
                     </div>
@@ -236,7 +200,7 @@ const RequestProfileView = ({ request, onBack, onAccept, onReject }) => {
                   const contentSections = []
                   
                   // Lifestyle Preferences
-                  if (profile.smoking || profile.drinking || profile.exercise || profile.diet) {
+                  if (connection.smoking || connection.drinking || connection.exercise || connection.diet) {
                     contentSections.push({
                       id: 'lifestyle',
                       component: (
@@ -248,28 +212,28 @@ const RequestProfileView = ({ request, onBack, onAccept, onReject }) => {
                             Lifestyle Preferences
                           </h3>
                           <div className="grid grid-cols-2 gap-3">
-                            {profile.smoking && (
+                            {connection.smoking && (
                               <div className="flex items-center gap-2">
                                 <span className="text-xs text-base-content/60">Smoking:</span>
-                                <span className="text-sm text-base-content/80 font-medium capitalize">{profile.smoking}</span>
+                                <span className="text-sm text-base-content/80 font-medium capitalize">{connection.smoking}</span>
                               </div>
                             )}
-                            {profile.drinking && (
+                            {connection.drinking && (
                               <div className="flex items-center gap-2">
                                 <span className="text-xs text-base-content/60">Drinking:</span>
-                                <span className="text-sm text-base-content/80 font-medium capitalize">{profile.drinking}</span>
+                                <span className="text-sm text-base-content/80 font-medium capitalize">{connection.drinking}</span>
                               </div>
                             )}
-                            {profile.exercise && (
+                            {connection.exercise && (
                               <div className="flex items-center gap-2">
                                 <span className="text-xs text-base-content/60">Exercise:</span>
-                                <span className="text-sm text-base-content/80 font-medium capitalize">{profile.exercise}</span>
+                                <span className="text-sm text-base-content/80 font-medium capitalize">{connection.exercise}</span>
                               </div>
                             )}
-                            {profile.diet && (
+                            {connection.diet && (
                               <div className="flex items-center gap-2">
                                 <span className="text-xs text-base-content/60">Diet:</span>
-                                <span className="text-sm text-base-content/80 font-medium capitalize">{profile.diet}</span>
+                                <span className="text-sm text-base-content/80 font-medium capitalize">{connection.diet}</span>
                               </div>
                             )}
                           </div>
@@ -279,7 +243,7 @@ const RequestProfileView = ({ request, onBack, onAccept, onReject }) => {
                   }
 
                   // Interests
-                  if (profile.interests && profile.interests.length > 0) {
+                  if (connection.interests && connection.interests.length > 0) {
                     contentSections.push({
                       id: 'interests',
                       component: (
@@ -291,7 +255,7 @@ const RequestProfileView = ({ request, onBack, onAccept, onReject }) => {
                             Interests
                           </h3>
                           <div className="flex flex-wrap gap-2">
-                            {profile.interests.map((interest, index) => (
+                            {connection.interests.map((interest, index) => (
                               <span
                                 key={index}
                                 className="px-3 py-1.5 bg-info/10 text-info text-xs font-medium rounded-full border border-info/20"
@@ -306,7 +270,7 @@ const RequestProfileView = ({ request, onBack, onAccept, onReject }) => {
                   }
 
                   // Hobbies
-                  if (profile.hobbies && profile.hobbies.length > 0) {
+                  if (connection.hobbies && connection.hobbies.length > 0) {
                     contentSections.push({
                       id: 'hobbies',
                       component: (
@@ -318,7 +282,7 @@ const RequestProfileView = ({ request, onBack, onAccept, onReject }) => {
                             Hobbies
                           </h3>
                           <div className="flex flex-wrap gap-2">
-                            {profile.hobbies.map((hobby, index) => (
+                            {connection.hobbies.map((hobby, index) => (
                               <span
                                 key={index}
                                 className="px-3 py-1.5 bg-secondary/10 text-secondary text-xs font-medium rounded-full border border-secondary/20"
@@ -333,7 +297,7 @@ const RequestProfileView = ({ request, onBack, onAccept, onReject }) => {
                   }
 
                   // Languages
-                  if (profile.languages && profile.languages.length > 0) {
+                  if (connection.languages && connection.languages.length > 0) {
                     contentSections.push({
                       id: 'languages',
                       component: (
@@ -345,7 +309,7 @@ const RequestProfileView = ({ request, onBack, onAccept, onReject }) => {
                             Languages
                           </h3>
                           <div className="flex flex-wrap gap-2">
-                            {profile.languages.map((language, index) => (
+                            {connection.languages.map((language, index) => (
                               <span
                                 key={index}
                                 className="px-3 py-1.5 bg-success/10 text-success text-xs font-medium rounded-full border border-success/20"
@@ -360,7 +324,7 @@ const RequestProfileView = ({ request, onBack, onAccept, onReject }) => {
                   }
 
                   // Skills
-                  if (profile.skills && profile.skills.length > 0) {
+                  if (connection.skills && connection.skills.length > 0) {
                     contentSections.push({
                       id: 'skills',
                       component: (
@@ -372,7 +336,7 @@ const RequestProfileView = ({ request, onBack, onAccept, onReject }) => {
                             Skills
                           </h3>
                           <div className="flex flex-wrap gap-2">
-                            {profile.skills.map((skill, index) => (
+                            {connection.skills.map((skill, index) => (
                               <span
                                 key={index}
                                 className="px-3 py-1.5 bg-warning/10 text-warning text-xs font-medium rounded-full border border-warning/20"
@@ -405,7 +369,7 @@ const RequestProfileView = ({ request, onBack, onAccept, onReject }) => {
               const contentSections = []
               
               // Lifestyle Preferences
-              if (profile.smoking || profile.drinking || profile.exercise || profile.diet) {
+              if (connection.smoking || connection.drinking || connection.exercise || connection.diet) {
                 contentSections.push({
                   id: 'lifestyle',
                   component: (
@@ -417,28 +381,28 @@ const RequestProfileView = ({ request, onBack, onAccept, onReject }) => {
                         Lifestyle Preferences
                       </h3>
                       <div className="grid grid-cols-2 gap-3">
-                        {profile.smoking && (
+                        {connection.smoking && (
                           <div className="flex items-center gap-2">
                             <span className="text-xs text-base-content/60">Smoking:</span>
-                            <span className="text-sm text-base-content/80 font-medium capitalize">{profile.smoking}</span>
+                            <span className="text-sm text-base-content/80 font-medium capitalize">{connection.smoking}</span>
                           </div>
                         )}
-                        {profile.drinking && (
+                        {connection.drinking && (
                           <div className="flex items-center gap-2">
                             <span className="text-xs text-base-content/60">Drinking:</span>
-                            <span className="text-sm text-base-content/80 font-medium capitalize">{profile.drinking}</span>
+                            <span className="text-sm text-base-content/80 font-medium capitalize">{connection.drinking}</span>
                           </div>
                         )}
-                        {profile.exercise && (
+                        {connection.exercise && (
                           <div className="flex items-center gap-2">
                             <span className="text-xs text-base-content/60">Exercise:</span>
-                            <span className="text-sm text-base-content/80 font-medium capitalize">{profile.exercise}</span>
+                            <span className="text-sm text-base-content/80 font-medium capitalize">{connection.exercise}</span>
                           </div>
                         )}
-                        {profile.diet && (
+                        {connection.diet && (
                           <div className="flex items-center gap-2">
                             <span className="text-xs text-base-content/60">Diet:</span>
-                            <span className="text-sm text-base-content/80 font-medium capitalize">{profile.diet}</span>
+                            <span className="text-sm text-base-content/80 font-medium capitalize">{connection.diet}</span>
                           </div>
                         )}
                       </div>
@@ -448,7 +412,7 @@ const RequestProfileView = ({ request, onBack, onAccept, onReject }) => {
               }
 
               // Interests
-              if (profile.interests && profile.interests.length > 0) {
+              if (connection.interests && connection.interests.length > 0) {
                 contentSections.push({
                   id: 'interests',
                   component: (
@@ -460,7 +424,7 @@ const RequestProfileView = ({ request, onBack, onAccept, onReject }) => {
                         Interests
                       </h3>
                       <div className="flex flex-wrap gap-2">
-                        {profile.interests.map((interest, index) => (
+                        {connection.interests.map((interest, index) => (
                           <span
                             key={index}
                             className="px-3 py-1.5 bg-info/10 text-info text-xs font-medium rounded-full border border-info/20"
@@ -475,7 +439,7 @@ const RequestProfileView = ({ request, onBack, onAccept, onReject }) => {
               }
 
               // Hobbies
-              if (profile.hobbies && profile.hobbies.length > 0) {
+              if (connection.hobbies && connection.hobbies.length > 0) {
                 contentSections.push({
                   id: 'hobbies',
                   component: (
@@ -487,7 +451,7 @@ const RequestProfileView = ({ request, onBack, onAccept, onReject }) => {
                         Hobbies
                       </h3>
                       <div className="flex flex-wrap gap-2">
-                        {profile.hobbies.map((hobby, index) => (
+                        {connection.hobbies.map((hobby, index) => (
                           <span
                             key={index}
                             className="px-3 py-1.5 bg-secondary/10 text-secondary text-xs font-medium rounded-full border border-secondary/20"
@@ -502,7 +466,7 @@ const RequestProfileView = ({ request, onBack, onAccept, onReject }) => {
               }
 
               // Languages
-              if (profile.languages && profile.languages.length > 0) {
+              if (connection.languages && connection.languages.length > 0) {
                 contentSections.push({
                   id: 'languages',
                   component: (
@@ -514,7 +478,7 @@ const RequestProfileView = ({ request, onBack, onAccept, onReject }) => {
                         Languages
                       </h3>
                       <div className="flex flex-wrap gap-2">
-                        {profile.languages.map((language, index) => (
+                        {connection.languages.map((language, index) => (
                           <span
                             key={index}
                             className="px-3 py-1.5 bg-success/10 text-success text-xs font-medium rounded-full border border-success/20"
@@ -529,7 +493,7 @@ const RequestProfileView = ({ request, onBack, onAccept, onReject }) => {
               }
 
               // Skills
-              if (profile.skills && profile.skills.length > 0) {
+              if (connection.skills && connection.skills.length > 0) {
                 contentSections.push({
                   id: 'skills',
                   component: (
@@ -541,7 +505,7 @@ const RequestProfileView = ({ request, onBack, onAccept, onReject }) => {
                         Skills
                       </h3>
                       <div className="flex flex-wrap gap-2">
-                        {profile.skills.map((skill, index) => (
+                        {connection.skills.map((skill, index) => (
                           <span
                             key={index}
                             className="px-3 py-1.5 bg-warning/10 text-warning text-xs font-medium rounded-full border border-warning/20"
@@ -621,4 +585,4 @@ const RequestProfileView = ({ request, onBack, onAccept, onReject }) => {
   )
 }
 
-export default RequestProfileView
+export default ConnectionProfileView

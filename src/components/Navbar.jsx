@@ -211,8 +211,8 @@ const Navbar = () => {
               <span className="lg:hidden">Requests</span>
               {/* Pending requests badge - only show when there are requests */}
               {requests && Array.isArray(requests) && requests.length > 0 && (
-                <div className="absolute -top-1 -right-1 w-5 h-5 bg-orange-500 text-white text-xs rounded-full flex items-center justify-center font-semibold">
-                  {requests.length}
+                <div className="absolute -top-1 -right-1 w-4 h-4 bg-orange-500 text-white text-xs rounded-full flex items-center justify-center font-medium">
+                  {requests.length> 99 ? '99+' : requests.length}
                 </div>
               )}
             </Link>
@@ -419,7 +419,7 @@ const Navbar = () => {
                   <span className="truncate">Pending Requests</span>
                   {/* Pending requests badge - only show when there are requests */}
                   {requests && Array.isArray(requests) && requests.length > 0 && (
-                    <div className="ml-auto w-5 h-5 bg-orange-500 text-white text-xs rounded-full flex items-center justify-center font-semibold">
+                    <div className="ml-auto w-4 h-4 bg-orange-500 text-white text-xs rounded-full flex items-center justify-center font-medium">
                       {requests.length}
                     </div>
                   )}
