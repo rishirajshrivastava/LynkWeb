@@ -4,6 +4,8 @@ import { ArrowLeft } from 'lucide-react'
 
 const ConnectionProfileView = ({ connection, onBack }) => {
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0)
+  const [lightboxOpen, setLightboxOpen] = useState(false)
+  const [lightboxIndex, setLightboxIndex] = useState(0)
   
   if (!connection) return null
 
@@ -24,6 +26,27 @@ const ConnectionProfileView = ({ connection, onBack }) => {
       )
     }
   }
+
+  const handleImageClick = () => {
+    setLightboxIndex(currentPhotoIndex);
+    setLightboxOpen(true);
+  };
+
+  const handleLightboxPrevious = () => {
+    if (connection.photoUrl && connection.photoUrl.length > 1) {
+      setLightboxIndex(prev => 
+        prev === 0 ? connection.photoUrl.length - 1 : prev - 1
+      )
+    }
+  };
+
+  const handleLightboxNext = () => {
+    if (connection.photoUrl && connection.photoUrl.length > 1) {
+      setLightboxIndex(prev => 
+        prev === connection.photoUrl.length - 1 ? 0 : prev + 1
+      )
+    }
+  };
 
   return (
     <div className="bg-gradient-to-b from-base-100 to-base-200 px-4 pt-20 pb-20">
@@ -53,9 +76,10 @@ const ConnectionProfileView = ({ connection, onBack }) => {
                       <img
                         src={connection.photoUrl[currentPhotoIndex]}
                         alt={fullName || 'User photo'}
-                        className="w-56 h-48 object-cover rounded-xl shadow-lg border-4 border-base-100 bg-base-200"
+                        className="w-56 h-48 object-contain rounded-xl shadow-lg border-4 border-base-100 bg-base-200 p-1 cursor-zoom-in"
                         style={{ objectPosition: 'center' }}
                         onError={(e) => { e.currentTarget.style.display = 'none' }}
+                        onClick={(e) => { e.stopPropagation(); handleImageClick(); }}
                       />
                       
                       {/* Photo Navigation Controls */}
@@ -581,6 +605,62 @@ const ConnectionProfileView = ({ connection, onBack }) => {
           </div>
         </div>
       </div>
+
+      {/* Lightbox Viewer */}
+      {lightboxOpen && (
+        <div className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setLightboxOpen(false)}>
+          <div className="relative max-w-4xl w-full h-[calc(100vh-8rem)] mt-16 mb-16 bg-base-100/5 rounded-lg overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            {/* Close Button */}
+            <button
+              onClick={() => setLightboxOpen(false)}
+              className="absolute top-3 right-3 bg-black/60 hover:bg-black/80 text-white rounded-full p-2 z-10"
+              aria-label="Close"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            {/* Image */}
+            <div className="w-full h-full flex items-center justify-center bg-black/30">
+              {connection.photoUrl && connection.photoUrl.length > 0 ? (
+                <img
+                  src={connection.photoUrl[Math.max(0, Math.min(lightboxIndex, connection.photoUrl.length - 1))]}
+                  alt="Full size"
+                  className="max-w-full max-h-full object-contain"
+                />
+              ) : null}
+            </div>
+
+            {/* Nav Controls - Only show if multiple photos */}
+            {connection.photoUrl && connection.photoUrl.length > 1 && (
+              <>
+                <button
+                  onClick={handleLightboxPrevious}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/80 text-white rounded-full p-2"
+                  aria-label="Previous"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                <button
+                  onClick={handleLightboxNext}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/80 text-white rounded-full p-2"
+                  aria-label="Next"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+                <div className="absolute bottom-3 right-3 bg-black/60 text-white text-xs px-2 py-1 rounded-full">
+                  {Math.max(0, Math.min(lightboxIndex, connection.photoUrl.length - 1)) + 1}/{connection.photoUrl.length}
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
