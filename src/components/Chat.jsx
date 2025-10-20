@@ -22,6 +22,8 @@ const Chat = () => {
   const [pendingAction, setPendingAction] = useState(null);
   const [actionError, setActionError] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [reportReason, setReportReason] = useState("");
+  const [reportDetails, setReportDetails] = useState("");
   const messagesEndRef = useRef(null);
   const messagesContainerRef = useRef(null);
   
@@ -108,6 +110,11 @@ const Chat = () => {
     setPendingAction(action);
     setShowConfirmDialog(true);
     setShowMenu(false);
+    if (action === 'report') {
+      setReportReason("");
+      setReportDetails("");
+      setActionError(null);
+    }
   };
 
   const confirmAction = async () => {
@@ -129,20 +136,34 @@ const Chat = () => {
           navigate('/connections');
         }
       } else if (pendingAction === 'report') {
-        // API call to report user (placeholder - implement when endpoint is available)
-        // await axios.post(`${BASE_URL}/user/report/${targetUserId}`, {}, { withCredentials: true });
-        console.log('User reported successfully');
-        setShowConfirmDialog(false);
-        setPendingAction(null);
+        // Validate input on client side
+        const normalized = (reportReason || '').toLowerCase();
+        const isOther = normalized === 'other';
+        const isValid = (!!reportReason && (!isOther || (isOther && reportDetails.trim().length > 0)));
+        if (!isValid) {
+          setActionError('Please select a reason or provide details for reporting.');
+          return;
+        }
+        const payload = { reason: reportReason, details: reportDetails };
+        const response = await axios.post(`${BASE_URL}/user/report/${targetUserId}`, payload, { withCredentials: true });
+        if (response?.data?.message === 'User reported successfully') {
+          console.log('User reported successfully', { reason: reportReason, details: reportDetails });
+          setShowConfirmDialog(false);
+          setPendingAction(null);
+          navigate('/connections');
+        } else {
+          setActionError(response?.data?.message || 'Unable to report user. Please try again later.');
+        }
       }
     } catch (error) {
       console.error('Error performing action:', error);
       
-      // Set error state for UI display
+      // Set error state for UI display (use API message when available)
+      const apiMsg = error?.response?.data?.message || error?.message;
       if (pendingAction === 'block') {
-        setActionError('Issue faced while blocking user. Please try again later.');
+        setActionError('Something went wrong. Please try again later.');
       } else if (pendingAction === 'report') {
-        setActionError('Issue faced while reporting user. Please try again later.');
+        setActionError('Something went wrong. Please try again later.');
       } else {
         setActionError('Something went wrong. Please try again later.');
       }
@@ -466,9 +487,42 @@ const Chat = () => {
             <p className="text-xs sm:text-sm opacity-80 mb-3 sm:mb-4">
               {pendingAction === 'block' 
                 ? 'Are you sure you want to block this user? This action cannot be undone.'
-                : 'Are you sure you want to report this user? This will be reviewed by our moderation team.'
+                : 'Please select a reason for reporting. This helps us take appropriate action.'
               }
             </p>
+
+            {/* Report Reason Inputs */}
+            {pendingAction === 'report' && (
+              <div className="space-y-2 mb-3 text-left">
+                <label className="block text-xs font-medium opacity-80">Reason</label>
+                <select
+                  value={reportReason}
+                  onChange={(e) => setReportReason(e.target.value)}
+                  className="w-full px-3 py-2 bg-base-100 border border-base-300 rounded-lg text-sm"
+                >
+                  <option value="" disabled>Select a reason</option>
+                  <option value="Trying to be someone else">Trying to be someone else / impersonation</option>
+                  <option value="Fake or misleading profile">Fake or misleading profile</option>
+                  <option value="Harassment or abusive behavior">Harassment or abusive behavior</option>
+                  <option value="Inappropriate content">Inappropriate content</option>
+                  <option value="Spam or promotional activity">Spam or promotional activity</option>
+                  <option value="Other">Other</option>
+                </select>
+
+                {reportReason === 'Other' && (
+                  <div>
+                    <label className="block text-xs font-medium opacity-80 mb-1">Please describe</label>
+                    <textarea
+                      value={reportDetails}
+                      onChange={(e) => setReportDetails(e.target.value)}
+                      rows={3}
+                      placeholder="Tell us briefly why you are reporting this user..."
+                      className="w-full px-3 py-2 bg-base-100 border border-base-300 rounded-lg text-sm resize-none"
+                    />
+                  </div>
+                )}
+              </div>
+            )}
             
             {/* Error Message */}
             {actionError && (
@@ -480,7 +534,7 @@ const Chat = () => {
             <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-3">
               <button
                 onClick={confirmAction}
-                disabled={isProcessing}
+                disabled={isProcessing || (pendingAction === 'report' && !((reportReason && reportReason !== '') && (reportReason !== 'Other' || (reportReason === 'Other' && reportDetails.trim().length > 0))))}
                 className={`px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg text-white font-medium shadow-sm transition-all text-xs sm:text-sm flex items-center justify-center gap-2 ${
                   pendingAction === 'block' 
                     ? 'bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 disabled:from-red-400 disabled:to-red-500' 
