@@ -16,6 +16,9 @@ const Connections = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState({});
   const [viewingProfile, setViewingProfile] = useState(null);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxConnectionId, setLightboxConnectionId] = useState(null);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
 
   const handlePreviousPhoto = (connectionId) => {
     const connection = connections.find(conn => conn._id === connectionId);
@@ -43,6 +46,30 @@ const Connections = () => {
 
   const handleBackToConnections = () => {
     setViewingProfile(null);
+  };
+
+  const handleImageClick = (connectionId, photoIndex) => {
+    setLightboxConnectionId(connectionId);
+    setLightboxIndex(photoIndex);
+    setLightboxOpen(true);
+  };
+
+  const handleLightboxPrevious = () => {
+    const connection = connections.find(conn => conn._id === lightboxConnectionId);
+    if (connection && connection.photoUrl && connection.photoUrl.length > 1) {
+      setLightboxIndex(prev => 
+        prev === 0 ? connection.photoUrl.length - 1 : prev - 1
+      );
+    }
+  };
+
+  const handleLightboxNext = () => {
+    const connection = connections.find(conn => conn._id === lightboxConnectionId);
+    if (connection && connection.photoUrl && connection.photoUrl.length > 1) {
+      setLightboxIndex(prev => 
+        prev === connection.photoUrl.length - 1 ? 0 : prev + 1
+      );
+    }
   };
 
   const fetchConnections = async () => {
@@ -193,11 +220,15 @@ const Connections = () => {
                       <img
                         src={connection.photoUrl[currentPhotoIndex[connection._id] || 0]}
                         alt={`${connection.firstName} ${connection.lastName}`}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-contain bg-base-300 p-1 cursor-zoom-in"
                         style={{ objectPosition: 'center' }}
                         onError={(e) => {
                           e.target.style.display = 'none';
                           e.target.nextSibling.style.display = 'flex';
+                        }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleImageClick(connection._id, currentPhotoIndex[connection._id] || 0);
                         }}
                       />
                       
@@ -381,6 +412,80 @@ const Connections = () => {
           </div>
         ) : null}
       </div>
+
+      {/* Lightbox Viewer */}
+      {lightboxOpen && lightboxConnectionId && (
+        <div className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setLightboxOpen(false)}>
+          <div className="relative max-w-4xl w-full h-[calc(100vh-8rem)] mt-16 mb-16 bg-base-100/5 rounded-lg overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            {/* Close Button */}
+            <button
+              onClick={() => setLightboxOpen(false)}
+              className="absolute top-3 right-3 bg-black/60 hover:bg-black/80 text-white rounded-full p-2 z-10"
+              aria-label="Close"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            {/* Image */}
+            <div className="w-full h-full flex items-center justify-center bg-black/30">
+              {(() => {
+                const connection = connections.find(conn => conn._id === lightboxConnectionId);
+                if (connection && connection.photoUrl && connection.photoUrl.length > 0) {
+                  return (
+                    <img
+                      src={connection.photoUrl[Math.max(0, Math.min(lightboxIndex, connection.photoUrl.length - 1))]}
+                      alt="Full size"
+                      className="max-w-full max-h-full object-contain"
+                    />
+                  );
+                }
+                return null;
+              })()}
+            </div>
+
+            {/* Nav Controls - Only show if multiple photos */}
+            {(() => {
+              const connection = connections.find(conn => conn._id === lightboxConnectionId);
+              if (connection && connection.photoUrl && connection.photoUrl.length > 1) {
+                return (
+                  <>
+                    <button
+                      onClick={handleLightboxPrevious}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/80 text-white rounded-full p-2"
+                      aria-label="Previous"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={handleLightboxNext}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/80 text-white rounded-full p-2"
+                      aria-label="Next"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                    <div className="absolute bottom-3 right-3 bg-black/60 text-white text-xs px-2 py-1 rounded-full">
+                      {(() => {
+                        const connection = connections.find(conn => conn._id === lightboxConnectionId);
+                        if (connection && connection.photoUrl) {
+                          return `${Math.max(0, Math.min(lightboxIndex, connection.photoUrl.length - 1)) + 1}/${connection.photoUrl.length}`;
+                        }
+                        return '1/1';
+                      })()}
+                    </div>
+                  </>
+                );
+              }
+              return null;
+            })()}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
