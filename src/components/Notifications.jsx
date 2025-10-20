@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { BASE_URL } from "../utils/constants";
-import { Check, X, CheckCircle, XCircle, Eye } from "lucide-react";
+import { Check, X, Eye } from "lucide-react";
 
 // Custom scrollbar styles
 const scrollbarStyles = `
@@ -32,6 +32,9 @@ const Notifications = ({ onNotificationDismiss, isDropdown = false }) => {
   const [bulkAction, setBulkAction] = useState(null);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [pendingAction, setPendingAction] = useState(null);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxNotificationId, setLightboxNotificationId] = useState(null);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
 
   useEffect(() => {
     fetchNotifications();
@@ -171,16 +174,6 @@ const Notifications = ({ onNotificationDismiss, isDropdown = false }) => {
           if (pendingAction === "markAllRead") {
             // For mark all read, we'll call the reminder review endpoint
             await axios.post(`${BASE_URL}/reminder/review/${notification._id}`, {}, {
-              withCredentials: true
-            });
-          } else if (pendingAction === "acceptAll") {
-            // For accept all, we'll call the request review endpoint
-            await axios.post(`${BASE_URL}/request/review/accepted/${notification._id}?reminderReviewed=true`, {}, {
-              withCredentials: true
-            });
-          } else if (pendingAction === "rejectAll") {
-            // For reject all, we'll call the request review endpoint
-            await axios.post(`${BASE_URL}/request/review/rejected/${notification._id}?reminderReviewed=true`, {}, {
               withCredentials: true
             });
           }
@@ -418,6 +411,30 @@ const Notifications = ({ onNotificationDismiss, isDropdown = false }) => {
     }
   };
 
+  const handleImageClick = (notificationId, photoIndex = 0) => {
+    setLightboxNotificationId(notificationId);
+    setLightboxIndex(photoIndex);
+    setLightboxOpen(true);
+  };
+
+  const handleLightboxPrevious = () => {
+    const notification = notifications.find(n => n._id === lightboxNotificationId);
+    if (notification && notification.photoUrl && Array.isArray(notification.photoUrl) && notification.photoUrl.length > 1) {
+      setLightboxIndex(prev => 
+        prev === 0 ? notification.photoUrl.length - 1 : prev - 1
+      );
+    }
+  };
+
+  const handleLightboxNext = () => {
+    const notification = notifications.find(n => n._id === lightboxNotificationId);
+    if (notification && notification.photoUrl && Array.isArray(notification.photoUrl) && notification.photoUrl.length > 1) {
+      setLightboxIndex(prev => 
+        prev === notification.photoUrl.length - 1 ? 0 : prev + 1
+      );
+    }
+  };
+
   if (isDropdown) {
     // Dropdown mode - show compact list
     return (
@@ -441,9 +458,13 @@ const Notifications = ({ onNotificationDismiss, isDropdown = false }) => {
                   <div className="w-10 h-10 rounded-full ring ring-primary ring-offset-base-100 ring-offset-1">
                     {notification.photoUrl ? (
                       <img 
-                        src={notification.photoUrl} 
+                        src={Array.isArray(notification.photoUrl) ? notification.photoUrl[0] : notification.photoUrl} 
                         alt={`${notification.firstName} ${notification.lastName}`}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-contain bg-base-300 p-1 cursor-zoom-in"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleImageClick(notification._id, 0);
+                        }}
                       />
                     ) : (
                       <div className="w-full h-full bg-primary/20 rounded-full flex items-center justify-center">
@@ -541,44 +562,6 @@ const Notifications = ({ onNotificationDismiss, isDropdown = false }) => {
                  <span className="hidden sm:inline">Mark All Read</span>
                  <span className="sm:hidden">Read All</span>
                </button>
-               
-               <button
-                 onClick={() => handleBulkAction("acceptAll")}
-                 disabled={isProcessing}
-                 className={`btn btn-xs transition-all duration-200 ${
-                   isProcessing && bulkAction === "acceptAll" 
-                     ? 'loading btn-disabled bg-green-500/20' 
-                     : 'bg-green-500/80 hover:bg-green-500 hover:scale-105 text-white border-green-500'
-                 }`}
-                 title="Accept all connection requests"
-               >
-                 {isProcessing && bulkAction === "acceptAll" ? (
-                   <span className="loading loading-spinner loading-xs"></span>
-                 ) : (
-                   <CheckCircle size={12} />
-                 )}
-                 <span className="hidden sm:inline">Accept All</span>
-                 <span className="sm:hidden">Accept All</span>
-               </button>
-               
-               <button
-                 onClick={() => handleBulkAction("rejectAll")}
-                 disabled={isProcessing}
-                 className={`btn btn-xs transition-all duration-200 ${
-                   isProcessing && bulkAction === "rejectAll" 
-                     ? 'loading btn-disabled bg-red-500/20' 
-                     : 'bg-red-500/80 hover:bg-red-500 hover:scale-105 text-white border-red-500'
-                 }`}
-                 title="Reject all connection requests"
-               >
-                 {isProcessing && bulkAction === "rejectAll" ? (
-                   <span className="loading loading-spinner loading-xs"></span>
-                 ) : (
-                   <XCircle size={12} />
-                 )}
-                 <span className="hidden sm:inline">Reject All</span>
-                 <span className="sm:hidden">Reject All</span>
-               </button>
              </div>
            </div>
          </div>
@@ -631,10 +614,14 @@ const Notifications = ({ onNotificationDismiss, isDropdown = false }) => {
             <div className="w-full sm:w-1/3 h-28 sm:h-32 flex items-center justify-center bg-base-300 rounded-l-lg sm:rounded-l-lg sm:rounded-r-none">
               {currentProfile.photoUrl ? (
                 <img
-                  src={currentProfile.photoUrl}
+                  src={Array.isArray(currentProfile.photoUrl) ? currentProfile.photoUrl[0] : currentProfile.photoUrl}
                   alt={`${currentProfile.firstName} ${currentProfile.lastName}`}
-                  className="w-full h-full object-cover rounded-l-lg sm:rounded-l-lg sm:rounded-r-none"
+                  className="w-full h-full object-contain bg-base-300 p-1 cursor-zoom-in rounded-l-lg sm:rounded-l-lg sm:rounded-r-none"
                   style={{ objectPosition: 'center' }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleImageClick(currentProfile._id, 0);
+                  }}
                 />
               ) : (
                 <span className="text-xs text-base-content/50">
@@ -765,8 +752,6 @@ const Notifications = ({ onNotificationDismiss, isDropdown = false }) => {
             <div className="loading loading-spinner loading-lg text-primary mb-4"></div>
             <h3 className="text-lg font-semibold text-base-content mb-2">
               {bulkAction === "markAllRead" && "Marking all as read..."}
-              {bulkAction === "acceptAll" && "Accepting all requests..."}
-              {bulkAction === "rejectAll" && "Rejecting all requests..."}
             </h3>
             <p className="text-sm text-base-content/70">
               Please wait while we process your request...
@@ -780,19 +765,11 @@ const Notifications = ({ onNotificationDismiss, isDropdown = false }) => {
         <div className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-md z-50 p-4">
           <div className="bg-base-100 rounded-2xl shadow-2xl border border-base-300 max-w-md w-full overflow-hidden">
             {/* Header */}
-            <div className={`p-4 text-center ${
-              pendingAction === "acceptAll" ? "bg-green-500/10" :
-              pendingAction === "rejectAll" ? "bg-red-500/10" :
-              "bg-info/10"
-            }`}>
+            <div className="p-4 text-center bg-info/10">
               <div className="text-3xl mb-2">
-                {pendingAction === "acceptAll" && "✅"}
-                {pendingAction === "rejectAll" && "❌"}
                 {pendingAction === "markAllRead" && "👁️"}
               </div>
               <h3 className="text-lg font-bold text-base-content">
-                {pendingAction === "acceptAll" && "Accept All Requests"}
-                {pendingAction === "rejectAll" && "Reject All Requests"}
                 {pendingAction === "markAllRead" && "Mark All as Read"}
               </h3>
             </div>
@@ -800,15 +777,11 @@ const Notifications = ({ onNotificationDismiss, isDropdown = false }) => {
             {/* Content */}
             <div className="p-6 text-center">
               <p className="text-base-content/80 text-sm mb-4">
-                {pendingAction === "acceptAll" && `Are you sure you want to accept all ${sortedNotifications.length} connection requests? This action cannot be undone.`}
-                {pendingAction === "rejectAll" && `Are you sure you want to reject all ${sortedNotifications.length} connection requests? This action cannot be undone.`}
                 {pendingAction === "markAllRead" && `Are you sure you want to mark all ${sortedNotifications.length} notifications as read?`}
               </p>
               
               <div className="bg-base-200/50 rounded-lg p-3 border border-base-300/30 mb-6">
                 <p className="text-xs text-base-content/70">
-                  {pendingAction === "acceptAll" && "All accepted requests will be added to your connections."}
-                  {pendingAction === "rejectAll" && "All rejected requests will be removed from your notifications."}
                   {pendingAction === "markAllRead" && "This will mark all notifications as reviewed."}
                 </p>
               </div>
@@ -823,18 +796,93 @@ const Notifications = ({ onNotificationDismiss, isDropdown = false }) => {
                 </button>
                 <button
                   onClick={confirmBulkAction}
-                  className={`btn btn-sm flex-1 ${
-                    pendingAction === "acceptAll" ? "bg-green-500/80 hover:bg-green-500 text-white border-green-500" :
-                    pendingAction === "rejectAll" ? "bg-red-500/80 hover:bg-red-500 text-white border-red-500" :
-                    "btn-info"
-                  }`}
+                  className="btn btn-sm flex-1 btn-info"
                 >
-                  {pendingAction === "acceptAll" && "Accept All"}
-                  {pendingAction === "rejectAll" && "Reject All"}
                   {pendingAction === "markAllRead" && "Mark All Read"}
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Lightbox Viewer */}
+      {lightboxOpen && lightboxNotificationId && (
+        <div className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setLightboxOpen(false)}>
+          <div className="relative max-w-4xl w-full h-[calc(100vh-8rem)] mt-16 mb-16 bg-base-100/5 rounded-lg overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            {/* Close Button */}
+            <button
+              onClick={() => setLightboxOpen(false)}
+              className="absolute top-3 right-3 bg-black/60 hover:bg-black/80 text-white rounded-full p-2 z-10"
+              aria-label="Close"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            {/* Image */}
+            <div className="w-full h-full flex items-center justify-center bg-black/30">
+              {(() => {
+                const notification = notifications.find(n => n._id === lightboxNotificationId);
+                if (notification && notification.photoUrl) {
+                  const photoUrl = Array.isArray(notification.photoUrl) ? notification.photoUrl : [notification.photoUrl];
+                  if (photoUrl.length > 0) {
+                    return (
+                      <img
+                        src={photoUrl[Math.max(0, Math.min(lightboxIndex, photoUrl.length - 1))]}
+                        alt="Full size"
+                        className="max-w-full max-h-full object-contain"
+                      />
+                    );
+                  }
+                }
+                return null;
+              })()}
+            </div>
+
+            {/* Nav Controls - Only show if multiple photos */}
+            {(() => {
+              const notification = notifications.find(n => n._id === lightboxNotificationId);
+              if (notification && notification.photoUrl) {
+                const photoUrl = Array.isArray(notification.photoUrl) ? notification.photoUrl : [notification.photoUrl];
+                if (photoUrl.length > 1) {
+                  return (
+                    <>
+                      <button
+                        onClick={handleLightboxPrevious}
+                        className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/80 text-white rounded-full p-2"
+                        aria-label="Previous"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                        </svg>
+                      </button>
+                      <button
+                        onClick={handleLightboxNext}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/80 text-white rounded-full p-2"
+                        aria-label="Next"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                      </button>
+                      <div className="absolute bottom-3 right-3 bg-black/60 text-white text-xs px-2 py-1 rounded-full">
+                        {(() => {
+                          const notification = notifications.find(n => n._id === lightboxNotificationId);
+                          if (notification && notification.photoUrl) {
+                            const photoUrl = Array.isArray(notification.photoUrl) ? notification.photoUrl : [notification.photoUrl];
+                            return `${Math.max(0, Math.min(lightboxIndex, photoUrl.length - 1)) + 1}/${photoUrl.length}`;
+                          }
+                          return '1/1';
+                        })()}
+                      </div>
+                    </>
+                  );
+                }
+              }
+              return null;
+            })()}
           </div>
         </div>
       )}
