@@ -14,6 +14,10 @@ const SavedLikedProfiles = () => {
   const [reminderStatuses, setReminderStatuses] = useState({})
   const [requestStatuses, setRequestStatuses] = useState({})
   const [refreshingStatuses, setRefreshingStatuses] = useState({})
+  const [photoIndices, setPhotoIndices] = useState({})
+  const [lightboxOpen, setLightboxOpen] = useState(false)
+  const [lightboxProfileId, setLightboxProfileId] = useState(null)
+  const [lightboxIndex, setLightboxIndex] = useState(0)
 
 
   // Fetch saved profiles from API
@@ -451,21 +455,65 @@ const SavedLikedProfiles = () => {
                 key={profile._id}
                 className="rounded-xl shadow-md overflow-visible border flex flex-col h-full transition-all duration-200 bg-base-200 border-white border-base-300"
               >
-                {/* Profile photo */}
+                {/* Profile photo with navigation */}
                 <div className="w-full h-40 sm:h-48 bg-base-300 flex items-center justify-center relative">
-                  {profile.photoUrl ? (
-                    <img
-                      src={profile.photoUrl}
-                      alt={`${profile.firstName} ${profile.lastName}`}
-                      className="w-full h-full object-cover"
-                      style={{ objectPosition: 'center' }}
-                      onError={(e) => {
-                        e.target.style.display = 'none';
-                        e.target.nextSibling.style.display = 'flex';
-                      }}
-                    />
+                  {profile.photoUrl && Array.isArray(profile.photoUrl) && profile.photoUrl.length > 0 ? (
+                    <div className="relative w-full h-full">
+                      <img
+                        src={profile.photoUrl[photoIndices[profile._id] || 0]}
+                        alt={`${profile.firstName} ${profile.lastName}`}
+                        className="w-full h-full object-contain bg-base-300 p-1 cursor-zoom-in"
+                        style={{ objectPosition: 'center' }}
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                          e.target.nextSibling && (e.target.nextSibling.style.display = 'flex');
+                        }}
+                        onClick={() => {
+                          setLightboxProfileId(profile._id)
+                          setLightboxIndex(photoIndices[profile._id] || 0)
+                          setLightboxOpen(true)
+                        }}
+                      />
+                      {profile.photoUrl.length > 1 && (
+                        <>
+                          <button
+                            onClick={() => {
+                              const total = profile.photoUrl.length
+                              setPhotoIndices((prev) => ({
+                                ...prev,
+                                [profile._id]: (prev[profile._id] || 0) === 0 ? total - 1 : (prev[profile._id] || 0) - 1
+                              }))
+                            }}
+                            className="absolute left-1 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-1 transition-colors z-10"
+                            aria-label="Previous photo"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                            </svg>
+                          </button>
+                          <button
+                            onClick={() => {
+                              const total = profile.photoUrl.length
+                              setPhotoIndices((prev) => ({
+                                ...prev,
+                                [profile._id]: (prev[profile._id] || 0) === total - 1 ? 0 : (prev[profile._id] || 0) + 1
+                              }))
+                            }}
+                            className="absolute right-1 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-1 transition-colors z-10"
+                            aria-label="Next photo"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                          </button>
+                          <div className="absolute bottom-1 right-1 bg-black/50 text-white text-[10px] px-1.5 py-0.5 rounded">
+                            {(photoIndices[profile._id] || 0) + 1}/{profile.photoUrl.length}
+                          </div>
+                        </>
+                      )}
+                    </div>
                   ) : null}
-                  <div className={`w-full h-full bg-primary/20 flex items-center justify-center ${profile.photoUrl ? 'hidden' : 'flex'}`}>
+                  <div className={`w-full h-full bg-primary/20 flex items-center justify-center ${profile.photoUrl && Array.isArray(profile.photoUrl) && profile.photoUrl.length > 0 ? 'hidden' : 'flex'}`}>
                     <span className="text-primary font-semibold text-2xl">
                       {profile.firstName ? profile.firstName.charAt(0).toUpperCase() : 'U'}
                     </span>
@@ -495,6 +543,73 @@ const SavedLikedProfiles = () => {
                       {profile.gender}
                     </p>
                   )}
+
+      {/* Lightbox Viewer */}
+      {lightboxOpen && (
+        <div className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setLightboxOpen(false)}>
+          <div className="relative max-w-4xl w-full h-[calc(100vh-8rem)] mt-16 mb-16 bg-base-100/5 rounded-lg overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            {/* Close Button */}
+            <button
+              onClick={() => setLightboxOpen(false)}
+              className="absolute top-3 right-3 bg-black/60 hover:bg-black/80 text-white rounded-full p-2 z-10"
+              aria-label="Close"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            {/* Image */}
+            <div className="w-full h-full flex items-center justify-center bg-black/30">
+              {(() => {
+                const profile = savedProfiles.find((p) => p._id === lightboxProfileId)
+                if (!profile || !Array.isArray(profile.photoUrl) || profile.photoUrl.length === 0) return null
+                const total = profile.photoUrl.length
+                const currentIdx = Math.max(0, Math.min(lightboxIndex, total - 1))
+                return (
+                  <img
+                    src={profile.photoUrl[currentIdx]}
+                    alt="Full size"
+                    className="max-w-full max-h-full object-contain"
+                  />
+                )
+              })()}
+            </div>
+
+            {/* Nav Controls */}
+            {(() => {
+              const profile = savedProfiles.find((p) => p._id === lightboxProfileId)
+              if (!profile || !Array.isArray(profile.photoUrl) || profile.photoUrl.length <= 1) return null
+              const total = profile.photoUrl.length
+              return (
+                <>
+                  <button
+                    onClick={() => setLightboxIndex((idx) => (idx === 0 ? total - 1 : idx - 1))}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/80 text-white rounded-full p-2"
+                    aria-label="Previous"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                  </button>
+                  <button
+                    onClick={() => setLightboxIndex((idx) => (idx === total - 1 ? 0 : idx + 1))}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/80 text-white rounded-full p-2"
+                    aria-label="Next"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                  <div className="absolute bottom-3 right-3 bg-black/60 text-white text-xs px-2 py-1 rounded-full">
+                    {lightboxIndex + 1}/{total}
+                  </div>
+                </>
+              )
+            })()}
+          </div>
+        </div>
+      )}
 
                   {/* Status Badge */}
                   <div className="mt-3">
