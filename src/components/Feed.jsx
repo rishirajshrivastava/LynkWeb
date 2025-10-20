@@ -19,6 +19,13 @@ const Feed = () => {
   const [showLikeLimitPopup, setShowLikeLimitPopup] = useState(false)
   const [showSpecialLikeLimitPopup, setShowSpecialLikeLimitPopup] = useState(false)
   const [hasProcessedUsers, setHasProcessedUsers] = useState(false) // Track if any users have been processed
+  const [bannerMessage, setBannerMessage] = useState("")
+  const [bannerType, setBannerType] = useState("info") // 'success' | 'info' | 'warning' | 'error'
+  const [showMatchDialog, setShowMatchDialog] = useState(false)
+  const [matchMessage, setMatchMessage] = useState("")
+  const [showOutcomePopup, setShowOutcomePopup] = useState(false)
+  const [outcomeMessage, setOutcomeMessage] = useState("")
+  const [outcomeType, setOutcomeType] = useState("warning") // 'warning' | 'error'
 
   const getFeed = async (pageNum = 1) => {
     setLoading(true)
@@ -99,11 +106,25 @@ const Feed = () => {
     let shouldProceed = true
     
     try {
-      await axios.post(
+      const res = await axios.post(
         `${BASE_URL}/request/send/interested/${profile._id}`,
         {},
         { withCredentials: true }
       )
+      const message = res?.data?.message || ""
+      if (message) {
+        const msgLower = message.toLowerCase()
+        if (msgLower.includes("match")) {
+          setMatchMessage(message)
+          setShowMatchDialog(true)
+        } else if (msgLower.includes("missed it")) {
+          // Negative outcome popup (transient)
+          setOutcomeType("warning")
+          setOutcomeMessage(message)
+          setShowOutcomePopup(true)
+          setTimeout(() => setShowOutcomePopup(false), 2500)
+        }
+      }
       dispatch(removeFromFeed(profile._id))
       setHasProcessedUsers(true) // Mark that we've processed at least one user
     } catch (err) {
@@ -116,6 +137,12 @@ const Feed = () => {
         return // Don't proceed to handleNext() or remove from feed
       }
       
+      // Graceful UI for backend error messages
+      const apiMessage = err.response?.data?.message || err.response?.data?.error || "Issue faced while sending like. Please try again later."
+      setBannerType("error")
+      setBannerMessage(apiMessage)
+      setTimeout(() => setBannerMessage(""), 2500)
+
       // Handle "Connection request already exists" error
       if (err.response?.data?.error?.includes("Connection request already exists") || 
           err.response?.data?.message?.includes("Connection request already exists")) {
@@ -133,16 +160,31 @@ const Feed = () => {
 
   const handleDislike = async (profile) => {
     try {
-      await axios.post(
+      const res = await axios.post(
         `${BASE_URL}/request/send/ignored/${profile._id}`,
         {},
         { withCredentials: true }
       )
+      const message = res?.data?.message || ""
+      if (message) {
+        const msgLower = message.toLowerCase()
+        if (msgLower.includes("missed it")) {
+          setOutcomeType("warning")
+          setOutcomeMessage(message)
+          setShowOutcomePopup(true)
+          setTimeout(() => setShowOutcomePopup(false), 2500)
+        }
+      }
       dispatch(removeFromFeed(profile._id))
       setHasProcessedUsers(true) // Mark that we've processed at least one user
     } catch (err) {
       console.log("Error while sending dislike", err)
       
+      const apiMessage = err.response?.data?.message || err.response?.data?.error || "Issue faced while sending dislike. Please try again later."
+      setBannerType("error")
+      setBannerMessage(apiMessage)
+      setTimeout(() => setBannerMessage(""), 2500)
+
       // Handle "Connection request already exists" error
       if (err.response?.data?.error?.includes("Connection request already exists") || 
           err.response?.data?.message?.includes("Connection request already exists")) {
@@ -163,6 +205,22 @@ const Feed = () => {
         {},
         { withCredentials: true }
       ) 
+      const message = res?.data?.message || ""
+      if (message) {
+        const msgLower = message.toLowerCase()
+        if (msgLower.includes("match")) {
+          setMatchMessage(message)
+          setShowMatchDialog(true)
+        } else if (
+          msgLower.includes('already rejected') ||
+          msgLower.includes('saving user but you have been already rejected')
+        ) {
+          setOutcomeType('warning')
+          setOutcomeMessage('Hard luck — this user has already rejected your profile.')
+          setShowOutcomePopup(true)
+          setTimeout(() => setShowOutcomePopup(false), 2500)
+        }
+      }
       dispatch(removeFromFeed(profile._id))
       setHasProcessedUsers(true) // Mark that we've processed at least one user
       handleNext()
@@ -174,11 +232,21 @@ const Feed = () => {
         setShowSpecialLikeLimitPopup(true)
         return
       }  else {
+        const apiMsg = (err?.response?.data?.message || err?.response?.data?.error || '').toLowerCase()
+        if (
+          apiMsg.includes('already rejected') ||
+          apiMsg.includes('saving user but you have been already rejected')
+        ) {
+          setOutcomeType('warning')
+          setOutcomeMessage('Hard luck — this user has already rejected your profile.')
+          setShowOutcomePopup(true)
+          setTimeout(() => setShowOutcomePopup(false), 2500)
+          return
+        }
         // Handle other errors
-        setSparkleError("Failed to send special like. Please try again.")
-        setTimeout(() => {
-          setSparkleError("")
-        }, 2000)
+        const apiMessage = err.response?.data?.message || err.response?.data?.error || 'Failed to send special like. Please try again.'
+        setSparkleError(apiMessage)
+        setTimeout(() => { setSparkleError("") }, 2500)
         return
       }
     }
@@ -213,6 +281,72 @@ const Feed = () => {
           <div className="text-center text-gray-400 py-6 sm:py-10">Loading more...</div>
         )}
       </div>
+
+      {/* Inline Banner */}
+      {bannerMessage && (
+        <div className="fixed top-16 left-1/2 -translate-x-1/2 z-40 px-4 py-2 rounded-lg shadow-lg border text-sm animate-fade-in"
+             style={{pointerEvents:'none'}}
+        >
+          <div className={
+            bannerType === 'success' ? 'bg-green-50 border-green-200 text-green-700' :
+            bannerType === 'error' ? 'bg-red-50 border-red-200 text-red-700' :
+            bannerType === 'warning' ? 'bg-yellow-50 border-yellow-200 text-yellow-700' :
+            'bg-blue-50 border-blue-200 text-blue-700'
+          }>
+            <div className="px-3 py-2 rounded-lg">{bannerMessage}</div>
+          </div>
+        </div>
+      )}
+
+      {/* Negative Outcome Popup (transient) */}
+      {showOutcomePopup && (
+        <div className="fixed inset-0 bg-black/30 backdrop-blur-[1px] flex items-center justify-center z-40 p-4">
+          <div className={`max-w-sm w-full rounded-xl shadow-2xl border ${
+            outcomeType === 'error' ? 'bg-red-50 border-red-200' : 'bg-yellow-50 border-yellow-200'
+          }`}>
+            <div className="p-4 text-center">
+              <div className="flex justify-center mb-2">
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                  outcomeType === 'error' ? 'bg-red-100' : 'bg-yellow-100'
+                }`}>
+                  <svg className={`w-5 h-5 ${outcomeType === 'error' ? 'text-red-600' : 'text-yellow-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                  </svg>
+                </div>
+              </div>
+              <p className={`${outcomeType === 'error' ? 'text-red-700' : 'text-yellow-700'} text-sm`}>{outcomeMessage}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Match Dialog */}
+      {showMatchDialog && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-base-100 rounded-xl shadow-2xl border border-base-300 max-w-sm w-full">
+            <div className="p-4 border-b border-base-300 text-center">
+              <h3 className="text-base font-bold text-base-content">It's a Match! 🎉</h3>
+            </div>
+            <div className="p-4 text-center">
+              <p className="text-sm text-base-content/80 mb-3">{matchMessage || 'You both showed interest in each other.'}</p>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setShowMatchDialog(false)}
+                  className="flex-1 px-3 py-2 rounded-lg border border-base-300 bg-base-100 text-base-content hover:bg-base-200 transition-colors duration-200 text-sm"
+                >
+                  Continue Browsing
+                </button>
+                <button
+                  onClick={() => { setShowMatchDialog(false); navigate('/connections') }}
+                  className="flex-1 px-3 py-2 rounded-lg bg-gradient-to-r from-pink-500 to-rose-500 text-white hover:from-pink-600 hover:to-rose-600 transition-all duration-200 text-sm shadow-lg hover:shadow-xl"
+                >
+                  View Connections
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Like Limit Popup */}
       {showLikeLimitPopup && (

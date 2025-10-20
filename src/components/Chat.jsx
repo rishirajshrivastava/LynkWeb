@@ -1,13 +1,15 @@
 import React, { useEffect, useState, useRef } from 'react'
-import { useParams, useLocation } from 'react-router-dom'
+import { useParams, useLocation, useNavigate } from 'react-router-dom'
 import { createSocketConnection } from '../utils/socket';
 import { useSelector } from 'react-redux';
 import axios from 'axios'
 import { BASE_URL } from '../utils/constants'
+import { MoreVertical, UserX, Flag, AlertTriangle } from 'lucide-react'
 
 const Chat = () => {
   const { TargetUserId: targetUserId } = useParams();
   const location = useLocation();
+  const navigate = useNavigate();
   const user = useSelector(store => store?.user);
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]); // ✅ store all chat messages
@@ -15,6 +17,11 @@ const Chat = () => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [showMenu, setShowMenu] = useState(false);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [pendingAction, setPendingAction] = useState(null);
+  const [actionError, setActionError] = useState(null);
+  const [isProcessing, setIsProcessing] = useState(false);
   const messagesEndRef = useRef(null);
   const messagesContainerRef = useRef(null);
   
@@ -95,6 +102,66 @@ const Chat = () => {
     const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
     return scrollHeight - scrollTop - clientHeight < 50;
   };
+
+  // Handle menu actions
+  const handleMenuAction = (action) => {
+    setPendingAction(action);
+    setShowConfirmDialog(true);
+    setShowMenu(false);
+  };
+
+  const confirmAction = async () => {
+    if (!pendingAction || !targetUserId) return;
+
+    setIsProcessing(true);
+    setActionError(null);
+
+    try {
+      if (pendingAction === 'block') {
+        // API call to block user
+        const response = await axios.post(`${BASE_URL}/request/block/${targetUserId}`, {}, { withCredentials: true });
+        
+        if (response.data.message === "User blocked successfully") {
+          // Show success message and redirect to connections
+          console.log('User blocked successfully');
+          setShowConfirmDialog(false);
+          setPendingAction(null);
+          navigate('/connections');
+        }
+      } else if (pendingAction === 'report') {
+        // API call to report user (placeholder - implement when endpoint is available)
+        // await axios.post(`${BASE_URL}/user/report/${targetUserId}`, {}, { withCredentials: true });
+        console.log('User reported successfully');
+        setShowConfirmDialog(false);
+        setPendingAction(null);
+      }
+    } catch (error) {
+      console.error('Error performing action:', error);
+      
+      // Set error state for UI display
+      if (pendingAction === 'block') {
+        setActionError('Issue faced while blocking user. Please try again later.');
+      } else if (pendingAction === 'report') {
+        setActionError('Issue faced while reporting user. Please try again later.');
+      } else {
+        setActionError('Something went wrong. Please try again later.');
+      }
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showMenu && !event.target.closest('.chat-menu-container')) {
+        setShowMenu(false);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [showMenu]);
 
   // Initial load: fetch existing chat history
   useEffect(() => {
@@ -193,9 +260,10 @@ const Chat = () => {
       <div className="max-w-4xl mx-auto w-full h-full flex flex-col bg-base-100 shadow-lg">
 
         {/* Chat Header */}
-        <div className="bg-base-100 border-b border-base-300 px-4 py-2 flex items-center gap-3 shadow-sm flex-shrink-0">
-          <div className="flex items-center gap-2 flex-1">
-            <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center bg-primary text-primary-content font-semibold text-sm">
+        <div className="bg-base-100 border-b border-base-300 px-4 py-3 flex items-center gap-3 shadow-sm flex-shrink-0">
+          <div className="flex items-center gap-3 flex-1">
+            {/* User Photo */}
+            <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center bg-primary text-primary-content font-semibold text-sm shadow-md">
               {(() => {
                 const targetUserInfo = getUserDisplayInfo(targetUser);
                 return targetUserInfo.hasPhoto ? (
@@ -214,11 +282,44 @@ const Chat = () => {
                 {targetUser ? getUserDisplayInfo(targetUser).initials : 'U'}
               </div>
             </div>
-            <div>
+            
+            {/* User Info */}
+            <div className="flex-1">
               <h2 className="font-semibold text-base-content text-base">
                 {targetUser ? getUserDisplayInfo(targetUser).fullName : "Chat"}
               </h2>
             </div>
+          </div>
+
+          {/* Menu Button */}
+          <div className="chat-menu-container relative">
+            <button
+              onClick={() => setShowMenu(!showMenu)}
+              className="p-2 rounded-full hover:bg-base-200 transition-colors duration-200"
+              aria-label="More options"
+            >
+              <MoreVertical size={20} className="text-base-content/70" />
+            </button>
+
+            {/* Dropdown Menu */}
+            {showMenu && (
+              <div className="absolute right-0 top-full mt-2 w-48 bg-base-100 rounded-xl shadow-xl border border-base-300 py-2 z-50">
+                <button
+                  onClick={() => handleMenuAction('block')}
+                  className="w-full px-4 py-3 text-left hover:bg-base-200 transition-colors duration-200 flex items-center gap-3 text-red-600"
+                >
+                  <UserX size={16} />
+                  <span className="text-sm font-medium">Block</span>
+                </button>
+                <button
+                  onClick={() => handleMenuAction('report')}
+                  className="w-full px-4 py-3 text-left hover:bg-base-200 transition-colors duration-200 flex items-center gap-3 text-orange-600"
+                >
+                  <Flag size={16} />
+                  <span className="text-sm font-medium">Report User</span>
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
@@ -354,6 +455,61 @@ const Chat = () => {
           </div>
         </div>
       </div>
+
+      {/* Confirmation Dialog */}
+      {showConfirmDialog && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-md z-50 pointer-events-auto p-2 sm:p-4">
+          <div className="bg-base-200 text-base-content rounded-xl shadow-xl w-full max-w-xs sm:max-w-sm p-3 sm:p-5 text-center animate-fade-in">
+            <h2 className="text-sm sm:text-base font-semibold mb-2 sm:mb-3">
+              {pendingAction === 'block' ? 'Confirm Block' : 'Confirm Report'}
+            </h2>
+            <p className="text-xs sm:text-sm opacity-80 mb-3 sm:mb-4">
+              {pendingAction === 'block' 
+                ? 'Are you sure you want to block this user? This action cannot be undone.'
+                : 'Are you sure you want to report this user? This will be reviewed by our moderation team.'
+              }
+            </p>
+            
+            {/* Error Message */}
+            {actionError && (
+              <div className="mb-3 p-2 bg-error/10 border border-error/20 rounded-lg">
+                <p className="text-xs text-error">{actionError}</p>
+              </div>
+            )}
+            
+            <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-3">
+              <button
+                onClick={confirmAction}
+                disabled={isProcessing}
+                className={`px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg text-white font-medium shadow-sm transition-all text-xs sm:text-sm flex items-center justify-center gap-2 ${
+                  pendingAction === 'block' 
+                    ? 'bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 disabled:from-red-400 disabled:to-red-500' 
+                    : 'bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 disabled:from-orange-400 disabled:to-orange-500'
+                }`}
+              >
+                {isProcessing ? (
+                  <>
+                    <span className="loading loading-spinner loading-xs"></span>
+                    Processing...
+                  </>
+                ) : (
+                  pendingAction === 'block' ? 'Yes, Block' : 'Yes, Report'
+                )}
+              </button>
+              <button
+                onClick={() => {
+                  setShowConfirmDialog(false);
+                  setActionError(null);
+                }}
+                disabled={isProcessing}
+                className="px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border border-gray-500 text-gray-300 hover:bg-gray-700 transition-all text-xs sm:text-sm disabled:opacity-50"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

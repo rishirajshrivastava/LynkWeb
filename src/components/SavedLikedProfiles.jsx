@@ -183,6 +183,8 @@ const SavedLikedProfiles = () => {
         return 'Request Accepted! 🎉'
       case 'rejected':
         return 'Request Rejected ❌'
+      case 'blocked':
+        return 'Blocked 🚫'
       case 'interested':
       case 'ignored':
       case 'pending':
@@ -587,7 +589,7 @@ const SavedLikedProfiles = () => {
                         onClick={() => handleSendReminder(profile)}
                         disabled={requestStatuses[profile._id] === 'accepted' || requestStatuses[profile._id] === 'rejected' || reminderStatuses[profile._id] === true || requestStatuses[profile._id] === undefined}
                         className={`btn btn-sm w-full ${
-                          requestStatuses[profile._id] === 'accepted' || requestStatuses[profile._id] === 'rejected' || reminderStatuses[profile._id] === true || requestStatuses[profile._id] === undefined
+                          requestStatuses[profile._id] === 'accepted' || requestStatuses[profile._id] === 'rejected' || requestStatuses[profile._id] === 'blocked' || reminderStatuses[profile._id] === true || requestStatuses[profile._id] === undefined
                             ? 'btn-disabled opacity-50' 
                             : 'btn-primary'
                         }`}
