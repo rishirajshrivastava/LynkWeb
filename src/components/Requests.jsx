@@ -18,6 +18,9 @@ const Requests = () => {
   const [viewingProfile, setViewingProfile] = useState(null);
   const [photoIndices, setPhotoIndices] = useState({});
   const [currentRequestIndex, setCurrentRequestIndex] = useState(0);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxRequestId, setLightboxRequestId] = useState(null);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
 
   const fetchRequests = async () => {
     try {
@@ -146,6 +149,30 @@ const Requests = () => {
     });
   };
 
+  const handleImageClick = (requestId, photoIndex) => {
+    setLightboxRequestId(requestId);
+    setLightboxIndex(photoIndex);
+    setLightboxOpen(true);
+  };
+
+  const handleLightboxPrevious = () => {
+    const request = requests.find(r => r._id === lightboxRequestId);
+    if (request && request.fromUserId.photoUrl && request.fromUserId.photoUrl.length > 1) {
+      setLightboxIndex(prev => 
+        prev === 0 ? request.fromUserId.photoUrl.length - 1 : prev - 1
+      );
+    }
+  };
+
+  const handleLightboxNext = () => {
+    const request = requests.find(r => r._id === lightboxRequestId);
+    if (request && request.fromUserId.photoUrl && request.fromUserId.photoUrl.length > 1) {
+      setLightboxIndex(prev => 
+        prev === request.fromUserId.photoUrl.length - 1 ? 0 : prev + 1
+      );
+    }
+  };
+
   // Bulk action functions
   const handleBulkAction = (action) => {
     if (!sortedRequests || sortedRequests.length === 0) return;
@@ -267,8 +294,12 @@ const Requests = () => {
                     <img
                       src={request.fromUserId.photoUrl[photoIndices[request._id] || 0]}
                       alt={`${request.fromUserId.firstName} ${request.fromUserId.lastName}`}
-                      className="w-full h-full object-cover rounded-lg"
+                      className="w-full h-full object-contain bg-base-300 p-1 cursor-zoom-in rounded-lg"
                       style={{ objectPosition: 'center' }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleImageClick(request._id, photoIndices[request._id] || 0);
+                      }}
                     />
                     
                     {/* Photo Navigation Controls */}
@@ -433,6 +464,80 @@ const Requests = () => {
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Lightbox Viewer */}
+      {lightboxOpen && lightboxRequestId && (
+        <div className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setLightboxOpen(false)}>
+          <div className="relative max-w-4xl w-full h-[calc(100vh-8rem)] mt-16 mb-16 bg-base-100/5 rounded-lg overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            {/* Close Button */}
+            <button
+              onClick={() => setLightboxOpen(false)}
+              className="absolute top-3 right-3 bg-black/60 hover:bg-black/80 text-white rounded-full p-2 z-10"
+              aria-label="Close"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            {/* Image */}
+            <div className="w-full h-full flex items-center justify-center bg-black/30">
+              {(() => {
+                const request = requests.find(r => r._id === lightboxRequestId);
+                if (request && request.fromUserId.photoUrl && request.fromUserId.photoUrl.length > 0) {
+                  return (
+                    <img
+                      src={request.fromUserId.photoUrl[Math.max(0, Math.min(lightboxIndex, request.fromUserId.photoUrl.length - 1))]}
+                      alt="Full size"
+                      className="max-w-full max-h-full object-contain"
+                    />
+                  );
+                }
+                return null;
+              })()}
+            </div>
+
+            {/* Nav Controls - Only show if multiple photos */}
+            {(() => {
+              const request = requests.find(r => r._id === lightboxRequestId);
+              if (request && request.fromUserId.photoUrl && request.fromUserId.photoUrl.length > 1) {
+                return (
+                  <>
+                    <button
+                      onClick={handleLightboxPrevious}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/80 text-white rounded-full p-2"
+                      aria-label="Previous"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={handleLightboxNext}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/80 text-white rounded-full p-2"
+                      aria-label="Next"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                    <div className="absolute bottom-3 right-3 bg-black/60 text-white text-xs px-2 py-1 rounded-full">
+                      {(() => {
+                        const request = requests.find(r => r._id === lightboxRequestId);
+                        if (request && request.fromUserId.photoUrl) {
+                          return `${Math.max(0, Math.min(lightboxIndex, request.fromUserId.photoUrl.length - 1)) + 1}/${request.fromUserId.photoUrl.length}`;
+                        }
+                        return '1/1';
+                      })()}
+                    </div>
+                  </>
+                );
+              }
+              return null;
+            })()}
           </div>
         </div>
       )}
