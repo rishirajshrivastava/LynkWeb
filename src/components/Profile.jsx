@@ -95,7 +95,7 @@ const Profile = () => {
                             <img
                               src={user.photoUrl[currentPhotoIndex]}
                               alt={`${user.firstName} ${user.lastName}`}
-                              className="w-32 h-32 object-cover rounded-full shadow-lg border-4 border-base-100 bg-base-200 cursor-pointer"
+                              className="w-32 h-32 object-contain rounded-full shadow-lg border-4 border-base-100 bg-base-200 p-1 cursor-pointer"
                               style={{ objectPosition: 'center' }}
                               onClick={() => openPhotoModal(currentPhotoIndex)}
                               onError={(e) => {
@@ -413,78 +413,56 @@ const Profile = () => {
 
       {/* Photo Modal */}
       {showPhotoModal && user.photoUrl && user.photoUrl.length > 0 && (
-        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
-          <div className="relative max-w-4xl max-h-[90vh] w-full">
+        <div className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setShowPhotoModal(false)}>
+          <div className="relative max-w-4xl w-full h-[calc(100vh-8rem)] mt-16 mb-16 bg-base-100/5 rounded-lg overflow-hidden" onClick={(e) => e.stopPropagation()}>
             {/* Close Button */}
             <button
               onClick={() => setShowPhotoModal(false)}
-              className="absolute top-4 right-4 z-10 bg-black/50 text-white rounded-full p-2 hover:bg-black/70 transition-colors"
+              className="absolute top-3 right-3 bg-black/60 hover:bg-black/80 text-white rounded-full p-2 z-10"
+              aria-label="Close"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
 
-            {/* Navigation Buttons */}
+            {/* Image */}
+            <div className="w-full h-full flex items-center justify-center bg-black/30">
+              <img
+                src={user.photoUrl[currentPhotoIndex]}
+                alt={`${user.firstName} ${user.lastName} - Photo ${currentPhotoIndex + 1}`}
+                className="max-w-full max-h-full object-contain"
+                onError={(e) => {
+                  e.currentTarget.style.display = "none"
+                }}
+              />
+            </div>
+
+            {/* Nav Controls - Only show if multiple photos */}
             {user.photoUrl.length > 1 && (
               <>
                 <button
                   onClick={prevPhoto}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 text-white rounded-full p-3 hover:bg-black/70 transition-colors z-10"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/80 text-white rounded-full p-2"
+                  aria-label="Previous"
                 >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
                   </svg>
                 </button>
                 <button
                   onClick={nextPhoto}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 text-white rounded-full p-3 hover:bg-black/70 transition-colors z-10"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/80 text-white rounded-full p-2"
+                  aria-label="Next"
                 >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
                   </svg>
                 </button>
+                <div className="absolute bottom-3 right-3 bg-black/60 text-white text-xs px-2 py-1 rounded-full">
+                  {currentPhotoIndex + 1}/{user.photoUrl.length}
+                </div>
               </>
-            )}
-
-            {/* Photo */}
-            <img
-              src={user.photoUrl[currentPhotoIndex]}
-              alt={`${user.firstName} ${user.lastName} - Photo ${currentPhotoIndex + 1}`}
-              className="w-full h-full object-contain rounded-lg"
-              onError={(e) => {
-                e.currentTarget.style.display = "none"
-              }}
-            />
-
-            {/* Photo Counter */}
-            {user.photoUrl.length > 1 && (
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 text-white rounded-full px-4 py-2 text-sm font-medium">
-                {currentPhotoIndex + 1} of {user.photoUrl.length}
-              </div>
-            )}
-
-            {/* Photo Thumbnails */}
-            {user.photoUrl.length > 1 && (
-              <div className="absolute bottom-16 left-1/2 -translate-x-1/2 flex gap-2">
-                {user.photoUrl.map((photo, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setCurrentPhotoIndex(index)}
-                    className={`w-12 h-12 rounded-lg overflow-hidden border-2 transition-all ${
-                      index === currentPhotoIndex 
-                        ? 'border-white shadow-lg' 
-                        : 'border-transparent hover:border-white/50'
-                    }`}
-                  >
-                    <img
-                      src={photo}
-                      alt={`Thumbnail ${index + 1}`}
-                      className="w-full h-full object-cover"
-                    />
-                  </button>
-                ))}
-              </div>
             )}
           </div>
         </div>
