@@ -382,6 +382,18 @@ const Navbar = () => {
                     Logout
                   </button>
                 </li>
+
+                <li>
+                  <Link 
+                    to={"/settings"} 
+                    className={`justify-between ${location.pathname === "/settings" ? "active" : ""}`} 
+                    onClick={() => document.activeElement && document.activeElement.blur()}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span>Settings ⚙️</span>
+                    </div>
+                  </Link>
+                </li>
               </ul>
             </div>
           )}

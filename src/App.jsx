@@ -10,6 +10,7 @@ import Feed from "./components/Feed"
 import Requests from "./components/Requests"
 import Connections from "./components/Connections"
 import SavedLikedProfiles from "./components/SavedLikedProfiles"
+import Settings from "./components/Settings"
 import Notifications from "./components/Notifications"
 import Chat from "./components/Chat"
 import VerificationRequired from "./components/VerificationRequired"
@@ -108,6 +109,7 @@ function App() {
               <Route path="/connections" element={<Connections/>}></Route>
               <Route path="/requestReview" element={<Requests/>}></Route>
               <Route path="/savedLikedProfiles" element={<SavedLikedProfiles/>}></Route>
+              <Route path="/settings" element={<Settings/>}></Route>
               <Route path="/notifications" element={<Notifications/>}></Route>
               <Route path="/chat/:TargetUserId" element={<Chat/>}></Route>
             </Route>

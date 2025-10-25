@@ -144,7 +144,7 @@ const Body = () => {
       // If user is verified, allow access to all routes
       // If not verified, handle the verification flow
       if (!verificationStatus?.isVerified) {
-        const protectedRoutes = ["/feed", "/profile", "/connections", "/requestReview", "/savedLikedProfiles", "/notifications"];
+        const protectedRoutes = ["/feed", "/profile", "/connections", "/requestReview", "/savedLikedProfiles", "/notifications", "/settings"];
         const isProtectedRoute = protectedRoutes.some(route => location.pathname.startsWith(route));
         
         if (isProtectedRoute) {
@@ -179,7 +179,7 @@ const Body = () => {
       // If user is verified, allow access to all routes
       // If not verified, handle the verification flow
       if (!verificationStatus?.isVerified) {
-        const protectedRoutes = ["/feed", "/profile", "/connections", "/requestReview", "/savedLikedProfiles", "/notifications"];
+        const protectedRoutes = ["/feed", "/profile", "/connections", "/requestReview", "/savedLikedProfiles", "/notifications", "/settings"];
         const isProtectedRoute = protectedRoutes.some(route => location.pathname.startsWith(route));
         
         if (isProtectedRoute) {
@@ -224,7 +224,7 @@ const Body = () => {
   // Route protection for unverified users
   useEffect(() => {
     if (isAuthChecked && userData && verificationStatus && !verificationStatus.isVerified) {
-      const protectedRoutes = ["/feed", "/profile", "/connections", "/requestReview", "/savedLikedProfiles", "/notifications"];
+      const protectedRoutes = ["/feed", "/profile", "/connections", "/requestReview", "/savedLikedProfiles", "/notifications", "/settings"];
       const isProtectedRoute = protectedRoutes.some(route => location.pathname.startsWith(route));
       
       if (isProtectedRoute && location.pathname !== "/verification-required" && 
@@ -249,7 +249,7 @@ const Body = () => {
   if (isAuthChecked && userData && verificationStatus && !verificationStatus.isVerified && 
       location.pathname !== "/verification-required" && location.pathname !== "/photo-upload" && 
       location.pathname !== "/selfie-capture" && location.pathname !== "/email-verification") {
-    const protectedRoutes = ["/feed", "/profile", "/connections", "/requestReview", "/savedLikedProfiles", "/notifications"];
+    const protectedRoutes = ["/feed", "/profile", "/connections", "/requestReview", "/savedLikedProfiles", "/notifications", "/settings"];
     const isProtectedRoute = protectedRoutes.some(route => location.pathname.startsWith(route));
     
     if (isProtectedRoute) {
