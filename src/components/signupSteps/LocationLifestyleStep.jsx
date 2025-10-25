@@ -293,11 +293,11 @@ const LocationLifestyleStep = ({ formData, handleInputChange }) => {
           onChange={handleInputChange}
         >
           <option value="" className="bg-base-100 text-base-content">Select income range</option>
-          <option value="under-30k" className="bg-base-100 text-base-content">Under $30,000</option>
-          <option value="30k-50k" className="bg-base-100 text-base-content">$30,000 - $50,000</option>
-          <option value="50k-75k" className="bg-base-100 text-base-content">$50,000 - $75,000</option>
-          <option value="75k-100k" className="bg-base-100 text-base-content">$75,000 - $100,000</option>
-          <option value="above-100k" className="bg-base-100 text-base-content">Above $100,000</option>
+          <option value="under-30k" className="bg-base-100 text-base-content">Under ₹30,000</option>
+          <option value="30k-50k" className="bg-base-100 text-base-content">₹30,000 - ₹50,000</option>
+          <option value="50k-75k" className="bg-base-100 text-base-content">₹50,000 - ₹75,000</option>
+          <option value="75k-100k" className="bg-base-100 text-base-content">₹75,000 - ₹100,000</option>
+          <option value="above-100k" className="bg-base-100 text-base-content">Above ₹100,000</option>
           <option value="prefer-not-to-say" className="bg-base-100 text-base-content">Prefer not to say</option>
         </select>
       </div>
@@ -379,12 +379,10 @@ const LocationLifestyleStep = ({ formData, handleInputChange }) => {
               onChange={handleInputChange}
             >
               <option value="" className="bg-base-100 text-base-content">Select diet preference</option>
-              <option value="omnivore" className="bg-base-100 text-base-content">Omnivore</option>
+              <option value="omnivore" className="bg-base-100 text-base-content">Non-Vegetarian</option>
               <option value="vegetarian" className="bg-base-100 text-base-content">Vegetarian</option>
               <option value="vegan" className="bg-base-100 text-base-content">Vegan</option>
-              <option value="pescatarian" className="bg-base-100 text-base-content">Pescatarian</option>
-              <option value="keto" className="bg-base-100 text-base-content">Keto</option>
-              <option value="paleo" className="bg-base-100 text-base-content">Paleo</option>
+              <option value="pescatarian" className="bg-base-100 text-base-content">Eggetarian</option>
               <option value="other" className="bg-base-100 text-base-content">Other</option>
               <option value="prefer-not-to-say" className="bg-base-100 text-base-content">Prefer not to say</option>
             </select>

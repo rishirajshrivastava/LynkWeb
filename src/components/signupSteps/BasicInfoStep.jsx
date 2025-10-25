@@ -181,15 +181,15 @@ const BasicInfoStep = ({
           <span className="label-text font-medium text-sm">Interested In *</span>
         </label>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-          {["male", "female", "non-binary", "other", "everyone"].map((option) => (
+          {["male", "female", "everyone"].map((option) => (
             <label key={option} className="flex items-center space-x-2 cursor-pointer">
-              <input
-                type="checkbox"
-                name="interestedIn[]"
+                <input
+                type="radio"
+                name="interestedIn"
                 value={option}
-                checked={formData.interestedIn.includes(option)}
+                checked={formData.interestedIn === option}
                 onChange={handleInputChange}
-                className="checkbox checkbox-primary checkbox-sm"
+                className="radio radio-primary radio-sm"
               />
               <span className="text-sm capitalize">{option}</span>
             </label>

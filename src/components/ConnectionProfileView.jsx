@@ -218,6 +218,34 @@ const ConnectionProfileView = ({ connection, onBack }) => {
                   </div>
                 </div>
 
+                {/* Third Content Block - Relationship & Dating */}
+                {(connection.relationshipStatus || connection.lookingFor) && (
+                  <div className="bg-base-200/30 rounded-xl p-4 border border-base-300/20">
+                    <h3 className="text-sm font-semibold text-base-content mb-3 flex items-center gap-2">
+                      <svg className="w-4 h-4 text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                      </svg>
+                      Relationship & Dating
+                    </h3>
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-2 gap-3">
+                        {connection.relationshipStatus && (
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-base-content/60">Status:</span>
+                            <span className="text-sm text-base-content/80 capitalize">{connection.relationshipStatus}</span>
+                          </div>
+                        )}
+                        {connection.lookingFor && (
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-base-content/60">Looking for:</span>
+                            <span className="text-sm text-base-content/80 capitalize">{typeof connection.lookingFor === 'string' ? connection.lookingFor.replace('-', ' ') : connection.lookingFor}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Try to fit single additional content in right side */}
                 {(() => {
                   // Collect all available additional content sections
@@ -341,6 +369,51 @@ const ConnectionProfileView = ({ connection, onBack }) => {
                                 {language}
                               </span>
                             ))}
+                          </div>
+                        </div>
+                      )
+                    })
+                  }
+
+                  // Identity & Background
+                  if (connection.bodyType || connection.ethnicity || connection.religion || connection.politicalViews) {
+                    contentSections.push({
+                      id: 'identityBackground',
+                      component: (
+                        <div key="identityBackground" className="bg-base-200/30 rounded-xl p-4 border border-base-300/20">
+                          <h3 className="text-sm font-semibold text-base-content mb-3 flex items-center gap-2">
+                            <svg className="w-4 h-4 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                            Identity & Background
+                          </h3>
+                          <div className="space-y-3">
+                            <div className="grid grid-cols-2 gap-3">
+                              {connection.bodyType && (
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs text-base-content/60">Body type:</span>
+                                  <span className="text-sm text-base-content/80 capitalize">{connection.bodyType}</span>
+                                </div>
+                              )}
+                              {connection.ethnicity && (
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs text-base-content/60">Ethnicity:</span>
+                                  <span className="text-sm text-base-content/80 capitalize">{typeof connection.ethnicity === 'string' ? connection.ethnicity.replace('-', ' ') : connection.ethnicity}</span>
+                                </div>
+                              )}
+                              {connection.religion && (
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs text-base-content/60">Religion:</span>
+                                  <span className="text-sm text-base-content/80 capitalize">{connection.religion}</span>
+                                </div>
+                              )}
+                              {connection.politicalViews && (
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs text-base-content/60">Political views:</span>
+                                  <span className="text-sm text-base-content/80 capitalize">{typeof connection.politicalViews === 'string' ? connection.politicalViews.replace('-', ' ') : connection.politicalViews}</span>
+                                </div>
+                              )}
+                            </div>
                           </div>
                         </div>
                       )
@@ -510,6 +583,51 @@ const ConnectionProfileView = ({ connection, onBack }) => {
                             {language}
                           </span>
                         ))}
+                      </div>
+                    </div>
+                  )
+                })
+              }
+
+              // Identity & Background
+              if (connection.bodyType || connection.ethnicity || connection.religion || connection.politicalViews) {
+                contentSections.push({
+                  id: 'identityBackground',
+                  component: (
+                    <div key="identityBackground" className="bg-base-200/30 rounded-xl p-4 border border-base-300/20">
+                      <h3 className="text-sm font-semibold text-base-content mb-3 flex items-center gap-2">
+                        <svg className="w-4 h-4 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        Identity & Background
+                      </h3>
+                      <div className="space-y-3">
+                        <div className="grid grid-cols-2 gap-3">
+                          {connection.bodyType && (
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs text-base-content/60">Body type:</span>
+                              <span className="text-sm text-base-content/80 capitalize">{connection.bodyType}</span>
+                            </div>
+                          )}
+                          {connection.ethnicity && (
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs text-base-content/60">Ethnicity:</span>
+                              <span className="text-sm text-base-content/80 capitalize">{typeof connection.ethnicity === 'string' ? connection.ethnicity.replace('-', ' ') : connection.ethnicity}</span>
+                            </div>
+                          )}
+                          {connection.religion && (
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs text-base-content/60">Religion:</span>
+                              <span className="text-sm text-base-content/80 capitalize">{connection.religion}</span>
+                            </div>
+                          )}
+                          {connection.politicalViews && (
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs text-base-content/60">Political views:</span>
+                              <span className="text-sm text-base-content/80 capitalize">{typeof connection.politicalViews === 'string' ? connection.politicalViews.replace('-', ' ') : connection.politicalViews}</span>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
                   )

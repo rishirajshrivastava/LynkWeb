@@ -194,12 +194,6 @@ const UserFeed = ({ profile, onLike, onDislike, onSparkleLike, sparkleError }) =
                           <span className="text-sm text-base-content/80">{profile.location.city}{profile.location.state && `, ${profile.location.state}`}</span>
                         </div>
                       )}
-                      {profile.occupation && (
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs text-base-content/60">Works as:</span>
-                          <span className="text-sm text-base-content/80">{profile.occupation}</span>
-                        </div>
-                      )}
                     </div>
                   </div>
                 </div>
@@ -220,6 +214,12 @@ const UserFeed = ({ profile, onLike, onDislike, onSparkleLike, sparkleError }) =
                           <span className="text-sm text-base-content/80 capitalize">{profile.education}</span>
                         </div>
                       )}
+                      {profile.occupation && (
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-base-content/60">Works as:</span>
+                          <span className="text-sm text-base-content/80">{profile.occupation}</span>
+                        </div>
+                      )}
                       {profile.hasKids && (
                         <div className="flex items-center gap-2">
                           <span className="text-xs text-base-content/60">Has kids:</span>
@@ -235,6 +235,34 @@ const UserFeed = ({ profile, onLike, onDislike, onSparkleLike, sparkleError }) =
                     </div>
                   </div>
                 </div>
+
+                {/* Third Content Block - Relationship & Dating */}
+                {(profile.relationshipStatus || profile.lookingFor) && (
+                  <div className="bg-base-200/30 rounded-xl p-4 border border-base-300/20">
+                    <h3 className="text-sm font-semibold text-base-content mb-3 flex items-center gap-2">
+                      <svg className="w-4 h-4 text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                      </svg>
+                      Relationship & Dating
+                    </h3>
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-2 gap-3">
+                        {profile.relationshipStatus && (
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-base-content/60">Status:</span>
+                            <span className="text-sm text-base-content/80 capitalize">{profile.relationshipStatus}</span>
+                          </div>
+                        )}
+                        {profile.lookingFor && (
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-base-content/60">Looking for:</span>
+                            <span className="text-sm text-base-content/80 capitalize">{profile.lookingFor.replace('-', ' ')}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* Try to fit single additional content in right side */}
                 {(() => {
@@ -528,6 +556,51 @@ const UserFeed = ({ profile, onLike, onDislike, onSparkleLike, sparkleError }) =
                             {language}
                           </span>
                         ))}
+                      </div>
+                    </div>
+                  )
+                })
+              }
+
+              // Personal Characteristics
+              if (profile.bodyType || profile.ethnicity || profile.religion || profile.politicalViews) {
+                contentSections.push({
+                  id: 'personalCharacteristics',
+                  component: (
+                    <div key="personalCharacteristics" className="bg-base-200/30 rounded-xl p-4 border border-base-300/20">
+                      <h3 className="text-sm font-semibold text-base-content mb-3 flex items-center gap-2">
+                        <svg className="w-4 h-4 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        Identity & Background
+                      </h3>
+                      <div className="space-y-3">
+                        <div className="grid grid-cols-2 gap-3">
+                          {profile.bodyType && (
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs text-base-content/60">Body type:</span>
+                              <span className="text-sm text-base-content/80 capitalize">{profile.bodyType}</span>
+                            </div>
+                          )}
+                          {profile.ethnicity && (
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs text-base-content/60">Ethnicity:</span>
+                              <span className="text-sm text-base-content/80 capitalize">{profile.ethnicity.replace('-', ' ')}</span>
+                            </div>
+                          )}
+                          {profile.religion && (
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs text-base-content/60">Religion:</span>
+                              <span className="text-sm text-base-content/80 capitalize">{profile.religion}</span>
+                            </div>
+                          )}
+                          {profile.politicalViews && (
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs text-base-content/60">Political views:</span>
+                              <span className="text-sm text-base-content/80 capitalize">{profile.politicalViews.replace('-', ' ')}</span>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
                   )

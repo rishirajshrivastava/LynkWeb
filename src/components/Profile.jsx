@@ -58,7 +58,7 @@ const Profile = () => {
               <button
                 type="button"
                 onClick={() => setMode("edit")}
-                className={`py-2 px-3 z-10 rounded-xl transition-colors ${
+                className={`py-2 px-3 z-10 rounded-xl transition-colors ${ 
                   mode === "edit"
                     ? "text-primary-content"
                     : "text-base-content/70 hover:text-base-content"
