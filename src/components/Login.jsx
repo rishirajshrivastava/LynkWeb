@@ -143,9 +143,9 @@ const Login = () => {
             <div className="form-control">
               <label className="label" htmlFor="password">
                 <span className="label-text">Password</span>
-                <a href="#" className="label-text-alt link link-hover text-primary">
+                <Link to="/forgot-password" className="label-text-alt link link-hover text-primary">
                   Forgot?
-                </a>
+                </Link>
               </label>
               <div className="relative">
                 <input

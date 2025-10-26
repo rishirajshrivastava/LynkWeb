@@ -17,6 +17,7 @@ import VerificationRequired from "./components/VerificationRequired"
 import PhotoUpload from "./components/PhotoUpload"
 import SelfieCapture from "./components/SelfieCapture"
 import EmailVerification from "./components/EmailVerification"
+import ForgotPassword from "./components/ForgotPassword"
 import axios from "axios"
 import { BASE_URL } from "./utils/constants"
 
@@ -112,6 +113,7 @@ function App() {
               <Route path="/settings" element={<Settings/>}></Route>
               <Route path="/notifications" element={<Notifications/>}></Route>
               <Route path="/chat/:TargetUserId" element={<Chat/>}></Route>
+              <Route path="/forgot-password" element={<ForgotPassword/>}></Route>
             </Route>
           </Routes>
         </BrowserRouter>

@@ -85,8 +85,8 @@ const Body = () => {
       }
     }
     
-    // Handle login/signup pages
-    if (location.pathname === "/login" || location.pathname === "/signup") {
+    // Handle login/signup/forgot-password pages
+    if (location.pathname === "/login" || location.pathname === "/signup" || location.pathname === "/forgot-password") {
       // If user is already logged in, redirect to appropriate page
       if (userData) {
         console.log("User data exists, checking verification status...")
