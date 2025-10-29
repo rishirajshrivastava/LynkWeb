@@ -317,7 +317,8 @@ const Navbar = () => {
                 className="menu menu-sm dropdown-content mt-3 w-52 p-2 shadow-xl bg-base-100 rounded-box border border-base-300 z-50 min-w-max"
               >
 
-                 <li>
+                 {/* Saved Profiles - Hidden on small screens */}
+                 <li className="hidden sm:block">
                   <Link 
                     to={"/savedLikedProfiles"} 
                     className={`justify-between ${location.pathname === "/savedLikedProfiles" ? "active" : ""}`} 
@@ -408,7 +409,15 @@ const Navbar = () => {
                   )}
                 </Link>
 
-                
+                {/* Saved Profiles - Only visible on small screens */}
+                <Link onClick={() => setMobileOpen(false)} to={"/savedLikedProfiles"} className={`px-2.5 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm hover:bg-primary/10 hover:text-primary border-l-4 border-l-transparent hover:border-l-primary transition-all bg-base-100/95 flex items-center ${
+                  location.pathname === "/savedLikedProfiles" ? "bg-primary/10 text-primary border-l-primary" : ""
+                }`}>
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-2 sm:mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                  </svg>
+                  <span className="truncate">Saved Profiles ✨</span>
+                </Link>
 
               </nav>
             </div>
