@@ -412,7 +412,7 @@ const Chat = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="chat-bubble px-3 py-2 text-sm">
+                  <div className="chat-bubble px-3 py-2 text-sm max-w-[75%] break-words whitespace-pre-wrap">
                     {msg.newMessage}
                   </div>
                   <div className="chat-footer opacity-50 text-xs">
