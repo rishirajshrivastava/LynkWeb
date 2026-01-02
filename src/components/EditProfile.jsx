@@ -380,7 +380,7 @@ const EditProfile = ({ setMode, setIsPreview, defaultPreview = false }) => {
       }
 
       // Validate photos - must have at least one photo after all changes
-      const finalPhotoCount = photos.length + newPhotos.length - photosToDelete.length
+      const finalPhotoCount = photos.length + newPhotos.length
       if (finalPhotoCount <= 0) {
         setError("You must have at least one photo in your profile.")
         setSubmitting(false)
